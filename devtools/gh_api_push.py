@@ -156,7 +156,8 @@ def bootstrap_empty(api, repo, branch):
     之后 Git Data API 才可用。占位文件在随后建 tree 时会被自然丢弃
     （tree 完全按本地 HEAD 生成，不带 base_tree）。
     """
-    api(f"/repos/{repo}/contents/.gitkeep", "POST", {
+    # Contents API 建/改文件是 **PUT**，不是 POST（POST 会直接 404）
+    api(f"/repos/{repo}/contents/.gitkeep", "PUT", {
         "message": "chore: bootstrap repository",
         "content": base64.b64encode(b"# bootstrap\n").decode("ascii"),
         "branch": branch,
