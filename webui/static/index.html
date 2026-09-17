@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="console-token" content="__CONSOLE_TOKEN__">
+<title>Android Autopilot · 控制台</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="shell">
+
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div class="brand-txt">
+        <b>Android Autopilot</b>
+        <span id="brandSub">真机自动化控制台</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <a href="#/overview" data-view="overview"><i>◈</i>总览</a>
+      <a href="#/tasks"    data-view="tasks"><i>▶</i>任务编排</a>
+      <a href="#/earnings" data-view="earnings"><i>¥</i>收益</a>
+      <a href="#/device"   data-view="device"><i>▢</i>设备</a>
+      <a href="#/calib"    data-view="calib"><i>◎</i>校准</a>
+      <a href="#/tools"    data-view="tools"><i>⚙</i>工具</a>
+      <a href="#/config"   data-view="config"><i>≡</i>配置</a>
+    </nav>
+
+    <div class="side-foot">
+      <div class="pill" id="devPill"><span class="dot"></span><span id="devPillTxt">检测设备…</span></div>
+      <div class="tiny" id="verTxt">—</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ============ 总览 ============ -->
+    <section class="view" id="view-overview">
+      <header class="vhead">
+        <h1>总览</h1>
+        <div class="vhead-act">
+          <button class="btn ghost" id="ovRefresh">刷新</button>
+        </div>
+      </header>
+
+      <div class="grid g5" id="ovCards"></div>
+
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-h"><h2>近 7 日收益</h2><span class="muted" id="ovSeriesHint"></span></div>
+          <div class="card-b"><div id="ovChart" class="chart"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h2>设备</h2><a class="link" href="#/device">详情 →</a></div>
+          <div class="card-b" id="ovDevice"></div>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-h"><h2>最近事件</h2><span class="muted" id="ovOpsHint"></span></div>
+          <div class="card-b"><div id="ovOps" class="ops"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h2>配置体检</h2><a class="link" href="#/config">全部 →</a></div>
+          <div class="card-b"><div id="ovIssues"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 任务编排 ============ -->
+    <section class="view" id="view-tasks">
+      <header class="vhead">
+        <h1>任务编排</h1>
+        <div class="vhead-act">
+          <span class="muted" id="taskCount"></span>
+        </div>
+      </header>
+
+      <div class="card">
+        <div class="card-b toolbar">
+          <input id="appSearch" class="inp" placeholder="搜索 App / 包名 / 别名">
+          <select id="behFilter" class="inp sel">
+            <option value="">全部行为</option>
+            <option value="sign">含签到</option>
+            <option value="watch">含看视频</option>
+            <option value="bonus">含领金币</option>
+            <option value="collect">含收集</option>
+            <option value="withdraw">含提现</option>
+          </select>
+          <button class="btn ghost" id="selAll">全选</button>
+          <button class="btn ghost" id="selNone">全不选</button>
+          <button class="btn ghost" id="selSign">只勾签到类</button>
+          <button class="btn ghost" id="selMain">勾常用（签到+看视频+金币）</button>
+        </div>
+        <div class="card-b runbar">
+          <label class="chk"><input type="checkbox" id="optForce"> 强制执行(--force)</label>
+          <input id="serialInput" class="inp" placeholder="设备 serial（留空用 config）">
+          <div class="spacer"></div>
+          <button class="btn" id="btnPreview">预览 (dry-run)</button>
+          <button class="btn primary" id="btnRun">执行</button>
+          <button class="btn danger" id="btnStop" disabled>停止</button>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-h"><h2>App 与行为</h2><span class="muted" id="pickHint"></span></div>
+          <div class="card-b"><div id="appList" class="applist"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <h2>执行进度</h2>
+            <div class="card-h-act">
+              <label class="chk"><input type="checkbox" id="autoScroll" checked> 自动滚动</label>
+              <button class="btn ghost sm" id="clearLog">清空</button>
+            </div>
+          </div>
+          <div class="card-b">
+            <div id="jobHist" class="jobhist hidden"></div>
+            <div id="jobBar" class="jobbar hidden">
+              <div class="pb"><div class="pb-fill" id="pbFill"></div></div>
+              <div class="tiny" id="jobBarTxt"></div>
+            </div>
+            <div id="stepList" class="steplist"></div>
+            <pre id="logBox" class="logbox"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 收益 ============ -->
+    <section class="view" id="view-earnings">
+      <header class="vhead">
+        <h1>收益</h1>
+        <div class="vhead-act">
+          <select id="erDays" class="inp sel">
+            <option value="1">今日</option>
+            <option value="7" selected>近 7 日</option>
+            <option value="30">近 30 日</option>
+            <option value="3650">全部</option>
+          </select>
+          <button class="btn ghost" id="erRefresh">刷新</button>
+        </div>
+      </header>
+
+      <div class="grid g3" id="erCards"></div>
+
+      <div class="card">
+        <div class="card-h"><h2>按 App 汇总</h2><span class="muted" id="erByAppHint"></span></div>
+        <div class="card-b"><div id="erByApp" class="tblwrap"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>明细</h2><span class="muted" id="erRowsHint"></span></div>
+        <div class="card-b"><div id="erRows" class="tblwrap"></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 设备 ============ -->
+    <section class="view" id="view-device">
+      <header class="vhead">
+        <h1>设备</h1>
+        <div class="vhead-act">
+          <label class="chk"><input type="checkbox" id="autoShot"> 自动刷新截图</label>
+          <select id="shotEvery" class="inp sel">
+            <option value="3000">3s</option>
+            <option value="5000" selected>5s</option>
+            <option value="10000">10s</option>
+          </select>
+          <button class="btn" id="btnShot">立即截图</button>
+          <button class="btn ghost" id="btnReconnect">重连设备</button>
+        </div>
+      </header>
+
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-h"><h2>状态</h2><span class="muted" id="devHint"></span></div>
+          <div class="card-b"><div id="devInfo"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h2>实时画面</h2><span class="muted" id="shotHint"></span></div>
+          <div class="card-b shotwrap">
+            <div class="shot-empty" id="shotEmpty">尚未截图 —— 点「立即截图」或勾选「自动刷新截图」</div>
+            <img id="shot" alt="设备截图" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 校准 ============ -->
+    <section class="view" id="view-calib">
+      <header class="vhead">
+        <h1>校准与稳定性</h1>
+        <div class="vhead-act">
+          <select id="cbFilter" class="inp sel">
+            <option value="">全部行为</option>
+            <option value="稳定">仅稳定命中</option>
+            <option value="波动">仅波动</option>
+            <option value="从未命中">仅从未命中</option>
+            <option value="未度量">仅未度量</option>
+          </select>
+          <button class="btn ghost" id="cbRefresh">刷新</button>
+        </div>
+      </header>
+
+      <div id="cbEmpty" class="card hidden">
+        <div class="card-b"><div class="empty" id="cbEmptyTxt"></div></div>
+      </div>
+
+      <div id="cbBody" class="hidden">
+        <div class="grid g5" id="cbCards"></div>
+
+        <div class="card">
+          <div class="card-h"><h2>度量覆盖率</h2><span class="muted">未度量 ≠ 未命中</span></div>
+          <div class="card-b"><div id="cbCover"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><h2>改动版本对比</h2><span class="muted" id="cbChainHint"></span></div>
+          <div class="card-b"><div id="cbChain" class="chain"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><h2>逐行为命中矩阵</h2><span class="muted" id="cbRowsHint"></span></div>
+          <div class="card-b"><div id="cbRows" class="tblwrap"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 工具 ============ -->
+    <section class="view" id="view-tools">
+      <header class="vhead">
+        <h1>诊断工具</h1>
+        <div class="vhead-act"><span class="muted">输出复用「任务」的日志通道</span></div>
+      </header>
+
+      <div class="card">
+        <div class="card-h"><h2>可用工具</h2><span class="muted">串行执行，一次一个</span></div>
+        <div class="card-b"><div id="toolList" class="tools"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>工具输出</h2>
+          <div class="card-h-act"><button class="btn danger sm" id="toolStop" disabled>停止</button></div>
+        </div>
+        <div class="card-b">
+          <div id="toolBar" class="jobbar hidden">
+            <div class="pb"><div class="pb-fill" id="toolPbFill"></div></div>
+            <div class="tiny" id="toolBarTxt"></div>
+          </div>
+          <pre id="toolLog" class="logbox tall"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 配置 ============ -->
+    <section class="view" id="view-config">
+      <header class="vhead">
+        <h1>配置</h1>
+        <div class="vhead-act">
+          <button class="btn ghost" id="cfgOpen">用系统默认程序打开 config.yaml</button>
+          <button class="btn" id="cfgReload">重新载入</button>
+        </div>
+      </header>
+
+      <div class="grid g4" id="cfgCards"></div>
+
+      <div class="card">
+        <div class="card-h"><h2>配置体检</h2><span class="muted" id="cfgIssuesHint"></span></div>
+        <div class="card-b"><div id="cfgIssues" class="issues"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>App / 行为 / 锚点</h2><span class="muted" id="cfgAppsHint"></span></div>
+        <div class="card-b"><div id="cfgApps" class="cfgapps"></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- 资金类行为确认弹窗 -->
+<div class="modal hidden" id="moneyModal">
+  <div class="modal-box">
+    <h3>⚠️ 该计划包含资金类操作（提现）</h3>
+    <p>以下 App 的行为中包含 <b>提现</b>：</p>
+    <ul id="moneyApps"></ul>
+    <p class="warn">提现属于资金操作，会真实影响账户资金流向。请确认你已核对过金额、收款方式与账号，并了解可能的风控后果。</p>
+    <div class="modal-act">
+      <button class="btn ghost" id="moneyCancel">取消</button>
+      <button class="btn danger" id="moneyOk">我已知悉，继续执行</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

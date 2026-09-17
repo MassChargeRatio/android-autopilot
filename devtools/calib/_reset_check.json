@@ -1,0 +1,43 @@
+{
+  "report": {
+    "喜番免费短剧": [
+      {
+        "behavior": "sign",
+        "status": "导航后命中",
+        "detail": "any_of 全部分支未命中（末次: candidates=['签到', '每日签到', '看剧赚金币', '去签到'] 全部未命中） | 二级页: （三级页）text='签到' @(539, 702)",
+        "nav_xy": [
+          972,
+          2141
+        ],
+        "prelude": true,
+        "nodes_after": 180
+      },
+      {
+        "behavior": "watch",
+        "status": "导航后命中",
+        "detail": "any_of 全部分支未命中（末次: candidates=['去看剧', '赚钱', '任务', '看剧赚钱', '福利'] 全部未命中） | 二级页: text='去看剧' @(968, 700)",
+        "nav_xy": [
+          972,
+          2141
+        ],
+        "prelude": true,
+        "nodes_after": 179
+      },
+      {
+        "behavior": "withdraw",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['我的', '我'] 全部未命中 | 二级页: text='我的' @(970, 2145)",
+        "nav_xy": [
+          972,
+          2141
+        ],
+        "prelude": false,
+        "nodes_after": 180
+      }
+    ]
+  },
+  "stat": {
+    "导航后命中": 2,
+    "导航可救(建议加前置步)": 1
+  }
+}

@@ -1,0 +1,689 @@
+{
+  "rounds": 3,
+  "per_behavior": [
+    {
+      "app": "一淘",
+      "behavior": "sign",
+      "statuses": [
+        "导航后仍未命中",
+        "导航后仍未命中",
+        "导航后仍未命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "一淘",
+      "behavior": "watch",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "一淘",
+      "behavior": "withdraw",
+      "statuses": [
+        "导航后仍未命中",
+        "导航后仍未命中",
+        "导航后仍未命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "今日头条极速版",
+      "behavior": "bonus",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "今日头条极速版",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "今日头条极速版",
+      "behavior": "watch",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "今日头条极速版",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "今日看点极速版",
+      "behavior": "sign",
+      "statuses": [
+        "导航后仍未命中",
+        "导航后仍未命中",
+        "导航后仍未命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "今日看点极速版",
+      "behavior": "watch",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "今日看点极速版",
+      "behavior": "withdraw",
+      "statuses": [
+        "导航后仍未命中",
+        "导航后仍未命中",
+        "导航后仍未命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "全民K歌",
+      "behavior": "bonus",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "全民K歌",
+      "behavior": "collect",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "喜番免费短剧",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "喜番免费短剧",
+      "behavior": "watch",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "喜番免费短剧",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "天天快讯极速版",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "天天快讯极速版",
+      "behavior": "watch",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "天天快讯极速版",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "微博移动版",
+      "behavior": "bonus",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "微博移动版",
+      "behavior": "collect",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "悟空浏览器",
+      "behavior": "sign",
+      "statuses": [
+        "导航后仍未命中",
+        "导航后仍未命中",
+        "导航后仍未命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "悟空浏览器",
+      "behavior": "watch",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "悟空浏览器",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "抖音",
+      "behavior": "bonus",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "抖音",
+      "behavior": "watch",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "抖音极速版",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "抖音极速版",
+      "behavior": "watch",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "抖音极速版",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "抖音火山版",
+      "behavior": "sign",
+      "statuses": [
+        "导航后仍未命中",
+        "导航后仍未命中",
+        "导航后仍未命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "抖音火山版",
+      "behavior": "watch",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "抖音火山版",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "星图金融",
+      "behavior": "bonus",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "星图金融",
+      "behavior": "collect",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 2,
+      "rate": 0.6666666666666666
+    },
+    {
+      "app": "梧桐免费小说",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "梧桐免费小说",
+      "behavior": "watch",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "梧桐免费小说",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "河马剧场",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "河马剧场",
+      "behavior": "watch",
+      "statuses": [
+        "导航后命中",
+        "首屏命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "河马剧场",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "火龙漫剧",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "火龙漫剧",
+      "behavior": "watch",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "火龙漫剧",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "点淘",
+      "behavior": "collect",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 2,
+      "rate": 0.6666666666666666
+    },
+    {
+      "app": "点淘",
+      "behavior": "watch",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "点淘",
+      "behavior": "withdraw",
+      "statuses": [
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)",
+        "导航后也未命中(不可救)"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "红果免费短剧",
+      "behavior": "collect",
+      "statuses": [
+        "导航后命中",
+        "导航后命中",
+        "导航后命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "红果免费短剧",
+      "behavior": "sign",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "红果免费短剧",
+      "behavior": "watch",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "红果免费短剧",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "蛋花免费小说",
+      "behavior": "sign",
+      "statuses": [
+        "导航后仍未命中",
+        "导航后仍未命中",
+        "导航后仍未命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 0,
+      "rate": 0.0
+    },
+    {
+      "app": "蛋花免费小说",
+      "behavior": "watch",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    },
+    {
+      "app": "蛋花免费小说",
+      "behavior": "withdraw",
+      "statuses": [
+        "首屏命中",
+        "首屏命中",
+        "首屏命中"
+      ],
+      "valid": 3,
+      "void": 0,
+      "hits": 3,
+      "rate": 1.0
+    }
+  ],
+  "total": {
+    "hits": 109,
+    "valid": 156,
+    "void": 0
+  },
+  "stable_hit": 35,
+  "flaky": 2,
+  "never": 15
+}

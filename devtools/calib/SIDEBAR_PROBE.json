@@ -1,0 +1,828 @@
+[
+  {
+    "app": "抖音",
+    "package": "com.ss.android.ugc.aweme",
+    "more_xy": [
+      984,
+      174
+    ],
+    "more_via": "desc精确",
+    "items": [
+      {
+        "label": "概览",
+        "text": "",
+        "desc": "概览",
+        "rid": "com.android.systemui:id/recent_apps",
+        "center": [
+          270,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "返回",
+        "text": "",
+        "desc": "返回",
+        "rid": "com.android.systemui:id/back",
+        "center": [
+          825,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "主屏幕",
+        "text": "",
+        "desc": "主屏幕",
+        "rid": "com.android.systemui:id/home",
+        "center": [
+          540,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "关闭，按钮",
+        "text": "",
+        "desc": "关闭，按钮",
+        "rid": "",
+        "center": [
+          108,
+          1107
+        ],
+        "clickable": true
+      },
+      {
+        "label": "编辑主页",
+        "text": "编辑主页",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme:id/wco",
+        "center": [
+          54,
+          734
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我有病你有药吗?",
+        "text": "我有病你有药吗?",
+        "desc": "",
+        "rid": "",
+        "center": [
+          85,
+          854
+        ],
+        "clickable": true
+      },
+      {
+        "label": "全部功能",
+        "text": "全部功能",
+        "desc": "",
+        "rid": "",
+        "center": [
+          90,
+          1140
+        ],
+        "clickable": false
+      },
+      {
+        "label": "喜欢,按钮,,,",
+        "text": "",
+        "desc": "喜欢,按钮,,,",
+        "rid": "",
+        "center": [
+          108,
+          1277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "喜欢",
+        "text": "喜欢",
+        "desc": "喜欢",
+        "rid": "android:id/text1",
+        "center": [
+          108,
+          1277
+        ],
+        "clickable": false
+      },
+      {
+        "label": "主播友人帐",
+        "text": "主播友人帐",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme:id/srf",
+        "center": [
+          87,
+          1427
+        ],
+        "clickable": false
+      },
+      {
+        "label": "暂时没有更多了",
+        "text": "暂时没有更多了",
+        "desc": "",
+        "rid": "",
+        "center": [
+          108,
+          2087
+        ],
+        "clickable": false
+      },
+      {
+        "label": "背景图片",
+        "text": "",
+        "desc": "背景图片",
+        "rid": "com.ss.android.ugc.aweme:id/wdh",
+        "center": [
+          108,
+          303
+        ],
+        "clickable": true
+      },
+      {
+        "label": "搜索",
+        "text": "",
+        "desc": "搜索",
+        "rid": "",
+        "center": [
+          18,
+          174
+        ],
+        "clickable": true
+      },
+      {
+        "label": "更多",
+        "text": "",
+        "desc": "更多",
+        "rid": "",
+        "center": [
+          120,
+          174
+        ],
+        "clickable": true
+      },
+      {
+        "label": "我",
+        "text": "我",
+        "desc": "我，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/0qp",
+        "center": [
+          107,
+          2141
+        ],
+        "clickable": false
+      },
+      {
+        "label": "设置",
+        "text": "设置",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme:id/f2f",
+        "center": [
+          666,
+          168
+        ],
+        "clickable": false
+      },
+      {
+        "label": "扫一扫",
+        "text": "扫一扫",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme:id/f2f",
+        "center": [
+          945,
+          168
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的订单",
+        "text": "我的订单",
+        "desc": "我的订单，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          318
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的钱包",
+        "text": "我的钱包",
+        "desc": "我的钱包，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          462
+        ],
+        "clickable": false
+      },
+      {
+        "label": "有余额",
+        "text": "有余额",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme:id/urv",
+        "center": [
+          780,
+          462
+        ],
+        "clickable": false
+      },
+      {
+        "label": "观看历史",
+        "text": "观看历史",
+        "desc": "观看历史，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          630
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的转化记录",
+        "text": "我的转化记录",
+        "desc": "我的转化记录，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          510,
+          774
+        ],
+        "clickable": false
+      },
+      {
+        "label": "离线缓存",
+        "text": "离线缓存",
+        "desc": "离线缓存，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          918
+        ],
+        "clickable": false
+      },
+      {
+        "label": "稍后再看",
+        "text": "稍后再看",
+        "desc": "稍后再看，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          1062
+        ],
+        "clickable": false
+      },
+      {
+        "label": "抖音创作者中心",
+        "text": "抖音创作者中心",
+        "desc": "抖音创作者中心，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          531,
+          1230
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的客服",
+        "text": "我的客服",
+        "desc": "我的客服，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          1374
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的二维码",
+        "text": "我的二维码",
+        "desc": "我的二维码，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          489,
+          1518
+        ],
+        "clickable": false
+      },
+      {
+        "label": "未成年人保护",
+        "text": "未成年人保护",
+        "desc": "未成年人保护，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          510,
+          1686
+        ],
+        "clickable": false
+      },
+      {
+        "label": "清理缓存",
+        "text": "清理缓存",
+        "desc": "清理缓存，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          1830
+        ],
+        "clickable": false
+      },
+      {
+        "label": "切换账号",
+        "text": "切换账号",
+        "desc": "切换账号，按钮",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          468,
+          1966
+        ],
+        "clickable": false
+      },
+      {
+        "label": "更多功能",
+        "text": "更多功能",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme:id/vwi",
+        "center": [
+          684,
+          2088
+        ],
+        "clickable": false
+      }
+    ],
+    "hits": {
+      "withdraw": [
+        "我的钱包@(468, 462)",
+        "有余额@(780, 462)"
+      ]
+    },
+    "shot": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\抖音\\sidebar.png",
+    "error": null
+  },
+  {
+    "app": "抖音极速版",
+    "package": "com.ss.android.ugc.aweme.lite",
+    "more_xy": [
+      984,
+      174
+    ],
+    "more_via": "desc精确",
+    "items": [
+      {
+        "label": "概览",
+        "text": "",
+        "desc": "概览",
+        "rid": "com.android.systemui:id/recent_apps",
+        "center": [
+          270,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "返回",
+        "text": "",
+        "desc": "返回",
+        "rid": "com.android.systemui:id/back",
+        "center": [
+          825,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "主屏幕",
+        "text": "",
+        "desc": "主屏幕",
+        "rid": "com.android.systemui:id/home",
+        "center": [
+          540,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "关闭，按钮",
+        "text": "",
+        "desc": "关闭，按钮",
+        "rid": "",
+        "center": [
+          108,
+          1107
+        ],
+        "clickable": true
+      },
+      {
+        "label": "编辑主页",
+        "text": "编辑主页",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mz5",
+        "center": [
+          54,
+          734
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我有病你有药吗?",
+        "text": "我有病你有药吗?",
+        "desc": "",
+        "rid": "",
+        "center": [
+          85,
+          854
+        ],
+        "clickable": true
+      },
+      {
+        "label": "全部功能",
+        "text": "全部功能",
+        "desc": "",
+        "rid": "",
+        "center": [
+          90,
+          1140
+        ],
+        "clickable": false
+      },
+      {
+        "label": "喜欢,按钮,,,",
+        "text": "",
+        "desc": "喜欢,按钮,,,",
+        "rid": "",
+        "center": [
+          108,
+          1277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "喜欢",
+        "text": "喜欢",
+        "desc": "喜欢",
+        "rid": "android:id/text1",
+        "center": [
+          108,
+          1277
+        ],
+        "clickable": false
+      },
+      {
+        "label": "王者",
+        "text": "王者",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme.lite:id/j+q",
+        "center": [
+          57,
+          1427
+        ],
+        "clickable": false
+      },
+      {
+        "label": "660",
+        "text": "660",
+        "desc": "播放数660",
+        "rid": "com.ss.android.ugc.aweme.lite:id/m9l",
+        "center": [
+          108,
+          1955
+        ],
+        "clickable": false
+      },
+      {
+        "label": "暂时没有更多了",
+        "text": "暂时没有更多了",
+        "desc": "",
+        "rid": "",
+        "center": [
+          108,
+          2087
+        ],
+        "clickable": false
+      },
+      {
+        "label": "背景图片",
+        "text": "",
+        "desc": "背景图片",
+        "rid": "com.ss.android.ugc.aweme.lite:id/m0-",
+        "center": [
+          108,
+          303
+        ],
+        "clickable": true
+      },
+      {
+        "label": "搜索",
+        "text": "",
+        "desc": "搜索",
+        "rid": "",
+        "center": [
+          18,
+          174
+        ],
+        "clickable": true
+      },
+      {
+        "label": "更多",
+        "text": "",
+        "desc": "更多",
+        "rid": "",
+        "center": [
+          120,
+          174
+        ],
+        "clickable": true
+      },
+      {
+        "label": "我",
+        "text": "我",
+        "desc": "我，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/l1a",
+        "center": [
+          107,
+          2141
+        ],
+        "clickable": false
+      },
+      {
+        "label": "设置",
+        "text": "设置",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme.lite:id/d_b",
+        "center": [
+          666,
+          168
+        ],
+        "clickable": false
+      },
+      {
+        "label": "扫一扫",
+        "text": "扫一扫",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme.lite:id/d_b",
+        "center": [
+          945,
+          168
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的订单",
+        "text": "我的订单",
+        "desc": "我的订单，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          318
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的钱包",
+        "text": "我的钱包",
+        "desc": "我的钱包，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          462
+        ],
+        "clickable": false
+      },
+      {
+        "label": "有余额",
+        "text": "有余额",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme.lite:id/ltv",
+        "center": [
+          780,
+          462
+        ],
+        "clickable": false
+      },
+      {
+        "label": "观看历史",
+        "text": "观看历史",
+        "desc": "观看历史，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          630
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的转化记录",
+        "text": "我的转化记录",
+        "desc": "我的转化记录，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          510,
+          774
+        ],
+        "clickable": false
+      },
+      {
+        "label": "离线模式",
+        "text": "离线模式",
+        "desc": "离线模式，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          918
+        ],
+        "clickable": false
+      },
+      {
+        "label": "稍后再看",
+        "text": "稍后再看",
+        "desc": "稍后再看，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          1062
+        ],
+        "clickable": false
+      },
+      {
+        "label": "抖音创作者中心",
+        "text": "抖音创作者中心",
+        "desc": "抖音创作者中心，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          531,
+          1230
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的客服",
+        "text": "我的客服",
+        "desc": "我的客服，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          1374
+        ],
+        "clickable": false
+      },
+      {
+        "label": "我的二维码",
+        "text": "我的二维码",
+        "desc": "我的二维码，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          489,
+          1518
+        ],
+        "clickable": false
+      },
+      {
+        "label": "未成年人保护",
+        "text": "未成年人保护",
+        "desc": "未成年人保护，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          510,
+          1686
+        ],
+        "clickable": false
+      },
+      {
+        "label": "清理缓存",
+        "text": "清理缓存",
+        "desc": "清理缓存，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          1830
+        ],
+        "clickable": false
+      },
+      {
+        "label": "切换账号",
+        "text": "切换账号",
+        "desc": "切换账号，按钮",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          468,
+          1966
+        ],
+        "clickable": false
+      },
+      {
+        "label": "更多功能",
+        "text": "更多功能",
+        "desc": "",
+        "rid": "com.ss.android.ugc.aweme.lite:id/mbd",
+        "center": [
+          684,
+          2088
+        ],
+        "clickable": false
+      }
+    ],
+    "hits": {
+      "withdraw": [
+        "我的钱包@(468, 462)",
+        "有余额@(780, 462)"
+      ]
+    },
+    "shot": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\抖音极速版\\sidebar.png",
+    "error": null
+  },
+  {
+    "app": "抖音火山版",
+    "package": "com.ss.android.ugc.live",
+    "more_xy": [
+      983,
+      173
+    ],
+    "more_via": "未找到",
+    "items": [
+      {
+        "label": "更多",
+        "text": "",
+        "desc": "更多",
+        "rid": "",
+        "center": [
+          956,
+          159
+        ],
+        "clickable": false
+      },
+      {
+        "label": "体验双重奖励机制，一次赚到爽",
+        "text": "",
+        "desc": "体验双重奖励机制，一次赚到爽",
+        "rid": "",
+        "center": [
+          432,
+          1538
+        ],
+        "clickable": false
+      },
+      {
+        "label": "今日预约，明日领火苗",
+        "text": "",
+        "desc": "今日预约，明日领火苗",
+        "rid": "",
+        "center": [
+          358,
+          1780
+        ],
+        "clickable": false
+      },
+      {
+        "label": "跟着优秀作品拍，赢取大额现金奖励",
+        "text": "",
+        "desc": "跟着优秀作品拍，赢取大额现金奖励",
+        "rid": "",
+        "center": [
+          469,
+          2022
+        ],
+        "clickable": false
+      },
+      {
+        "label": "概览",
+        "text": "",
+        "desc": "概览",
+        "rid": "com.android.systemui:id/recent_apps",
+        "center": [
+          270,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "返回",
+        "text": "",
+        "desc": "返回",
+        "rid": "com.android.systemui:id/back",
+        "center": [
+          825,
+          2277
+        ],
+        "clickable": true
+      },
+      {
+        "label": "主屏幕",
+        "text": "",
+        "desc": "主屏幕",
+        "rid": "com.android.systemui:id/home",
+        "center": [
+          540,
+          2277
+        ],
+        "clickable": true
+      }
+    ],
+    "hits": {
+      "withdraw": [
+        "跟着优秀作品拍，赢取大额现金奖励@(469, 2022)"
+      ]
+    },
+    "shot": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\抖音火山版\\sidebar.png",
+    "error": null
+  }
+]

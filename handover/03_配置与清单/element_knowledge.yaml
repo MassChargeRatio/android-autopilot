@@ -1,0 +1,91 @@
+# =====================================================================
+# element_knowledge.yaml - 元素知识库示例文件
+# 参考 AppAgent"元素用法知识库 + 失败经验回写"思想本地化落地。
+#
+# 结构：apps[*].app（app 名，务必与 config.yaml 中 name 一致）-> elements[]
+#   元素字段：
+#     selector      主定位，u2 表达式：text=文本 / id=资源id / desc=描述
+#     kind          定位方式（text / id / desc），用于准确解析 selector
+#     desc          用途注释（这个元素是干什么的）
+#     usage         用法说明（为什么点、通常在什么流程里点击）
+#     alternatives  备选 selector 列表（可空）。主 selector 定位失败时，
+#                   自动按顺序轮换尝试这些备选，App 文案/结构变动也能兜底。
+#     last_ok       最近一次成功日期 YYYY-MM-DD（由程序自动回写）
+#     fail_times    连续/累计失败次数（由程序自动回写）
+#     disabled      是否停用。true 表示该元素已多次失败被自动停用，
+#                   执行时跳过其全部 selector 直接转入视觉兜底，
+#                   直到某次它被成功定位后自动解除。
+#
+# 回写机制（executor.py 联动）：
+#   - 定位成功 -> mark_ok：刷新 last_ok、fail_times 清零、解除 disabled；
+#   - 定位失败 -> mark_fail：fail_times+1，达阈值（config knowledge.fail_threshold，
+#     默认 3）自动 disabled 并写日志；
+#   - disabled 或 alternatives 用尽 -> 转 vision.py 视觉兜底。
+#
+# 本文件由程序维护，运行后会规范重写并可能丢失注释，请以本文件为格式模板。
+# =====================================================================
+
+apps:
+  - app: "示例阅读App"
+    elements:
+      # ------- 正常元素：带备选 selector，文案变了也能找到 -------
+      - selector: "text=我的"
+        kind: text
+        desc: "底部导航栏-我的"
+        usage: "每日签到第一步：进入个人中心页；其次在提现流程中也要用到"
+        alternatives:
+          - "text=我"
+          - "id=com.example.reader:id/tab_mine"
+        last_ok: "2026-09-08"
+        fail_times: 0
+        disabled: false
+
+      # ------- 多文案兜底：某天按钮文案从"每日签到"改成"签到"后自动轮换 -------
+      - selector: "text=每日签到"
+        kind: text
+        desc: "签到页-每日签到按钮"
+        usage: "点它完成当日签到领取金币，点完等页面出现金币入账提示"
+        alternatives:
+          - "text=签到"
+          - "text=立即签到"
+          - "id=com.example.reader:id/btn_sign"
+        last_ok: "2026-09-08"
+        fail_times: 0
+        disabled: false
+
+      # ------- alternatives 用尽后仍失败的示例：连续失败已到阈值被自动停用 -------
+      # 说明：此元素曾连续 3 次以上定位失败，fail_times 达到阈值后 disabled 自动置
+      # 为 true。后续执行会跳过它的全部 selector，直接走视觉兜底；待某次视觉兜底
+      # 成功或人工修正后，可通过把 disabled 改回 false / 清理 fail_times 恢复，
+      # 正常运行中定位成功一次也会自动解除。
+      - selector: "text=看视频"
+        kind: text
+        desc: "底部导航栏-视频(旧版tab)"
+        usage: "看视频赚钱流程入口，曾因版本升级改名导致多次失败"
+        alternatives:
+          - "text=刷视频"
+          - "text=视频"
+        last_ok: "2026-08-20"
+        fail_times: 5
+        disabled: true
+
+  - app: "示例任务屋"
+    elements:
+      - selector: "text=签到"
+        kind: text
+        desc: "任务屋-签到按钮"
+        usage: "每日任务签到，点完右侧出现今日收益数字"
+        alternatives:
+          - "id=com.example.taskroom:id/sign_button"
+        last_ok: "2026-09-07"
+        fail_times: 0
+        disabled: false
+
+      - selector: "text=看视频"
+        kind: text
+        desc: "任务屋-看视频任务入口"
+        usage: "看视频赚金币任务，进入后停留观看再退出"
+        alternatives: []          # 无备选时可留空
+        last_ok: "2026-09-06"
+        fail_times: 0
+        disabled: false

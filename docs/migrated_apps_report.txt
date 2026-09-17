@@ -1,0 +1,22 @@
+新增 13 个 app，config.yaml 已更新
+### 拼多多 (package=com.xunmeng.pinduoduo) 行为=['watch', 'collect', 'withdraw', 'sign'] 动作数=4 丢弃=0
+### 京东 (package=com.jingdong.app.mall) 行为=['withdraw', 'collect'] 动作数=6 丢弃=0
+### 美团 (package=com.sankuai.meituan) 行为=['withdraw', 'collect', 'watch'] 动作数=6 丢弃=1
+  [丢弃不可用图片] .dev/screenshot/b6112951-1505-4bf2-80f6-8d6e595e2f7f.jpg
+  [跳过] [选择器图像无图] 图片框-美团-任务列表-图标
+### 快手 (package=com.smile.gifmaker) 行为=['bonus', 'sign', 'withdraw', 'collect', '白拿礼物'] 动作数=11 丢弃=0
+### 百度地图 (package=com.baidu.BaiduMap) 行为=['sign', 'collect'] 动作数=4 丢弃=0
+### 海马畅听 (package=com.hm.hmct2025) 行为=['sign', 'open', 'reserve', 'bonus'] 动作数=13 丢弃=0
+### UC浏览器极速版 (package=com.ucmobile.lite) 行为=['collect', 'sign', 'withdraw'] 动作数=7 丢弃=0
+### 飞猪旅行 (package=com.taobao.trip) 行为=['collect', 'bonus', 'sign'] 动作数=7 丢弃=0
+### 米读小说 (package=com.lechuan.midunovel) 行为=['collect', 'sign'] 动作数=4 丢弃=0
+### 米读极速版 (package=com.lechuan.mdwz) 行为=['collect', 'sign', 'withdraw'] 动作数=10 丢弃=0
+### 七猫免费小说 (package=com.kmxs.reader) 行为=['collect'] 动作数=2 丢弃=1
+  [丢弃不可用图片] .dev/screenshot/f7258738-e654-4c77-92cb-6c71dbcfc7ff.jpg
+  [跳过] [选择器图像无图] 图片框-七猫免费小说
+### 大众点评 (package=com.dianping.v1) 行为=['collect', 'sign'] 动作数=4 丢弃=0
+### 百度极速版 (package=com.baidu.searchbox.lite) 行为=['open', 'bonus', 'misc', 'sign'] 动作数=5 丢弃=2
+  [丢弃不可用图片] .dev/screenshot/23b43db8-64fe-4cc2-96c3-93e1a75eaecc.jpg
+  [跳过] [选择器图像无图] 图片框-百度极速版-领现金悬浮窗-图标
+  [丢弃不可用图片] .dev/screenshot/23b43db8-64fe-4cc2-96c3-93e1a75eaecc.jpg
+  [跳过] [选择器图像无图] 图片框-百度极速版-领现金悬浮窗-连续看视频去领取

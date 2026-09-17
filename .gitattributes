@@ -1,0 +1,12 @@
+# 统一换行：仓库里一律 LF，检出时不做 CRLF 转换。
+# 必须这样，否则 .githooks/pre-commit 这类 shell 脚本在 Windows 上
+# 被转成 CRLF 后 `#!/bin/sh` 会带 \r，直接报 "bad interpreter"。
+* text=auto eol=lf
+
+# 二进制：不要做任何文本处理
+*.png binary
+*.jpg binary
+*.ico binary
+*.db binary
+*.zip binary
+*.gz binary

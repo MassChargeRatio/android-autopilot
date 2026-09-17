@@ -1,0 +1,35 @@
+#!/bin/sh
+# ============================================================
+# pre-commit：提交前拦下明文密钥
+#
+# 启用（新克隆的仓库跑一次即可）：
+#     git config core.hooksPath .githooks
+#
+# 为什么需要它：本工程的 VLM API Key 曾经硬编码在 4 个源码文件里，
+# 靠「记得别提交」守不住 —— 必须自动化拦截。
+# ============================================================
+set -u
+
+# 找一个可用的 Python：环境里的优先，其次本机 venv，最后 PATH
+PY=""
+for c in "${PYTHON:-}" \
+         "C:/Users/Mass/.workbuddy-ai/binaries/python/envs/android-autopilot/Scripts/python.exe" \
+         "$(command -v python 2>/dev/null)" \
+         "$(command -v python3 2>/dev/null)"; do
+    if [ -n "$c" ] && [ -x "$c" ]; then PY="$c"; break; fi
+done
+
+if [ -z "$PY" ]; then
+    echo "pre-commit: 找不到 Python，跳过密钥检查（建议设置 PYTHON 环境变量）" >&2
+    exit 0
+fi
+
+"$PY" devtools/check_secrets.py --staged
+rc=$?
+if [ "$rc" -ne 0 ]; then
+    echo "" >&2
+    echo "pre-commit 已阻止本次提交：暂存区里有疑似明文密钥。" >&2
+    echo "修法见 devtools/check_secrets.py 的输出。确认是误报可加 --no-verify 跳过。" >&2
+    exit 1
+fi
+exit 0

@@ -1,0 +1,1536 @@
+'# 说明': 本文件由 tools/migrate_shadowbot.py 自动生成，勿手动编辑；仅包含分组'5.运行通过'的有效 APP 资产。
+'# 用法': 将 apps 数组（或按需挑选条目）并入 config.yaml 的 apps 节；images 相对项目根目录，可直接作为 click_* 动作的 images 兜底字段。
+apps:
+- name: 拼多多
+  package: null
+  source: shadowbot
+  shadowbot_file: process6
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors: []
+    image_templates:
+    - shadowbot_name: 图像-拼多多-任务界面-多多视频
+      file: images/拼多多/e4417c6d-5e2a-4a24-a172-589357b264c5.png
+      page: 任务界面
+      action: 多多视频
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-拼多多-任务界面-余额
+      file: images/拼多多/5c996370-94cc-4137-97f9-da361fd51e9b.png
+      page: 任务界面
+      action: 余额
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-拼多多-提现-立即提现
+      file: images/拼多多/526d1934-9de7-4322-9f64-0834118bc519.png
+      page: 提现
+      action: 立即提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-拼多多-每日签到-领取今日
+      file: images/拼多多/4f70662f-cd38-48ee-8267-8a6df7769c00.png
+      page: 每日签到
+      action: 领取今日
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    watch:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-拼多多-任务界面-多多视频
+      name: 图像-拼多多-任务界面-多多视频
+      file: images/拼多多/e4417c6d-5e2a-4a24-a172-589357b264c5.png
+      page: 任务界面
+      action: 多多视频
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-拼多多-任务界面-余额
+      name: 图像-拼多多-任务界面-余额
+      file: images/拼多多/5c996370-94cc-4137-97f9-da361fd51e9b.png
+      page: 任务界面
+      action: 余额
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    withdraw:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-拼多多-提现-立即提现
+      name: 图像-拼多多-提现-立即提现
+      file: images/拼多多/526d1934-9de7-4322-9f64-0834118bc519.png
+      page: 提现
+      action: 立即提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-拼多多-每日签到-领取今日
+      name: 图像-拼多多-每日签到-领取今日
+      file: images/拼多多/4f70662f-cd38-48ee-8267-8a6df7769c00.png
+      page: 每日签到
+      action: 领取今日
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 京东
+  package: null
+  source: shadowbot
+  shadowbot_file: process7
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors: []
+    image_templates:
+    - shadowbot_name: 图像-京东-提现-提现至京东钱包
+      file: images/京东/dc8480ee-0d96-4ae4-880a-894ae13d9ee4.png
+      page: 提现
+      action: 提现至京东钱包
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-京东-提现-可提现
+      file: images/京东/3c265ddf-12c5-4858-8f71-65c17d98886b.png
+      page: 提现
+      action: 可提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-京东-提现-提现至钱包
+      file: images/京东/b0280879-92dd-4bd9-920c-ec465e0e39e8.png
+      page: 提现
+      action: 提现至钱包
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-京东-任务界面-赚现金
+      file: images/京东/83342289-5e5c-4765-93f3-1b5446f742be.png
+      page: 任务界面
+      action: 赚现金
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-京东-任务界面-京东图标
+      file: images/京东/043972e5-c653-418b-ad5e-cdfd357ab366.png
+      page: 任务界面
+      action: 京东图标
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-京东-任务列表-关闭
+      file: images/京东/07950812-d018-4f13-b6b2-e17571d77cf0.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    withdraw:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-京东-提现-提现至京东钱包
+      name: 图像-京东-提现-提现至京东钱包
+      file: images/京东/dc8480ee-0d96-4ae4-880a-894ae13d9ee4.png
+      page: 提现
+      action: 提现至京东钱包
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-京东-提现-可提现
+      name: 图像-京东-提现-可提现
+      file: images/京东/3c265ddf-12c5-4858-8f71-65c17d98886b.png
+      page: 提现
+      action: 可提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-京东-提现-提现至钱包
+      name: 图像-京东-提现-提现至钱包
+      file: images/京东/b0280879-92dd-4bd9-920c-ec465e0e39e8.png
+      page: 提现
+      action: 提现至钱包
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-京东-任务界面-赚现金
+      name: 图像-京东-任务界面-赚现金
+      file: images/京东/83342289-5e5c-4765-93f3-1b5446f742be.png
+      page: 任务界面
+      action: 赚现金
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-京东-任务界面-京东图标
+      name: 图像-京东-任务界面-京东图标
+      file: images/京东/043972e5-c653-418b-ad5e-cdfd357ab366.png
+      page: 任务界面
+      action: 京东图标
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-京东-任务列表-关闭
+      name: 图像-京东-任务列表-关闭
+      file: images/京东/07950812-d018-4f13-b6b2-e17571d77cf0.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 美团
+  package: com.sankuai.meituan
+  source: shadowbot
+  shadowbot_file: process8
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors:
+    - shadowbot_name: 图片框-美团-任务列表-图标
+      type_hint: image
+      text: null
+      res_id: com.sankuai.meituan:id/action_bar_root
+      page: 任务列表
+    image_templates:
+    - shadowbot_name: 图像-美团-提现-活动钱包
+      file: images/美团/7aeb4e5b-dbae-4a18-8dde-6ba9ea09f126.png
+      page: 提现
+      action: 活动钱包
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-美团-提现-提现到美团钱包
+      file: images/美团/eb3599b0-882d-4c1e-907d-6b498576c8a1.png
+      page: 提现
+      action: 提现到美团钱包
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-美团-提现-提现
+      file: images/美团/1ca55c04-27a2-4bda-bbc6-1f58970ffc9f.png
+      page: 提现
+      action: 提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-美团-任务界面-换现金
+      file: images/美团/9c28a301-b81e-4b27-8795-e25d3d21e9be.png
+      page: 任务界面
+      action: 换现金
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-美团-任务界面-视频
+      file: images/美团/32c261fe-128b-4dd9-b15c-c56a71478108.png
+      page: 任务界面
+      action: 视频
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-美团-任务列表-关闭
+      file: images/美团/62a94570-7063-4599-9739-2d707b85eb66.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    withdraw:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-美团-提现-活动钱包
+      name: 图像-美团-提现-活动钱包
+      file: images/美团/7aeb4e5b-dbae-4a18-8dde-6ba9ea09f126.png
+      page: 提现
+      action: 活动钱包
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-美团-提现-提现到美团钱包
+      name: 图像-美团-提现-提现到美团钱包
+      file: images/美团/eb3599b0-882d-4c1e-907d-6b498576c8a1.png
+      page: 提现
+      action: 提现到美团钱包
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-美团-提现-提现
+      name: 图像-美团-提现-提现
+      file: images/美团/1ca55c04-27a2-4bda-bbc6-1f58970ffc9f.png
+      page: 提现
+      action: 提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-美团-任务界面-换现金
+      name: 图像-美团-任务界面-换现金
+      file: images/美团/9c28a301-b81e-4b27-8795-e25d3d21e9be.png
+      page: 任务界面
+      action: 换现金
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-美团-任务列表-关闭
+      name: 图像-美团-任务列表-关闭
+      file: images/美团/62a94570-7063-4599-9739-2d707b85eb66.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - source: selector
+      shadowbot_name: 图片框-美团-任务列表-图标
+      type: image_template
+      images:
+      - .dev\screenshot\b6112951-1505-4bf2-80f6-8d6e595e2f7f.jpg
+    watch:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-美团-任务界面-视频
+      name: 图像-美团-任务界面-视频
+      file: images/美团/32c261fe-128b-4dd9-b15c-c56a71478108.png
+      page: 任务界面
+      action: 视频
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 快手
+  package: null
+  source: shadowbot
+  shadowbot_file: process10
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors: []
+    image_templates:
+    - shadowbot_name: 图像-快手-任务界面-红包图标
+      file: images/快手/e65cea03-918e-4297-9f92-b5eef52e88f3.png
+      page: 任务界面
+      action: 红包图标
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-任务列表-立即签到
+      file: images/快手/0ba8ae87-db6d-4218-ac14-dce0ba298767.png
+      page: 任务列表
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-连续签到-关闭
+      file: images/快手/dc79646d-4fd5-4aa4-a23f-d2fdc7346f0c.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-点宝箱-点可领
+      file: images/快手/150f0fd5-b06e-4eaa-af57-0245d629ed0e.png
+      page: 点宝箱
+      action: 点可领
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-点宝箱-关闭
+      file: images/快手/c00e3080-8b4c-46aa-8478-74abc3a5a73f.png
+      page: 点宝箱
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-提现-领现金
+      file: images/快手/f1ab7643-c156-4612-ae98-8fb425475b29.png
+      page: 提现
+      action: 领现金
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-提现-立即兑换
+      file: images/快手/9e4c2242-f684-4574-afdc-e7df073e5363.png
+      page: 提现
+      action: 立即兑换
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-提现-立即提现
+      file: images/快手/77b164cc-12ca-410f-a0e4-ae9f48460d91.png
+      page: 提现
+      action: 立即提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-任务列表-关闭
+      file: images/快手/0100ec21-8be7-4552-b456-e20e7f831f39.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-白拿礼物-去领取
+      file: images/快手/dc7e72b7-ba53-4572-aafa-052262c440d3.png
+      page: 白拿礼物
+      action: 去领取
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-快手-连续签到-立即签到
+      file: images/快手/8877405c-0324-4d82-8534-a2cee52bacb8.png
+      page: 连续签到
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    bonus:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-任务界面-红包图标
+      name: 图像-快手-任务界面-红包图标
+      file: images/快手/e65cea03-918e-4297-9f92-b5eef52e88f3.png
+      page: 任务界面
+      action: 红包图标
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-点宝箱-点可领
+      name: 图像-快手-点宝箱-点可领
+      file: images/快手/150f0fd5-b06e-4eaa-af57-0245d629ed0e.png
+      page: 点宝箱
+      action: 点可领
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-点宝箱-关闭
+      name: 图像-快手-点宝箱-关闭
+      file: images/快手/c00e3080-8b4c-46aa-8478-74abc3a5a73f.png
+      page: 点宝箱
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-任务列表-立即签到
+      name: 图像-快手-任务列表-立即签到
+      file: images/快手/0ba8ae87-db6d-4218-ac14-dce0ba298767.png
+      page: 任务列表
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-连续签到-关闭
+      name: 图像-快手-连续签到-关闭
+      file: images/快手/dc79646d-4fd5-4aa4-a23f-d2fdc7346f0c.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-连续签到-立即签到
+      name: 图像-快手-连续签到-立即签到
+      file: images/快手/8877405c-0324-4d82-8534-a2cee52bacb8.png
+      page: 连续签到
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    withdraw:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-提现-领现金
+      name: 图像-快手-提现-领现金
+      file: images/快手/f1ab7643-c156-4612-ae98-8fb425475b29.png
+      page: 提现
+      action: 领现金
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-提现-立即兑换
+      name: 图像-快手-提现-立即兑换
+      file: images/快手/9e4c2242-f684-4574-afdc-e7df073e5363.png
+      page: 提现
+      action: 立即兑换
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-提现-立即提现
+      name: 图像-快手-提现-立即提现
+      file: images/快手/77b164cc-12ca-410f-a0e4-ae9f48460d91.png
+      page: 提现
+      action: 立即提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-任务列表-关闭
+      name: 图像-快手-任务列表-关闭
+      file: images/快手/0100ec21-8be7-4552-b456-e20e7f831f39.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    白拿礼物:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-快手-白拿礼物-去领取
+      name: 图像-快手-白拿礼物-去领取
+      file: images/快手/dc7e72b7-ba53-4572-aafa-052262c440d3.png
+      page: 白拿礼物
+      action: 去领取
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 百度地图
+  package: null
+  source: shadowbot
+  shadowbot_file: process18
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors: []
+    image_templates:
+    - shadowbot_name: 图像-百度地图-连续签到-关闭
+      file: images/百度地图/97373058-5cb5-4e02-a3c8-b0be22595fe2.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-百度地图-连续签到-直接领取
+      file: images/百度地图/14824e46-4a09-410a-9a5a-4b51cdd2b7c7.png
+      page: 连续签到
+      action: 直接领取
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-百度地图-任务列表-关闭
+      file: images/百度地图/95c4a280-5192-4de3-8ad1-a2316f95fa53.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-百度地图-任务列表-现金签到图标
+      file: images/百度地图/7cb1fd2a-3cfc-459f-a017-7c93663c3846.png
+      page: 任务列表
+      action: 现金签到图标
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-百度地图-连续签到-关闭
+      name: 图像-百度地图-连续签到-关闭
+      file: images/百度地图/97373058-5cb5-4e02-a3c8-b0be22595fe2.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-百度地图-连续签到-直接领取
+      name: 图像-百度地图-连续签到-直接领取
+      file: images/百度地图/14824e46-4a09-410a-9a5a-4b51cdd2b7c7.png
+      page: 连续签到
+      action: 直接领取
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-百度地图-任务列表-现金签到图标
+      name: 图像-百度地图-任务列表-现金签到图标
+      file: images/百度地图/7cb1fd2a-3cfc-459f-a017-7c93663c3846.png
+      page: 任务列表
+      action: 现金签到图标
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-百度地图-任务列表-关闭
+      name: 图像-百度地图-任务列表-关闭
+      file: images/百度地图/95c4a280-5192-4de3-8ad1-a2316f95fa53.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 海马畅听
+  package: com.hm.hmct2025
+  source: shadowbot
+  shadowbot_file: process19
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors:
+    - shadowbot_name: 文本框-海马畅听-连续签到-去签到
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/frameLayout
+      page: 连续签到
+    - shadowbot_name: 文本框-海马畅听-连续签到-立即签到得n金
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/rl_container
+      page: 连续签到
+    - shadowbot_name: 文本框-海马畅听-预约领金币-立即领取
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/frameLayout
+      page: 预约领金币
+    - shadowbot_name: 文本框-海马畅听-连续签到-已签到
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/frameLayout
+      page: 连续签到
+    - shadowbot_name: 文本框-海马畅听-预约领金币-去领取
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/frameLayout
+      page: 预约领金币
+    - shadowbot_name: 文本框-海马畅听-打开APP-弹窗签到按钮
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/rl_container
+      page: 打开APP
+    - shadowbot_name: 视图组-海马畅听-点宝箱-宝箱图标领金币
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/open_anim_rl
+      page: 点宝箱
+    - shadowbot_name: 文本框-海马畅听-连续签到-立即签到
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/frameLayout
+      page: 连续签到
+    - shadowbot_name: 文本框-海马畅听-任务列表-领现金
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/llBottom
+      page: 任务列表
+    - shadowbot_name: 文本框-海马畅听-预约领金币-预约领金币
+      type_hint: text
+      text: null
+      res_id: com.hm.hmct2025:id/frameLayout
+      page: 预约领金币
+    image_templates:
+    - shadowbot_name: 图像-海马畅听-连续签到-立即签到
+      file: images/海马畅听/3e8d07fe-f007-4238-a79c-173cdf5ba1f7.png
+      page: 连续签到
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-海马畅听-连续签到-关闭
+      file: images/海马畅听/ddafaf90-a1ed-4820-b66d-22008f3e25ee.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-海马畅听-打开APP-分类按钮
+      file: images/海马畅听/a1b7fef3-462b-4e39-bfb9-2722764499ab.png
+      page: 打开APP
+      action: 分类按钮
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-海马畅听-连续签到-立即签到
+      name: 图像-海马畅听-连续签到-立即签到
+      file: images/海马畅听/3e8d07fe-f007-4238-a79c-173cdf5ba1f7.png
+      page: 连续签到
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-海马畅听-连续签到-关闭
+      name: 图像-海马畅听-连续签到-关闭
+      file: images/海马畅听/ddafaf90-a1ed-4820-b66d-22008f3e25ee.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-连续签到-去签到
+      type: click_id
+      res_id: com.hm.hmct2025:id/frameLayout
+      images:
+      - images/海马畅听/3e8d07fe-f007-4238-a79c-173cdf5ba1f7.png
+      - images/海马畅听/ddafaf90-a1ed-4820-b66d-22008f3e25ee.png
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-连续签到-立即签到得n金
+      type: click_id
+      res_id: com.hm.hmct2025:id/rl_container
+      images:
+      - images/海马畅听/3e8d07fe-f007-4238-a79c-173cdf5ba1f7.png
+      - images/海马畅听/ddafaf90-a1ed-4820-b66d-22008f3e25ee.png
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-连续签到-已签到
+      type: click_id
+      res_id: com.hm.hmct2025:id/frameLayout
+      images:
+      - images/海马畅听/3e8d07fe-f007-4238-a79c-173cdf5ba1f7.png
+      - images/海马畅听/ddafaf90-a1ed-4820-b66d-22008f3e25ee.png
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-打开APP-弹窗签到按钮
+      type: click_id
+      res_id: com.hm.hmct2025:id/rl_container
+      images:
+      - images/海马畅听/a1b7fef3-462b-4e39-bfb9-2722764499ab.png
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-连续签到-立即签到
+      type: click_id
+      res_id: com.hm.hmct2025:id/frameLayout
+      images:
+      - images/海马畅听/3e8d07fe-f007-4238-a79c-173cdf5ba1f7.png
+      - images/海马畅听/ddafaf90-a1ed-4820-b66d-22008f3e25ee.png
+    open:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-海马畅听-打开APP-分类按钮
+      name: 图像-海马畅听-打开APP-分类按钮
+      file: images/海马畅听/a1b7fef3-462b-4e39-bfb9-2722764499ab.png
+      page: 打开APP
+      action: 分类按钮
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    reserve:
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-预约领金币-立即领取
+      type: click_id
+      res_id: com.hm.hmct2025:id/frameLayout
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-预约领金币-去领取
+      type: click_id
+      res_id: com.hm.hmct2025:id/frameLayout
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-预约领金币-预约领金币
+      type: click_id
+      res_id: com.hm.hmct2025:id/frameLayout
+    bonus:
+    - source: selector
+      shadowbot_name: 视图组-海马畅听-点宝箱-宝箱图标领金币
+      type: click_id
+      res_id: com.hm.hmct2025:id/open_anim_rl
+    - source: selector
+      shadowbot_name: 文本框-海马畅听-任务列表-领现金
+      type: click_id
+      res_id: com.hm.hmct2025:id/llBottom
+- name: UC浏览器极速版
+  package: null
+  source: shadowbot
+  shadowbot_file: process22
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors: []
+    image_templates:
+    - shadowbot_name: 图像-UC浏览器极速版-任务列表-任务
+      file: images/UC浏览器极速版/78f0e67e-7696-40da-8296-b2ea3be224b6.png
+      page: 任务列表
+      action: 任务
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-UC浏览器极速版-连续签到-直接领
+      file: images/UC浏览器极速版/19191d3e-19a9-40e9-ad3c-e70896154b1e.png
+      page: 连续签到
+      action: 直接领
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-UC浏览器极速版-连续签到-关闭
+      file: images/UC浏览器极速版/2d1b2f08-d115-4007-a9e7-5b686dd20cb4.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-UC浏览器极速版-提现-去提现
+      file: images/UC浏览器极速版/d0c2a233-7066-4dec-8ed4-d9b1f84c5187.png
+      page: 提现
+      action: 去提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-UC浏览器极速版-提现-支付宝0.3
+      file: images/UC浏览器极速版/fac910c2-c85f-4d7e-8da8-1f0ab3c3868e.png
+      page: 提现
+      action: 支付宝0.3
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-UC浏览器极速版-提现-去微信分享
+      file: images/UC浏览器极速版/81bcf6ee-8337-4e29-b414-33e15c959a71.png
+      page: 提现
+      action: 去微信分享
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-UC浏览器极速版-连续签到-看视频再领
+      file: images/UC浏览器极速版/6b2bc743-2648-4b2d-997f-8720f66b6f15.png
+      page: 连续签到
+      action: 看视频再领
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-UC浏览器极速版-任务列表-任务
+      name: 图像-UC浏览器极速版-任务列表-任务
+      file: images/UC浏览器极速版/78f0e67e-7696-40da-8296-b2ea3be224b6.png
+      page: 任务列表
+      action: 任务
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-UC浏览器极速版-连续签到-直接领
+      name: 图像-UC浏览器极速版-连续签到-直接领
+      file: images/UC浏览器极速版/19191d3e-19a9-40e9-ad3c-e70896154b1e.png
+      page: 连续签到
+      action: 直接领
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-UC浏览器极速版-连续签到-关闭
+      name: 图像-UC浏览器极速版-连续签到-关闭
+      file: images/UC浏览器极速版/2d1b2f08-d115-4007-a9e7-5b686dd20cb4.png
+      page: 连续签到
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-UC浏览器极速版-连续签到-看视频再领
+      name: 图像-UC浏览器极速版-连续签到-看视频再领
+      file: images/UC浏览器极速版/6b2bc743-2648-4b2d-997f-8720f66b6f15.png
+      page: 连续签到
+      action: 看视频再领
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    withdraw:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-UC浏览器极速版-提现-去提现
+      name: 图像-UC浏览器极速版-提现-去提现
+      file: images/UC浏览器极速版/d0c2a233-7066-4dec-8ed4-d9b1f84c5187.png
+      page: 提现
+      action: 去提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-UC浏览器极速版-提现-支付宝0.3
+      name: 图像-UC浏览器极速版-提现-支付宝0.3
+      file: images/UC浏览器极速版/fac910c2-c85f-4d7e-8da8-1f0ab3c3868e.png
+      page: 提现
+      action: 支付宝0.3
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-UC浏览器极速版-提现-去微信分享
+      name: 图像-UC浏览器极速版-提现-去微信分享
+      file: images/UC浏览器极速版/81bcf6ee-8337-4e29-b414-33e15c959a71.png
+      page: 提现
+      action: 去微信分享
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 飞猪旅行
+  package: com.taobao.trip
+  source: shadowbot
+  shadowbot_file: process26
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors:
+    - shadowbot_name: 视图框-飞猪-能量红包-立即领取
+      type_hint: text
+      text: 天天集能量
+      res_id: com.taobao.trip:id/action_bar_root
+      page: 能量红包
+    - shadowbot_name: 移动元素-飞猪-能量红包-关闭弹窗
+      type_hint: text
+      text: 天天集能量
+      res_id: com.taobao.trip:id/action_bar_root
+      page: 能量红包
+    - shadowbot_name: 文本框-飞猪-能量红包-签到
+      type_hint: text
+      text: 天天集能量
+      res_id: com.taobao.trip:id/action_bar_root
+      page: 能量红包
+    - shadowbot_name: 文本框-飞猪-里程签到-今日签到
+      type_hint: text
+      text: 我的里程
+      res_id: com.taobao.trip:id/action_bar_root
+      page: 里程签到
+    image_templates:
+    - shadowbot_name: 图像-飞猪旅行-任务列表-关闭
+      file: images/飞猪旅行/99c00b80-3cae-470e-acf7-0071a2e6956b.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-飞猪旅行-能量红包-图标
+      file: images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+      page: 能量红包
+      action: 图标
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-飞猪旅行-里程签到-图标
+      file: images/飞猪旅行/4d2f48b7-40ad-4388-8b18-b6fb71fb5925.png
+      page: 里程签到
+      action: 图标
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-飞猪旅行-任务列表-关闭
+      name: 图像-飞猪旅行-任务列表-关闭
+      file: images/飞猪旅行/99c00b80-3cae-470e-acf7-0071a2e6956b.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    bonus:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-飞猪旅行-能量红包-图标
+      name: 图像-飞猪旅行-能量红包-图标
+      file: images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+      page: 能量红包
+      action: 图标
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - source: selector
+      shadowbot_name: 视图框-飞猪-能量红包-立即领取
+      type: click_text
+      text: 天天集能量
+      images:
+      - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+    - source: selector
+      shadowbot_name: 移动元素-飞猪-能量红包-关闭弹窗
+      type: click_text
+      text: 天天集能量
+      images:
+      - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-飞猪旅行-里程签到-图标
+      name: 图像-飞猪旅行-里程签到-图标
+      file: images/飞猪旅行/4d2f48b7-40ad-4388-8b18-b6fb71fb5925.png
+      page: 里程签到
+      action: 图标
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - source: selector
+      shadowbot_name: 文本框-飞猪-能量红包-签到
+      type: click_text
+      text: 天天集能量
+      images:
+      - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+    - source: selector
+      shadowbot_name: 文本框-飞猪-里程签到-今日签到
+      type: click_text
+      text: 我的里程
+      images:
+      - images/飞猪旅行/4d2f48b7-40ad-4388-8b18-b6fb71fb5925.png
+- name: 米读小说
+  package: null
+  source: shadowbot
+  shadowbot_file: process27
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors: []
+    image_templates:
+    - shadowbot_name: 图像-米读小说-任务列表-福利中心
+      file: images/米读小说/8b329078-4b67-41d8-8f6a-57b2e7d88a82.png
+      page: 任务列表
+      action: 福利中心
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读小说-任务列表-我的
+      file: images/米读小说/8923f381-6c07-4693-9bca-4f435c513168.png
+      page: 任务列表
+      action: 我的
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读小说-连续签到-立即签到
+      file: images/米读小说/ad735bb8-01e8-4b51-8f6c-ae8ed1bdd516.png
+      page: 连续签到
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读小说-连续签到-白给钱也不要
+      file: images/米读小说/fac395f8-3c46-4d46-9b7c-c3f12597d4f5.png
+      page: 连续签到
+      action: 白给钱也不要
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读小说-任务列表-福利中心
+      name: 图像-米读小说-任务列表-福利中心
+      file: images/米读小说/8b329078-4b67-41d8-8f6a-57b2e7d88a82.png
+      page: 任务列表
+      action: 福利中心
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读小说-任务列表-我的
+      name: 图像-米读小说-任务列表-我的
+      file: images/米读小说/8923f381-6c07-4693-9bca-4f435c513168.png
+      page: 任务列表
+      action: 我的
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读小说-连续签到-立即签到
+      name: 图像-米读小说-连续签到-立即签到
+      file: images/米读小说/ad735bb8-01e8-4b51-8f6c-ae8ed1bdd516.png
+      page: 连续签到
+      action: 立即签到
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读小说-连续签到-白给钱也不要
+      name: 图像-米读小说-连续签到-白给钱也不要
+      file: images/米读小说/fac395f8-3c46-4d46-9b7c-c3f12597d4f5.png
+      page: 连续签到
+      action: 白给钱也不要
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 米读极速版
+  package: com.lechuan.mdwz
+  source: shadowbot
+  shadowbot_file: process28
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors:
+    - shadowbot_name: 文本框-米读极速版-签到-签到领金币
+      type_hint: text
+      text: null
+      res_id: com.lechuan.mdwz:id/a8
+      page: 签到
+    image_templates:
+    - shadowbot_name: 图像-米读极速版-任务列表-立即领取
+      file: images/米读极速版/82c4a8db-9060-40da-b04c-0642c1e6d098.png
+      page: 任务列表
+      action: 立即领取
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-任务列表-福利
+      file: images/米读极速版/bcf0bf62-9669-49d9-a577-1882d3924bb2.png
+      page: 任务列表
+      action: 福利
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-连续签到-签到领金币
+      file: images/米读极速版/de580487-9dbd-43be-af38-aafda178788a.png
+      page: 连续签到
+      action: 签到领金币
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-连续签到-白给钱也不要
+      file: images/米读极速版/570debec-c363-4ff4-a030-573aebb3d3ff.png
+      page: 连续签到
+      action: 白给钱也不要
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-提现-我的
+      file: images/米读极速版/ebe92c9c-1451-4993-8c68-51501e852660.png
+      page: 提现
+      action: 我的
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-提现-提现
+      file: images/米读极速版/868818fc-c1ca-4c26-a74f-9187725e476a.png
+      page: 提现
+      action: 提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-提现-0.3元
+      file: images/米读极速版/f624035a-224f-45a4-8863-f7f52a409f63.png
+      page: 提现
+      action: 0.3元
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-提现-立即提现
+      file: images/米读极速版/8544ad2f-a1fe-402f-9ff6-38fa5c68a334.png
+      page: 提现
+      action: 立即提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-米读极速版-提现-确认提现
+      file: images/米读极速版/258d92d8-116f-4cc0-a358-e618591324d0.png
+      page: 提现
+      action: 确认提现
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-任务列表-立即领取
+      name: 图像-米读极速版-任务列表-立即领取
+      file: images/米读极速版/82c4a8db-9060-40da-b04c-0642c1e6d098.png
+      page: 任务列表
+      action: 立即领取
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-任务列表-福利
+      name: 图像-米读极速版-任务列表-福利
+      file: images/米读极速版/bcf0bf62-9669-49d9-a577-1882d3924bb2.png
+      page: 任务列表
+      action: 福利
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-连续签到-签到领金币
+      name: 图像-米读极速版-连续签到-签到领金币
+      file: images/米读极速版/de580487-9dbd-43be-af38-aafda178788a.png
+      page: 连续签到
+      action: 签到领金币
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-连续签到-白给钱也不要
+      name: 图像-米读极速版-连续签到-白给钱也不要
+      file: images/米读极速版/570debec-c363-4ff4-a030-573aebb3d3ff.png
+      page: 连续签到
+      action: 白给钱也不要
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - source: selector
+      shadowbot_name: 文本框-米读极速版-签到-签到领金币
+      type: click_id
+      res_id: com.lechuan.mdwz:id/a8
+    withdraw:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-提现-我的
+      name: 图像-米读极速版-提现-我的
+      file: images/米读极速版/ebe92c9c-1451-4993-8c68-51501e852660.png
+      page: 提现
+      action: 我的
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-提现-提现
+      name: 图像-米读极速版-提现-提现
+      file: images/米读极速版/868818fc-c1ca-4c26-a74f-9187725e476a.png
+      page: 提现
+      action: 提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-提现-0.3元
+      name: 图像-米读极速版-提现-0.3元
+      file: images/米读极速版/f624035a-224f-45a4-8863-f7f52a409f63.png
+      page: 提现
+      action: 0.3元
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-提现-立即提现
+      name: 图像-米读极速版-提现-立即提现
+      file: images/米读极速版/8544ad2f-a1fe-402f-9ff6-38fa5c68a334.png
+      page: 提现
+      action: 立即提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-米读极速版-提现-确认提现
+      name: 图像-米读极速版-提现-确认提现
+      file: images/米读极速版/258d92d8-116f-4cc0-a358-e618591324d0.png
+      page: 提现
+      action: 确认提现
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+- name: 七猫免费小说
+  package: com.kmxs.reader
+  source: shadowbot
+  shadowbot_file: process29
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors:
+    - shadowbot_name: 图片框-七猫免费小说
+      type_hint: image
+      text: null
+      res_id: com.kmxs.reader:id/action_bar_root
+      page: null
+    image_templates:
+    - shadowbot_name: 图像-七猫免费小说-任务列表-福利
+      file: images/七猫免费小说/49ae9a39-b0cf-4c4c-a4a3-c004f52ffcdf.png
+      page: 任务列表
+      action: 福利
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-七猫免费小说-任务列表-关闭
+      file: images/七猫免费小说/bdc40552-054f-4072-8079-0a65ad173a3c.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-七猫免费小说-任务列表-福利
+      name: 图像-七猫免费小说-任务列表-福利
+      file: images/七猫免费小说/49ae9a39-b0cf-4c4c-a4a3-c004f52ffcdf.png
+      page: 任务列表
+      action: 福利
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-七猫免费小说-任务列表-关闭
+      name: 图像-七猫免费小说-任务列表-关闭
+      file: images/七猫免费小说/bdc40552-054f-4072-8079-0a65ad173a3c.png
+      page: 任务列表
+      action: 关闭
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    misc:
+    - source: selector
+      shadowbot_name: 图片框-七猫免费小说
+      type: image_template
+      images:
+      - .dev\screenshot\f7258738-e654-4c77-92cb-6c71dbcfc7ff.jpg
+- name: 大众点评
+  package: com.dianping.v1
+  source: shadowbot
+  shadowbot_file: process31
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors:
+    - shadowbot_name: 文本框-大众点评-每日签到-图标
+      type_hint: text
+      text: null
+      res_id: com.dianping.v1:id/action_bar_root
+      page: 每日签到
+    image_templates:
+    - shadowbot_name: 图像-大众点评-任务列表-我的
+      file: images/大众点评/98c11535-9236-4c0a-8a2b-f9c4874fe5b8.png
+      page: 任务列表
+      action: 我的
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-大众点评-任务列表-签到红包
+      file: images/大众点评/d96fb962-c365-4d33-9041-d75d07725eee.png
+      page: 任务列表
+      action: 签到红包
+      similarity: 80.0
+      adaptive: true
+      graying: false
+    - shadowbot_name: 图像-大众点评-任务列表-做任务
+      file: images/大众点评/6f5e67b0-39b9-4f6f-a828-a58a7da94259.png
+      page: 任务列表
+      action: 做任务
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    collect:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-大众点评-任务列表-我的
+      name: 图像-大众点评-任务列表-我的
+      file: images/大众点评/98c11535-9236-4c0a-8a2b-f9c4874fe5b8.png
+      page: 任务列表
+      action: 我的
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-大众点评-任务列表-做任务
+      name: 图像-大众点评-任务列表-做任务
+      file: images/大众点评/6f5e67b0-39b9-4f6f-a828-a58a7da94259.png
+      page: 任务列表
+      action: 做任务
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    sign:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-大众点评-任务列表-签到红包
+      name: 图像-大众点评-任务列表-签到红包
+      file: images/大众点评/d96fb962-c365-4d33-9041-d75d07725eee.png
+      page: 任务列表
+      action: 签到红包
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    - source: selector
+      shadowbot_name: 文本框-大众点评-每日签到-图标
+      type: click_id
+      res_id: com.dianping.v1:id/action_bar_root
+- name: 百度极速版
+  package: com.baidu.searchbox.lite
+  source: shadowbot
+  shadowbot_file: process41
+  shadowbot_group: 5.运行通过
+  assets:
+    selectors:
+    - shadowbot_name: 图片框-百度极速版-领现金悬浮窗-图标
+      type_hint: image
+      text: null
+      res_id: com.baidu.searchbox.lite:id/obfuscated
+      page: 领现金悬浮窗
+    - shadowbot_name: 文本框-百度极速版-百度图标
+      type_hint: text
+      text: null
+      res_id: com.baidu.searchbox.lite:id/obfuscated
+      page: 百度图标
+    - shadowbot_name: 文本框-百度极速版-领现金悬浮窗-明日领
+      type_hint: text
+      text: null
+      res_id: null
+      page: 领现金悬浮窗
+    - shadowbot_name: 文本框-百度极速版-领现金悬浮窗-去签到
+      type_hint: text
+      text: null
+      res_id: null
+      page: 领现金悬浮窗
+    - shadowbot_name: 文本框-百度极速版-领现金悬浮窗-去签到领取今日奖励
+      type_hint: text
+      text: null
+      res_id: null
+      page: 领现金悬浮窗
+    - shadowbot_name: 图片框-百度极速版-领现金悬浮窗-连续看视频去领取
+      type_hint: image
+      text: null
+      res_id: com.baidu.searchbox.lite:id/obfuscated
+      page: 领现金悬浮窗
+    image_templates:
+    - shadowbot_name: 图像-百度极速版-打开APP-百度
+      file: images/百度极速版/8b27e72d-bb6f-4b4e-bab7-4fa4875afbf8.png
+      page: 打开APP
+      action: 百度
+      similarity: 80.0
+      adaptive: true
+      graying: false
+  behaviors:
+    open:
+    - type: image_template
+      source: image
+      shadowbot_name: 图像-百度极速版-打开APP-百度
+      name: 图像-百度极速版-打开APP-百度
+      file: images/百度极速版/8b27e72d-bb6f-4b4e-bab7-4fa4875afbf8.png
+      page: 打开APP
+      action: 百度
+      similarity: 80.0
+      adaptive: true
+      scalingfactor: 1.5
+      graying: false
+    bonus:
+    - source: selector
+      shadowbot_name: 图片框-百度极速版-领现金悬浮窗-图标
+      type: image_template
+      images:
+      - .dev\screenshot\23b43db8-64fe-4cc2-96c3-93e1a75eaecc.jpg
+    - source: selector
+      shadowbot_name: 文本框-百度极速版-领现金悬浮窗-明日领
+      type: click_first
+      candidates: []
+    misc:
+    - source: selector
+      shadowbot_name: 文本框-百度极速版-百度图标
+      type: click_id
+      res_id: com.baidu.searchbox.lite:id/obfuscated
+    sign:
+    - source: selector
+      shadowbot_name: 文本框-百度极速版-领现金悬浮窗-去签到
+      type: click_first
+      candidates: []
+    - source: selector
+      shadowbot_name: 文本框-百度极速版-领现金悬浮窗-去签到领取今日奖励
+      type: click_first
+      candidates: []
+    watch:
+    - source: selector
+      shadowbot_name: 图片框-百度极速版-领现金悬浮窗-连续看视频去领取
+      type: image_template
+      images:
+      - .dev\screenshot\23b43db8-64fe-4cc2-96c3-93e1a75eaecc.jpg

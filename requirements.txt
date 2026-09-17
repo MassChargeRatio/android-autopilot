@@ -1,0 +1,13 @@
+# Android Autopilot - 依赖清单
+uiautomator2>=3.0.3
+PyYAML>=6.0
+Pillow>=9.0
+
+# 视觉兜底定位层：OpenCV 模板匹配后端（含 numpy）
+# 未安装时自动优雅降级：模板后端跳过，仅 VLM 仍可用（如需）
+opencv-python>=4.8
+# 可选：VLM 后端（OpenAI 兼容视觉接口）默认走 requests（uiautomator2 已间接依赖）
+# requests>=2.25
+
+# 可选：如需对"非文本按钮(纯图片)"做OCR识别收益时启用
+# pytesseract>=0.3

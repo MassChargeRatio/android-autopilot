@@ -1,0 +1,118 @@
+[
+  {
+    "app": "一淘",
+    "behavior": "sign",
+    "l2": "text=去福狸中心做任务",
+    "l3": null,
+    "l2_xy": [
+      788,
+      664
+    ],
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\一淘\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\一淘\\deep_sign_L3.png",
+    "on_l2": null
+  },
+  {
+    "app": "今日看点极速版",
+    "behavior": "sign",
+    "l2": null,
+    "l3": null,
+    "l2_xy": null,
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\今日看点极速版\\deep_sign_L2.png",
+    "shot_l3": null,
+    "on_l2": null,
+    "note": "首轮 on_l2 命中的是『喝水打卡』（喝水任务，非每日签到），属宽松关键词『打卡』导致的误报；收紧关键词后第二轮重探未找到任何可用路径"
+  },
+  {
+    "app": "天天快讯极速版",
+    "behavior": "sign",
+    "l2": "text=福利中心",
+    "l3": "text=去签到",
+    "l2_xy": [
+      166,
+      1031
+    ],
+    "l3_xy": [
+      906,
+      1338
+    ],
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\天天快讯极速版\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\天天快讯极速版\\deep_sign_L3.png",
+    "on_l2": null
+  },
+  {
+    "app": "蛋花免费小说",
+    "behavior": "sign",
+    "l2": "text=福利",
+    "l3": null,
+    "l2_xy": [
+      540,
+      2148
+    ],
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\蛋花免费小说\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\蛋花免费小说\\deep_sign_L3.png",
+    "on_l2": null
+  },
+  {
+    "app": "喜番免费短剧",
+    "behavior": "sign",
+    "l2": "text=赚现金",
+    "l3": "text=立即签到",
+    "l2_xy": [
+      496,
+      2111
+    ],
+    "l3_xy": [
+      896,
+      2020
+    ],
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\喜番免费短剧\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\喜番免费短剧\\deep_sign_L3.png",
+    "on_l2": null
+  },
+  {
+    "app": "河马剧场",
+    "behavior": "sign",
+    "l2": "text=福利",
+    "l3": null,
+    "l2_xy": [
+      358,
+      568
+    ],
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\河马剧场\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\河马剧场\\deep_sign_L3.png",
+    "on_l2": null
+  },
+  {
+    "app": "悟空浏览器",
+    "behavior": "sign",
+    "l2": "text=赚钱",
+    "l3": null,
+    "l2_xy": [
+      540,
+      2141
+    ],
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\悟空浏览器\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\悟空浏览器\\deep_sign_L3.png",
+    "on_l2": null
+  },
+  {
+    "app": "抖音火山版",
+    "behavior": "sign",
+    "l2": "text=点击赚钱",
+    "l3": null,
+    "l2_xy": [
+      978,
+      371
+    ],
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\抖音火山版\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\抖音火山版\\deep_sign_L3.png",
+    "on_l2": null
+  }
+]

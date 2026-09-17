@@ -1,0 +1,412 @@
+{
+  "report": {
+    "微博移动版": [
+      {
+        "behavior": "collect",
+        "status": "导航后仍未命中",
+        "detail": "candidates=['任务中心', '福利', '赚积分', '做任务'] 全部未命中 | 二级页: candidates=['任务中心', '福利', '赚积分', '做任务'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": true,
+        "nodes_after": 131
+      },
+      {
+        "behavior": "bonus",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['点击领取', '红包', '现金奖励', '翻牌'] 全部未命中 | 二级页: candidates=['点击领取', '红包', '现金奖励', '翻牌'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 138
+      }
+    ],
+    "一淘": [
+      {
+        "behavior": "sign",
+        "status": "导航后命中",
+        "detail": "candidates=['签到', '签到', '每日签到', '立即签到', '天天领'] 全部未命中 | 二级页: desc='签到' @(482, 384)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 234
+      },
+      {
+        "behavior": "watch",
+        "status": "导航后仍未命中",
+        "detail": "candidates=['去福狸中心做任务', '看视频领金币', '任务中心', '省金币', '今日任务'] 全部未命中 | 二级页: candidates=['去福狸中心做任务', '看视频领金币', '任务中心', '省金币', '今日任务'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": true,
+        "nodes_after": 235
+      },
+      {
+        "behavior": "withdraw",
+        "status": "导航后仍未命中",
+        "detail": "candidates=['我的', '我'] 全部未命中 | 二级页: candidates=['我的', '我'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": true,
+        "nodes_after": 252
+      }
+    ],
+    "点淘": [
+      {
+        "behavior": "collect",
+        "status": "导航后命中",
+        "detail": "candidates=['待领取', '任务中心', '天天领', '福利', '领奖'] 全部未命中 | 二级页: text='待领取' @(530, 692)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 301
+      },
+      {
+        "behavior": "watch",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['看直播', '看视频', '任务', '逛直播间'] 全部未命中 | 二级页: candidates=['看直播', '看视频', '任务', '逛直播间'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 300
+      },
+      {
+        "behavior": "withdraw",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['我的', '我'] 全部未命中 | 二级页: candidates=['我的', '我'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 301
+      }
+    ],
+    "火龙漫剧": [
+      {
+        "behavior": "sign",
+        "status": "导航后命中",
+        "detail": "candidates=['签到', '每日签到', '去签到', '天天有礼'] 全部未命中 | 二级页: text='签到' @(720, 2093)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 87
+      },
+      {
+        "behavior": "watch",
+        "status": "导航后命中",
+        "detail": "candidates=['福利', '看剧赚钱', '任务', '赚钱', '福利中心'] 全部未命中 | 二级页: text='福利' @(666, 2130)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 95
+      },
+      {
+        "behavior": "withdraw",
+        "status": "导航后命中",
+        "detail": "candidates=['我的', '我'] 全部未命中 | 二级页: text='我的' @(918, 2130)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 86
+      }
+    ],
+    "今日看点极速版": [
+      {
+        "behavior": "sign",
+        "status": "导航后仍未命中",
+        "detail": "candidates=['直接领取', '签到', '立即签到', '每日签到'] 全部未命中 | 二级页: candidates=['直接领取', '签到', '立即签到', '每日签到'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": true,
+        "nodes_after": 103
+      },
+      {
+        "behavior": "watch",
+        "status": "导航后命中",
+        "detail": "candidates=['看视频', '看视频赚钱', '任务中心', '金币'] 全部未命中 | 二级页: text='金币' @(198, 416)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": true,
+        "nodes_after": 103
+      },
+      {
+        "behavior": "withdraw",
+        "status": "导航后命中",
+        "detail": "candidates=['我的', '我'] 全部未命中 | 二级页: text='我的' @(922, 969)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 103
+      }
+    ],
+    "天天快讯极速版": [
+      {
+        "behavior": "sign",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['立即签到', '签到', '连续签到', '每日签到'] 全部未命中 | 二级页: candidates=['立即签到', '签到', '连续签到', '每日签到'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 105
+      },
+      {
+        "behavior": "watch",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['看视频', '看资讯赚钱', '任务中心'] 全部未命中 | 二级页: candidates=['看视频', '看资讯赚钱', '任务中心'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 105
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我的' @(972, 2192)",
+        "prelude": false
+      }
+    ],
+    "蛋花免费小说": [
+      {
+        "behavior": "sign",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['签到', '每日签到', '立即签到', '幸运签'] 全部未命中 | 二级页: candidates=['签到', '每日签到', '立即签到', '幸运签'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 148
+      },
+      {
+        "behavior": "watch",
+        "status": "首屏命中",
+        "detail": "text='福利' @(540, 2148)",
+        "prelude": false
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我的' @(953, 2148)",
+        "prelude": false
+      }
+    ],
+    "喜番免费短剧": [
+      {
+        "behavior": "sign",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['签到', '每日签到', '看剧赚金币', '去签到'] 全部未命中 | 二级页: candidates=['签到', '每日签到', '看剧赚金币', '去签到'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 180
+      },
+      {
+        "behavior": "watch",
+        "status": "首屏命中",
+        "detail": "text='福利' @(540, 2148)",
+        "prelude": true
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我的' @(953, 2148)",
+        "prelude": false
+      }
+    ],
+    "河马剧场": [
+      {
+        "behavior": "sign",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['签到', '每日签到', '看剧得金币', '立即签到'] 全部未命中 | 二级页: candidates=['签到', '每日签到', '看剧得金币', '立即签到'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 15
+      },
+      {
+        "behavior": "watch",
+        "status": "导航后命中",
+        "detail": "candidates=['福利', '赚钱', '任务', '看剧赚钱', '福利中心'] 全部未命中 | 二级页: text='福利' @(358, 568)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": true,
+        "nodes_after": 174
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我的' @(972, 2132)",
+        "prelude": false
+      }
+    ],
+    "悟空浏览器": [
+      {
+        "behavior": "sign",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['签到', '每日签到', '阅读赚金币', '立即签到'] 全部未命中 | 二级页: candidates=['签到', '每日签到', '阅读赚金币', '立即签到'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 141
+      },
+      {
+        "behavior": "watch",
+        "status": "首屏命中",
+        "detail": "text='看剧' @(330, 2141)",
+        "prelude": false
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我的' @(960, 2141)",
+        "prelude": false
+      }
+    ],
+    "全民K歌": [
+      {
+        "behavior": "collect",
+        "status": "首屏命中",
+        "detail": "desc='任务中心' @(108, 171)",
+        "prelude": false
+      },
+      {
+        "behavior": "bonus",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['红包', '领红包', '抽奖'] 全部未命中 | 二级页: candidates=['红包', '领红包', '抽奖'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 192
+      }
+    ],
+    "抖音极速版": [
+      {
+        "behavior": "sign",
+        "status": "首屏命中",
+        "detail": "text='开宝箱' @(627, 2058)",
+        "prelude": false
+      },
+      {
+        "behavior": "watch",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['刷视频', '看视频赚金币', '任务中心', '金币朋友'] 全部未命中 | 二级页: candidates=['刷视频', '看视频赚金币', '任务中心', '金币朋友'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 263
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我' @(971, 2141)",
+        "prelude": false
+      }
+    ],
+    "抖音火山版": [
+      {
+        "behavior": "sign",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['签到', '每日签到', '开宝箱', '领金币'] 全部未命中 | 二级页: candidates=['签到', '每日签到', '开宝箱', '领金币'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 15
+      },
+      {
+        "behavior": "watch",
+        "status": "导航后仍未命中",
+        "detail": "candidates=['点击赚钱', '看视频赚金币', '任务中心', '金币'] 全部未命中 | 二级页: candidates=['点击赚钱', '看视频赚金币', '任务中心', '金币'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": true,
+        "nodes_after": 321
+      },
+      {
+        "behavior": "withdraw",
+        "status": "导航后命中",
+        "detail": "candidates=['我的', '我'] 全部未命中 | 二级页: text='我的' @(540, 1140)",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 252
+      }
+    ],
+    "抖音": [
+      {
+        "behavior": "watch",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['任务', '赚积分', '去完成'] 全部未命中 | 二级页: candidates=['任务', '赚积分', '去完成'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 262
+      },
+      {
+        "behavior": "bonus",
+        "status": "导航可救(建议加前置步)",
+        "detail": "candidates=['红包', '领红包'] 全部未命中 | 二级页: candidates=['红包', '领红包'] 全部未命中",
+        "nav_xy": [
+          972,
+          2124
+        ],
+        "prelude": false,
+        "nodes_after": 249
+      }
+    ]
+  },
+  "stat": {
+    "导航后仍未命中": 5,
+    "导航可救(建议加前置步)": 14,
+    "导航后命中": 9,
+    "首屏命中": 11
+  }
+}

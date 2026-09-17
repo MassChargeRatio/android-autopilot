@@ -1,0 +1,590 @@
+{
+  "app": "一淘",
+  "package": "com.taobao.etao",
+  "foreground": "com.taobao.etao",
+  "nodes": 234,
+  "anchors": 13,
+  "anchor_actions_total": 8,
+  "anchor_actions_hit": 1,
+  "entry_hit": 1,
+  "entry_total": 3,
+  "entry_detail": {
+    "sign": {
+      "type": "click_first",
+      "status": "命中",
+      "detail": "candidates=['签到', '签到', '每日签到', '立即签到', '天天领'] -> '签到' @(482, 384)"
+    },
+    "watch": {
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['看视频领金币', '任务中心', '省金币', '今日任务'] "
+    },
+    "withdraw": {
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['我的', '我'] "
+    }
+  },
+  "after": {
+    "prompt": "定位屏幕底部导航栏最右侧的『我的』标签中心",
+    "click": [
+      972,
+      2152
+    ],
+    "nodes": 190,
+    "entry_hit": 2,
+    "entry_total": 3,
+    "entry_detail": {
+      "sign": {
+        "type": "click_first",
+        "status": "命中",
+        "detail": "candidates=['签到', '签到', '每日签到', '立即签到', '天天领'] -> '签到' @(645, 1958)"
+      },
+      "watch": {
+        "type": "click_first",
+        "status": "未命中",
+        "detail": "candidates=['看视频领金币', '任务中心', '省金币', '今日任务'] "
+      },
+      "withdraw": {
+        "type": "click_first",
+        "status": "命中",
+        "detail": "candidates=['我的', '我'] -> '我的' @(147, 941)"
+      }
+    },
+    "candidate_anchors": [
+      {
+        "label": "什么是签到领钱，如何参加？",
+        "rid": "",
+        "center": [
+          645,
+          1958
+        ],
+        "size": [
+          518,
+          43
+        ],
+        "clickable": false,
+        "kw": [
+          "签到",
+          "领"
+        ]
+      },
+      {
+        "label": "一淘红包",
+        "rid": "",
+        "center": [
+          668,
+          445
+        ],
+        "size": [
+          160,
+          53
+        ],
+        "clickable": false,
+        "kw": [
+          "红包"
+        ]
+      },
+      {
+        "label": "元",
+        "rid": "",
+        "center": [
+          190,
+          523
+        ],
+        "size": [
+          35,
+          47
+        ],
+        "clickable": false,
+        "kw": [
+          "元"
+        ]
+      },
+      {
+        "label": "元",
+        "rid": "",
+        "center": [
+          708,
+          523
+        ],
+        "size": [
+          35,
+          47
+        ],
+        "clickable": true,
+        "kw": [
+          "元"
+        ]
+      },
+      {
+        "label": "赚能量 兑红包",
+        "rid": "",
+        "center": [
+          786,
+          607
+        ],
+        "size": [
+          228,
+          47
+        ],
+        "clickable": false,
+        "kw": [
+          "红包"
+        ]
+      },
+      {
+        "label": "去福狸中心做任务",
+        "rid": "",
+        "center": [
+          788,
+          664
+        ],
+        "size": [
+          232,
+          38
+        ],
+        "clickable": false,
+        "kw": [
+          "任务"
+        ]
+      },
+      {
+        "label": "我的订单",
+        "rid": "",
+        "center": [
+          540,
+          941
+        ],
+        "size": [
+          1011,
+          58
+        ],
+        "clickable": true,
+        "kw": [
+          "我的"
+        ]
+      },
+      {
+        "label": "我的订单",
+        "rid": "",
+        "center": [
+          147,
+          941
+        ],
+        "size": [
+          160,
+          58
+        ],
+        "clickable": false,
+        "kw": [
+          "我的"
+        ]
+      },
+      {
+        "label": "约返0.13元",
+        "rid": "",
+        "center": [
+          879,
+          1752
+        ],
+        "size": [
+          174,
+          47
+        ],
+        "clickable": false,
+        "kw": [
+          "元"
+        ]
+      },
+      {
+        "label": "查看",
+        "rid": "",
+        "center": [
+          866,
+          522
+        ],
+        "size": [
+          70,
+          47
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "0.00",
+        "rid": "",
+        "center": [
+          638,
+          523
+        ],
+        "size": [
+          100,
+          62
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "概览",
+        "rid": "com.android.systemui:id/recent_apps",
+        "center": [
+          270,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "返回",
+        "rid": "com.android.systemui:id/back",
+        "center": [
+          825,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "主屏幕",
+        "rid": "com.android.systemui:id/home",
+        "center": [
+          540,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      }
+    ]
+  },
+  "log": [
+    "已启动 一淘 (com.taobao.etao)",
+    "自适应等待就绪（上限 90.0s，最小节点数 40；不按 BACK）",
+    "就绪判定: 节点=71 前台=com.taobao.etao 耗时=4.5s（节点数达标）",
+    "点掉弹窗按钮: 取消 @(664, 1334)",
+    "probe: 提示词未命中，尝试下一个 -> 定位屏幕底部导航栏最右侧的『我的』标签中心",
+    "probe: 提示词未命中，尝试下一个 -> 定位屏幕底部导航栏最右侧的『我』标签中心",
+    "probe: VLM 命中『定位屏幕底部导航栏的个人中心（我的）标签中心』-> (972,2152)，点击并等待 8.0s",
+    "二级页: 节点=190 入口命中=2/3"
+  ],
+  "checks": [
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "命中",
+      "detail": "candidates=['签到', '签到', '每日签到', '立即签到', '天天领'] -> '签到' @(482, 384)"
+    },
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 2,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['领取', '领金币'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['看视频领金币', '任务中心', '省金币', '今日任务'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 2,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['看视频', '领', '去完成'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 3,
+      "type": "swipe",
+      "status": "无需锚点",
+      "detail": "swipe"
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 4,
+      "type": "wait",
+      "status": "无需锚点",
+      "detail": "wait"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['我的', '我'] "
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 2,
+      "type": "click_text",
+      "status": "未命中",
+      "detail": "text='提现' 候选数=0"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 3,
+      "type": "reward",
+      "status": "未命中",
+      "detail": "pattern='可提现(?P<amount>[0-9]+(?:\\\\.[0-9]+)?)\\\\s*(?P<unit>元)' 当前页文本无匹配"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 4,
+      "type": "click_text",
+      "status": "未命中",
+      "detail": "text='立即提现' 候选数=0"
+    }
+  ],
+  "candidate_anchors": [
+    {
+      "label": "签到领钱",
+      "rid": "",
+      "center": [
+        482,
+        384
+      ],
+      "size": [
+        158,
+        50
+      ],
+      "clickable": false,
+      "kw": [
+        "签到",
+        "领"
+      ]
+    },
+    {
+      "label": "领取",
+      "rid": "",
+      "center": [
+        982,
+        1061
+      ],
+      "size": [
+        104,
+        47
+      ],
+      "clickable": false,
+      "kw": [
+        "领",
+        "领取"
+      ]
+    },
+    {
+      "label": "约返1.11元",
+      "rid": "",
+      "center": [
+        424,
+        744
+      ],
+      "size": [
+        168,
+        47
+      ],
+      "clickable": false,
+      "kw": [
+        "元"
+      ]
+    },
+    {
+      "label": "约返4.84元",
+      "rid": "",
+      "center": [
+        429,
+        1078
+      ],
+      "size": [
+        179,
+        47
+      ],
+      "clickable": false,
+      "kw": [
+        "元"
+      ]
+    },
+    {
+      "label": "约返1.72元",
+      "rid": "",
+      "center": [
+        426,
+        1412
+      ],
+      "size": [
+        173,
+        47
+      ],
+      "clickable": false,
+      "kw": [
+        "元"
+      ]
+    },
+    {
+      "label": "淘金币",
+      "rid": "",
+      "center": [
+        857,
+        1729
+      ],
+      "size": [
+        105,
+        47
+      ],
+      "clickable": false,
+      "kw": [
+        "金币"
+      ]
+    },
+    {
+      "label": "约返5.12元",
+      "rid": "",
+      "center": [
+        427,
+        1746
+      ],
+      "size": [
+        174,
+        47
+      ],
+      "clickable": false,
+      "kw": [
+        "元"
+      ]
+    },
+    {
+      "label": "得膨胀红包",
+      "rid": "",
+      "center": [
+        965,
+        1987
+      ],
+      "size": [
+        196,
+        40
+      ],
+      "clickable": false,
+      "kw": [
+        "红包"
+      ]
+    },
+    {
+      "label": "搜索",
+      "rid": "",
+      "center": [
+        725,
+        146
+      ],
+      "size": [
+        170,
+        81
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "镜子",
+      "rid": "",
+      "center": [
+        506,
+        147
+      ],
+      "size": [
+        660,
+        104
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "概览",
+      "rid": "com.android.systemui:id/recent_apps",
+      "center": [
+        270,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "返回",
+      "rid": "com.android.systemui:id/back",
+      "center": [
+        825,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "主屏幕",
+      "rid": "com.android.systemui:id/home",
+      "center": [
+        540,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    }
+  ]
+}

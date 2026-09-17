@@ -1,0 +1,607 @@
+{
+  "app": "喜番免费短剧",
+  "package": "com.kwai.theater",
+  "foreground": "com.kwai.theater",
+  "nodes": 121,
+  "anchors": 13,
+  "anchor_actions_total": 8,
+  "anchor_actions_hit": 1,
+  "entry_hit": 1,
+  "entry_total": 3,
+  "entry_detail": {
+    "sign": {
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['签到', '每日签到', '看剧赚金币', '去签到'] "
+    },
+    "watch": {
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['赚钱', '任务', '看剧赚钱', '福利'] "
+    },
+    "withdraw": {
+      "type": "click_first",
+      "status": "命中",
+      "detail": "candidates=['我的', '我'] -> '我的' @(945, 2145)"
+    }
+  },
+  "after": {
+    "prompt": "定位屏幕底部导航栏最右侧的『我的』标签中心",
+    "click": [
+      939,
+      2152
+    ],
+    "nodes": 180,
+    "entry_hit": 1,
+    "entry_total": 3,
+    "entry_detail": {
+      "sign": {
+        "type": "click_first",
+        "status": "未命中",
+        "detail": "candidates=['签到', '每日签到', '看剧赚金币', '去签到'] "
+      },
+      "watch": {
+        "type": "click_first",
+        "status": "未命中",
+        "detail": "candidates=['赚钱', '任务', '看剧赚钱', '福利'] "
+      },
+      "withdraw": {
+        "type": "click_first",
+        "status": "命中",
+        "detail": "candidates=['我的', '我'] -> '我的' @(970, 2145)"
+      }
+    },
+    "candidate_anchors": [
+      {
+        "label": "现金3.47元",
+        "rid": "com.kwai.theater:id/sub_title",
+        "center": [
+          154,
+          538
+        ],
+        "size": [
+          146,
+          30
+        ],
+        "clickable": false,
+        "kw": [
+          "元",
+          "现金"
+        ]
+      },
+      {
+        "label": "提现",
+        "rid": "com.kwai.theater:id/title",
+        "center": [
+          179,
+          487
+        ],
+        "size": [
+          74,
+          37
+        ],
+        "clickable": false,
+        "kw": [
+          "提现"
+        ]
+      },
+      {
+        "label": "去看剧",
+        "rid": "com.kwai.theater:id/login_pendant_bottom_text",
+        "center": [
+          968,
+          700
+        ],
+        "size": [
+          98,
+          29
+        ],
+        "clickable": false,
+        "kw": [
+          "看剧"
+        ]
+      },
+      {
+        "label": "赚现金",
+        "rid": "com.kwai.theater:id/home_tab_tip",
+        "center": [
+          496,
+          2111
+        ],
+        "size": [
+          87,
+          37
+        ],
+        "clickable": false,
+        "kw": [
+          "现金"
+        ]
+      },
+      {
+        "label": "我的",
+        "rid": "com.kwai.theater:id/select_tab_text",
+        "center": [
+          970,
+          2145
+        ],
+        "size": [
+          90,
+          42
+        ],
+        "clickable": false,
+        "kw": [
+          "我的"
+        ]
+      },
+      {
+        "label": "历史",
+        "rid": "",
+        "center": [
+          98,
+          704
+        ],
+        "size": [
+          156,
+          127
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "在追",
+        "rid": "",
+        "center": [
+          254,
+          704
+        ],
+        "size": [
+          156,
+          127
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "点赞",
+        "rid": "",
+        "center": [
+          410,
+          704
+        ],
+        "size": [
+          156,
+          127
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "已购",
+        "rid": "",
+        "center": [
+          566,
+          704
+        ],
+        "size": [
+          156,
+          127
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "下载",
+        "rid": "",
+        "center": [
+          722,
+          704
+        ],
+        "size": [
+          156,
+          127
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "全部",
+        "rid": "",
+        "center": [
+          101,
+          825
+        ],
+        "size": [
+          132,
+          81
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "短剧",
+        "rid": "",
+        "center": [
+          256,
+          825
+        ],
+        "size": [
+          132,
+          81
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "漫剧",
+        "rid": "",
+        "center": [
+          411,
+          825
+        ],
+        "size": [
+          132,
+          81
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "小说",
+        "rid": "",
+        "center": [
+          566,
+          825
+        ],
+        "size": [
+          132,
+          81
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "概览",
+        "rid": "com.android.systemui:id/recent_apps",
+        "center": [
+          270,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "返回",
+        "rid": "com.android.systemui:id/back",
+        "center": [
+          825,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "主屏幕",
+        "rid": "com.android.systemui:id/home",
+        "center": [
+          540,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      }
+    ]
+  },
+  "log": [
+    "已启动 喜番免费短剧 (com.kwai.theater)",
+    "自适应等待就绪（上限 90.0s，最小节点数 40；不按 BACK）",
+    "就绪判定: 节点=117 前台=com.kwai.theater 耗时=20.8s（节点数达标）",
+    "probe: VLM 命中『定位屏幕底部导航栏最右侧的『我的』标签中心』-> (939,2152)，点击并等待 8.0s",
+    "二级页: 节点=180 入口命中=1/3"
+  ],
+  "checks": [
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['签到', '每日签到', '看剧赚金币', '去签到'] "
+    },
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 2,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['立即签到', '领取'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['赚钱', '任务', '看剧赚钱', '福利'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 2,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['看剧', '去完成', '看短剧'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 3,
+      "type": "swipe",
+      "status": "无需锚点",
+      "detail": "swipe"
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 4,
+      "type": "wait",
+      "status": "无需锚点",
+      "detail": "wait"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "命中",
+      "detail": "candidates=['我的', '我'] -> '我的' @(945, 2145)"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 2,
+      "type": "click_text",
+      "status": "未命中",
+      "detail": "text='提现' 候选数=0"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 3,
+      "type": "reward",
+      "status": "未命中",
+      "detail": "pattern='(?P<amount>[0-9]+(?:\\\\.[0-9]+)?)\\\\s*(?P<unit>元)' 当前页文本无匹配"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 4,
+      "type": "click_text",
+      "status": "未命中",
+      "detail": "text='立即提现' 候选数=0"
+    }
+  ],
+  "candidate_anchors": [
+    {
+      "label": "赚现金",
+      "rid": "com.kwai.theater:id/home_tab_tip",
+      "center": [
+        496,
+        2111
+      ],
+      "size": [
+        87,
+        37
+      ],
+      "clickable": false,
+      "kw": [
+        "现金"
+      ]
+    },
+    {
+      "label": "我的",
+      "rid": "com.kwai.theater:id/unselect_tab_text",
+      "center": [
+        945,
+        2145
+      ],
+      "size": [
+        92,
+        46
+      ],
+      "clickable": false,
+      "kw": [
+        "我的"
+      ]
+    },
+    {
+      "label": "热剧",
+      "rid": "",
+      "center": [
+        119,
+        191
+      ],
+      "size": [
+        168,
+        127
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "找剧",
+      "rid": "",
+      "center": [
+        287,
+        191
+      ],
+      "size": [
+        168,
+        127
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "推荐",
+      "rid": "",
+      "center": [
+        455,
+        191
+      ],
+      "size": [
+        168,
+        127
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "追剧",
+      "rid": "com.kwai.theater:id/slide_detail_favorite_button_tip",
+      "center": [
+        993,
+        1571
+      ],
+      "size": [
+        70,
+        44
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "14.9万",
+      "rid": "com.kwai.theater:id/ksad_photo_like_count_text",
+      "center": [
+        993,
+        1772
+      ],
+      "size": [
+        105,
+        46
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "第1集｜无论起点是晴空万里，还是偶有阴云遮蔽，我都始终向阳而生、砥…",
+      "rid": "com.kwai.theater:id/ksad_bottom_content_describe",
+      "center": [
+        431,
+        1801
+      ],
+      "size": [
+        792,
+        111
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "展开",
+      "rid": "com.kwai.theater:id/theater_expanded_text",
+      "center": [
+        784,
+        1828
+      ],
+      "size": [
+        86,
+        58
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "分享",
+      "rid": "com.kwai.theater:id/share_text",
+      "center": [
+        993,
+        1970
+      ],
+      "size": [
+        70,
+        47
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "概览",
+      "rid": "com.android.systemui:id/recent_apps",
+      "center": [
+        270,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "返回",
+      "rid": "com.android.systemui:id/back",
+      "center": [
+        825,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "主屏幕",
+      "rid": "com.android.systemui:id/home",
+      "center": [
+        540,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    }
+  ]
+}

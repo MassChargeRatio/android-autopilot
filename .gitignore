@@ -1,0 +1,52 @@
+# ============================================================
+# 敏感信息 —— 绝对不要提交
+# ============================================================
+# 真实配置含 VLM API Key（vision.vlm.api_key / fallback.api_key）。
+# 仓库里只放 config.example.yaml，Key 走环境变量 VLM_KEY 或本机 config.yaml。
+config.yaml
+config.yaml.bak*
+*.bak
+*.bak-*
+# 交接包里另有一份带真实 Key 的配置副本
+handover/03_配置与清单/config.yaml
+# 环境与密钥
+.env
+.env.*
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 运行时数据（含收益记录，不应上传）
+data/
+*.db
+*.db-journal
+*.db-wal
+run-*.log
+*.log
+logs/
+
+# 调试产物（体积大、无源码价值）
+# 例外：images/ 是 OpenCV 模板匹配的**功能素材**，
+#       docs/gui/ 是界面文档截图 —— 这两处的 png 必须保留，
+#       所以用「先全忽略、再逐个放行」，不要按目录写死。
+*.png
+*.xml
+!images/*.png
+!docs/gui/*.png
+devtools/out/
+handover/archive/
+*.tmp
+
+# 本机工具链 / 编辑器 / 系统
+.workbuddy-ai/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

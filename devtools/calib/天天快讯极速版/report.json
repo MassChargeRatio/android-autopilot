@@ -1,0 +1,702 @@
+{
+  "app": "天天快讯极速版",
+  "package": "skysky.cy.kuaixun",
+  "foreground": "com.bbk.launcher2",
+  "nodes": 71,
+  "anchors": 33,
+  "anchor_actions_total": 9,
+  "anchor_actions_hit": 0,
+  "entry_hit": 0,
+  "entry_total": 3,
+  "entry_detail": {
+    "sign": {
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['立即签到', '签到', '连续签到', '每日签到'] "
+    },
+    "watch": {
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['看视频', '看资讯赚钱', '任务中心'] "
+    },
+    "withdraw": {
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['我的', '我'] "
+    }
+  },
+  "after": {
+    "prompt": "定位屏幕底部导航栏最右侧的『我的』标签中心",
+    "click": [
+      896,
+      1684
+    ],
+    "nodes": 72,
+    "entry_hit": 0,
+    "entry_total": 3,
+    "entry_detail": {
+      "sign": {
+        "type": "click_first",
+        "status": "未命中",
+        "detail": "candidates=['立即签到', '签到', '连续签到', '每日签到'] "
+      },
+      "watch": {
+        "type": "click_first",
+        "status": "未命中",
+        "detail": "candidates=['看视频', '看资讯赚钱', '任务中心'] "
+      },
+      "withdraw": {
+        "type": "click_first",
+        "status": "未命中",
+        "detail": "candidates=['我的', '我'] "
+      }
+    },
+    "candidate_anchors": [
+      {
+        "label": "更多",
+        "rid": "",
+        "center": [
+          972,
+          222
+        ],
+        "size": [
+          132,
+          132
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "概览",
+        "rid": "com.android.systemui:id/recent_apps",
+        "center": [
+          270,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "返回",
+        "rid": "com.android.systemui:id/back",
+        "center": [
+          825,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      },
+      {
+        "label": "主屏幕",
+        "rid": "com.android.systemui:id/home",
+        "center": [
+          540,
+          2277
+        ],
+        "size": [
+          240,
+          126
+        ],
+        "clickable": true,
+        "kw": []
+      }
+    ]
+  },
+  "log": [
+    "已启动 天天快讯极速版 (skysky.cy.kuaixun)",
+    "自适应等待就绪（上限 90.0s，最小节点数 40；不按 BACK）",
+    "达到最大等待 90.0s 仍未就绪，节点=71，按当前页继续",
+    "⚠ 当前前台包名 com.bbk.launcher2 != 目标 skysky.cy.kuaixun（可能被弹窗/广告占据）",
+    "probe: 提示词未命中，尝试下一个 -> 定位屏幕底部导航栏最右侧的『我的』标签中心",
+    "probe: 提示词未命中，尝试下一个 -> 定位屏幕底部导航栏最右侧的『我』标签中心",
+    "probe: 提示词未命中，尝试下一个 -> 定位屏幕底部导航栏的个人中心（我的）标签中心",
+    "probe: VLM 命中『定位屏幕右下角的个人中心头像/图标中心』-> (896,1684)，点击并等待 8.0s",
+    "二级页: 节点=72 入口命中=0/3"
+  ],
+  "checks": [
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['立即签到', '签到', '连续签到', '每日签到'] "
+    },
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 2,
+      "type": "reward",
+      "status": "未命中",
+      "detail": "pattern='领(?P<amount>[0-9]+)\\\\s*(?P<unit>金币)' 当前页文本无匹配"
+    },
+    {
+      "behavior": "sign",
+      "variant": 0,
+      "step": 3,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['立即签到领2888金币', '领取'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['看视频', '看资讯赚钱', '任务中心'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 2,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['去完成', '领取'] "
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 3,
+      "type": "swipe",
+      "status": "无需锚点",
+      "detail": "swipe"
+    },
+    {
+      "behavior": "watch",
+      "variant": 0,
+      "step": 4,
+      "type": "wait",
+      "status": "无需锚点",
+      "detail": "wait"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 0,
+      "type": "click_first",
+      "status": "未命中",
+      "detail": "candidates=['我的', '我'] "
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 1,
+      "type": "think",
+      "status": "无需锚点",
+      "detail": "think"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 2,
+      "type": "click_text",
+      "status": "未命中",
+      "detail": "text='提现' 候选数=0"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 3,
+      "type": "reward",
+      "status": "未命中",
+      "detail": "pattern='(?P<amount>[0-9]+(?:\\\\.[0-9]+)?)\\\\s*(?P<unit>元)' 当前页文本无匹配"
+    },
+    {
+      "behavior": "withdraw",
+      "variant": 0,
+      "step": 4,
+      "type": "click_text",
+      "status": "未命中",
+      "detail": "text='立即提现' 候选数=0"
+    }
+  ],
+  "candidate_anchors": [
+    {
+      "label": "17:23",
+      "rid": "com.vivo.doubletimezoneclock:id/single_time_layout",
+      "center": [
+        254,
+        358
+      ],
+      "size": [
+        330,
+        199
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "时钟天气·经典",
+      "rid": "",
+      "center": [
+        539,
+        372
+      ],
+      "size": [
+        984,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "薛城区",
+      "rid": "com.vivo.doubletimezoneclock:id/city",
+      "center": [
+        926,
+        393
+      ],
+      "size": [
+        126,
+        57
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "9月14日 星期一",
+      "rid": "com.vivo.doubletimezoneclock:id/date_week_apm",
+      "center": [
+        242,
+        468
+      ],
+      "size": [
+        306,
+        63
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "微信",
+      "rid": "",
+      "center": [
+        170,
+        642
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "小红书",
+      "rid": "",
+      "center": [
+        416,
+        642
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "知乎",
+      "rid": "",
+      "center": [
+        662,
+        642
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "购物",
+      "rid": "",
+      "center": [
+        908,
+        642
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "支付宝",
+      "rid": "",
+      "center": [
+        170,
+        912
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "转账",
+      "rid": "",
+      "center": [
+        416,
+        912
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "雪球",
+      "rid": "",
+      "center": [
+        662,
+        912
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "理财",
+      "rid": "",
+      "center": [
+        908,
+        912
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "主屏幕 1",
+      "rid": "",
+      "center": [
+        540,
+        1170
+      ],
+      "size": [
+        1080,
+        2340
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "v2rayNG",
+      "rid": "",
+      "center": [
+        170,
+        1182
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "Play 商店",
+      "rid": "",
+      "center": [
+        416,
+        1182
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "身份验证器",
+      "rid": "",
+      "center": [
+        662,
+        1182
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "Edge",
+      "rid": "",
+      "center": [
+        908,
+        1182
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "通讯",
+      "rid": "",
+      "center": [
+        170,
+        1452
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "其他",
+      "rid": "",
+      "center": [
+        416,
+        1452
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "vivo 工具",
+      "rid": "",
+      "center": [
+        662,
+        1452
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "vivo app",
+      "rid": "",
+      "center": [
+        908,
+        1452
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "设置",
+      "rid": "",
+      "center": [
+        170,
+        1722
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "应用商店",
+      "rid": "",
+      "center": [
+        416,
+        1722
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "文件管理",
+      "rid": "",
+      "center": [
+        662,
+        1722
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "相册",
+      "rid": "",
+      "center": [
+        908,
+        1722
+      ],
+      "size": [
+        246,
+        270
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "电话",
+      "rid": "",
+      "center": [
+        129,
+        2137
+      ],
+      "size": [
+        196,
+        246
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "信息，760条通知",
+      "rid": "",
+      "center": [
+        334,
+        2137
+      ],
+      "size": [
+        196,
+        246
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "相机",
+      "rid": "",
+      "center": [
+        539,
+        2137
+      ],
+      "size": [
+        196,
+        246
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "电子邮件，189条通知",
+      "rid": "",
+      "center": [
+        744,
+        2137
+      ],
+      "size": [
+        196,
+        246
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "浏览器",
+      "rid": "",
+      "center": [
+        949,
+        2137
+      ],
+      "size": [
+        196,
+        246
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "概览",
+      "rid": "com.android.systemui:id/recent_apps",
+      "center": [
+        270,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "返回",
+      "rid": "com.android.systemui:id/back",
+      "center": [
+        825,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    },
+    {
+      "label": "主屏幕",
+      "rid": "com.android.systemui:id/home",
+      "center": [
+        540,
+        2277
+      ],
+      "size": [
+        240,
+        126
+      ],
+      "clickable": true,
+      "kw": []
+    }
+  ]
+}

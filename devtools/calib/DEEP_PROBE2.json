@@ -1,0 +1,134 @@
+[
+  {
+    "app": "一淘",
+    "behavior": "sign",
+    "l2": null,
+    "l3": null,
+    "l2_xy": null,
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\一淘\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\一淘\\deep_sign_L3_3.png",
+    "on_l2": null,
+    "attempts": [
+      {
+        "l2": "text=去福狸中心做任务",
+        "l3": null
+      },
+      {
+        "l2": "text=返利钱包",
+        "l3": null
+      },
+      {
+        "l2": "text=什么是返利钱包？",
+        "l3": null
+      }
+    ]
+  },
+  {
+    "app": "今日看点极速版",
+    "behavior": "sign",
+    "l2": null,
+    "l3": null,
+    "l2_xy": null,
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\今日看点极速版\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\今日看点极速版\\deep_sign_L3_3.png",
+    "on_l2": null,
+    "attempts": [
+      {
+        "l2": "text=金币收益",
+        "l3": null
+      },
+      {
+        "l2": "text=我的钱包",
+        "l3": null
+      },
+      {
+        "l2": "text=现金收益",
+        "l3": null
+      }
+    ]
+  },
+  {
+    "app": "蛋花免费小说",
+    "behavior": "sign",
+    "l2": null,
+    "l3": null,
+    "l2_xy": null,
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\蛋花免费小说\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\蛋花免费小说\\deep_sign_L3_2.png",
+    "on_l2": null,
+    "attempts": [
+      {
+        "l2": "text=福利",
+        "l3": null
+      },
+      {
+        "l2": "text=金币",
+        "l3": null
+      }
+    ]
+  },
+  {
+    "app": "河马剧场",
+    "behavior": "sign",
+    "l2": "text=福利",
+    "l3": "text=去签到",
+    "l2_xy": [
+      358,
+      568
+    ],
+    "l3_xy": [
+      912,
+      1062
+    ],
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\河马剧场\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\河马剧场\\deep_sign_L3_1.png",
+    "on_l2": null,
+    "attempts": [
+      {
+        "l2": "text=福利",
+        "l3": "text=去签到"
+      }
+    ]
+  },
+  {
+    "app": "悟空浏览器",
+    "behavior": "sign",
+    "l2": null,
+    "l3": null,
+    "l2_xy": null,
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\悟空浏览器\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\悟空浏览器\\deep_sign_L3_2.png",
+    "on_l2": null,
+    "attempts": [
+      {
+        "l2": "text=赚钱",
+        "l3": null
+      },
+      {
+        "l2": "text=已赚金币",
+        "l3": null
+      }
+    ]
+  },
+  {
+    "app": "抖音火山版",
+    "behavior": "sign",
+    "l2": null,
+    "l3": null,
+    "l2_xy": null,
+    "l3_xy": null,
+    "shot_l2": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\抖音火山版\\deep_sign_L2.png",
+    "shot_l3": "D:\\ProgramData\\WorkBuddyAI\\AndroidAutopilot\\devtools\\calib\\抖音火山版\\deep_sign_L3_1.png",
+    "on_l2": null,
+    "attempts": [
+      {
+        "l2": "text=点击赚钱",
+        "l3": null
+      }
+    ]
+  }
+]
