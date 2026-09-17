@@ -1,17 +1,4 @@
----
-AIGC:
-    Label: "1"
-    ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 58c070810b91e31b76e5016e97ae2974_6d5432e0ac5711f1af37525400826444
-    ReservedCode1: kUMB3CpSXZR3iTViD6S+mvrJ6chYEh0FDSAcuhnmUob97cW/Hn7RkZ2xv8EaXXxVSxFTxmysa9vkF6EH7TEvoEDqrn3B4TIQBaS/HUAxgIk15MnVjm3DrGXaMsXBNEbG0zjM/F5i+6KHhd4aZ5zutbi5Ui9iSX1o/6YOEYyJBuPg90zzQeiJ+7RWHu4=
-    ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 58c070810b91e31b76e5016e97ae2974_6d5432e0ac5711f1af37525400826444
-    ReservedCode2: kUMB3CpSXZR3iTViD6S+mvrJ6chYEh0FDSAcuhnmUob97cW/Hn7RkZ2xv8EaXXxVSxFTxmysa9vkF6EH7TEvoEDqrn3B4TIQBaS/HUAxgIk15MnVjm3DrGXaMsXBNEbG0zjM/F5i+6KHhd4aZ5zutbi5Ui9iSX1o/6YOEYyJBuPg90zzQeiJ+7RWHu4=
----
-
-
-
-
+# Android Autopilot
 
 # Android Autopilot
 
@@ -408,6 +395,4 @@ python main.py --task "去阅读App签到并看视频"
 - 本工具仅用于**个人名下、可合法自动化**的设备和任务（个人签到/打卡等），请遵守所操作 App 的用户协议与相关法律法规。
 - 自动化操作存在被 App 风控识别的可能；本项目通过"真人模拟"降低概率，但**无法保证 100% 不被识别**，滥用可能造成账号限制，后果自负。
 - 项目思路参考了 GitHub 上的开源方案（coin11-tb、Sleepway2work、Android-Anti-Detection-Automation 等），在实现上做了通用化与"配置驱动 + 自然语言"的落地。
-*（内容由AI生成，仅供参考）*
-*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
