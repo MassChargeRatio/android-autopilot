@@ -1,0 +1,3605 @@
+apps:
+- name: 趣头条
+  package: com.jifen.qukan
+  aliases:
+  - 趣头条
+  - 趣看天下
+  - 趣闻
+  - 新闻赚金币
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 暂不
+          - type: text
+            value: 关闭
+          - type: text
+            value: 以后再说
+          - type: text
+            value: 稍后再说
+          - type: text
+            value: 我知道了
+          - type: text
+            value: 知道了
+          - type: text
+            value: 不再提醒
+          - type: text
+            value: 取消
+          timeout: 3
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 暂不
+          - type: text
+            value: 关闭
+          - type: text
+            value: 以后再说
+          - type: text
+            value: 我知道了
+          - type: text
+            value: 知道了
+          timeout: 3
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 任务
+          candidates_from: nav_tab
+          zone: tab_zone
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.7
+          y: 0.914
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 底部右二tab「任务」坐标兜底（待真机校准）
+    - type: think
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.16
+          y: 0.45
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 任务界面中部最左「今日签到」坐标兜底（待真机校准）
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看视频领金币
+      - type: text
+        value: 体验领金币
+      - type: text
+        value: 领50金币
+      - type: text
+        value: 视频
+      timeout: 8
+      optional: true
+    - type: think
+    - type: reward
+      pattern: 看视频[^0-9]*(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 看视频
+    - type: reward
+      pattern: \+\s*(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 看视频加奖
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_text
+      text: 我的
+      timeout: 8
+    - type: think
+    - type: click_text
+      text: 提现兑换
+      timeout: 6
+    - type: ensure
+      text: 我要提现
+      exists: 'yes'
+      timeout: 5
+    - type: reward
+      pattern: 约(?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 拼多多
+  package: com.xunmeng.pinduoduo
+  aliases:
+  - 拼多多
+  behaviors:
+    watch:
+    - type: click_point
+      images:
+      - images/拼多多/e4417c6d-5e2a-4a24-a172-589357b264c5.png
+      timeout: 6
+      optional: true
+      desc: 图像-拼多多-任务界面-多多视频
+    collect:
+    - type: click_point
+      images:
+      - images/拼多多/5c996370-94cc-4137-97f9-da361fd51e9b.png
+      timeout: 6
+      optional: true
+      desc: 图像-拼多多-任务界面-余额
+    withdraw:
+    - type: click_point
+      images:
+      - images/拼多多/526d1934-9de7-4322-9f64-0834118bc519.png
+      timeout: 6
+      optional: true
+      desc: 图像-拼多多-提现-立即提现
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 多多视频
+          candidates_from: nav_tab
+          zone: tab_zone
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.3
+          y: 0.914
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 底部左二tab「多多视频」坐标兜底
+          expect:
+            phash: images/拼多多/landing/ref_video.png
+            phash_max_dist: 8
+            retry: 1
+    - type: think
+    - type: click_point
+      x: 0.856
+      y: 0.167
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 多多视频页右上缘圆形金币入口（2026-10-23 真机校准）
+      expect:
+        phash: images/拼多多/landing/ref_coin.png
+        phash_max_dist: 8
+        retry: 1
+    - type: swipe
+      from:
+      - 0.5
+      - 0.78
+      to:
+      - 0.5
+      - 0.35
+      duration: 0.4
+    - type: swipe
+      from:
+      - 0.5
+      - 0.78
+      to:
+      - 0.5
+      - 0.35
+      duration: 0.4
+    - type: click_point
+      x: 0.144
+      y: 0.505
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 金币中心7天连签条「今日可领」卡片（2026-10-23 真机校准）
+      expect:
+        phash: images/拼多多/landing/ref_sign.png
+        phash_max_dist: 8
+        retry: 1
+    - type: click_point
+      x: 0.5
+      y: 0.628
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 每日签到弹窗「领取今日现金」按钮（2026-10-23 真机校准）
+      expect:
+        phash: images/拼多多/landing/ref_done.png
+        phash_max_dist: 8
+- name: 京东
+  package: com.jingdong.app.mall
+  aliases:
+  - 京东
+  launch_reset: true
+  behaviors:
+    sign:
+    - type: click_point
+      x: 0.306
+      y: 0.9
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 底部「逛」tab（首页与消息之间；真机中心 (330,2105)）
+      expect:
+        text_any:
+        - 赚现金
+        - 领金币
+        settle: 3.0
+        retry: 1
+    - type: think
+    - type: click_point
+      x: 0.24
+      y: 0.431
+      images:
+      - images/京东/btn_qiandao.png
+      timeout: 8
+      optional: true
+      desc: 金币面板「连续签到7天」当日[签到领]（图像锚点+坐标兜底）
+    withdraw:
+    - type: click_point
+      images:
+      - images/京东/dc8480ee-0d96-4ae4-880a-894ae13d9ee4.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-提现-提现至京东钱包
+    - type: click_point
+      images:
+      - images/京东/3c265ddf-12c5-4858-8f71-65c17d98886b.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-提现-可提现
+    - type: click_point
+      images:
+      - images/京东/b0280879-92dd-4bd9-920c-ec465e0e39e8.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-提现-提现至钱包
+    collect:
+    - type: click_point
+      images:
+      - images/京东/83342289-5e5c-4765-93f3-1b5446f742be.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-任务界面-赚现金
+    - type: click_point
+      images:
+      - images/京东/043972e5-c653-418b-ad5e-cdfd357ab366.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-任务界面-京东图标
+    - type: click_point
+      images:
+      - images/京东/07950812-d018-4f13-b6b2-e17571d77cf0.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-任务列表-关闭
+- name: 美团
+  package: com.sankuai.meituan
+  aliases:
+  - 美团
+  - 美团外卖
+  - 美图
+  launch_reset: true
+  behaviors:
+    sign:
+    - type: click_point
+      x: 0.3
+      y: 0.9
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 底部【视频】tab（真机中心 (324,2105)）
+      expect:
+        text_any:
+        - 倍速
+        - 上滑继续看视频
+        settle: 3.0
+        retry: 1
+    - type: think
+    - type: click_point
+      x: 0.92
+      y: 0.204
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 视频页右上角圆形金币徽标（真机中心 (994,477)）
+      expect:
+        phash: images/美团/landing/ref_center.png
+        phash_max_dist: 12
+        settle: 3.5
+        retry: 1
+    - type: think
+    - type: click_point
+      x: 0.214
+      y: 0.278
+      images:
+      - images/美团/btn_qiandao.png
+      timeout: 8
+      optional: true
+      desc: 赚钱中心[去签到]（图像锚点+坐标兜底）；后续弹窗会推桌面组件，见上方阻塞说明
+    withdraw:
+    - type: click_point
+      images:
+      - images/美团/7aeb4e5b-dbae-4a18-8dde-6ba9ea09f126.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-提现-活动钱包
+    - type: click_point
+      images:
+      - images/美团/eb3599b0-882d-4c1e-907d-6b498576c8a1.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-提现-提现到美团钱包
+    - type: click_point
+      images:
+      - images/美团/1ca55c04-27a2-4bda-bbc6-1f58970ffc9f.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-提现-提现
+    collect:
+    - type: click_point
+      images:
+      - images/美团/9c28a301-b81e-4b27-8795-e25d3d21e9be.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-任务界面-换现金
+    - type: click_point
+      images:
+      - images/美团/62a94570-7063-4599-9739-2d707b85eb66.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-任务列表-关闭
+    watch:
+    - type: click_point
+      images:
+      - images/美团/32c261fe-128b-4dd9-b15c-c56a71478108.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-任务界面-视频
+- name: 快手
+  package: com.smile.gifmaker
+  aliases:
+  - 快手
+  behaviors:
+    bonus:
+    - type: click_point
+      images:
+      - images/快手/e65cea03-918e-4297-9f92-b5eef52e88f3.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-任务界面-红包图标
+    - type: click_point
+      images:
+      - images/快手/150f0fd5-b06e-4eaa-af57-0245d629ed0e.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-点宝箱-点可领
+    - type: click_point
+      images:
+      - images/快手/c00e3080-8b4c-46aa-8478-74abc3a5a73f.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-点宝箱-关闭
+    sign:
+    - type: click_point
+      x: 0.07
+      y: 0.06
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 首页左上角☰打开侧边栏
+    - type: think
+    - type: any_of
+      optional: false
+      choices:
+      - - type: click_first
+          candidates:
+          - type: desc
+            value: 任务中心
+          - type: text
+            value: 任务中心
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.638
+          y: 0.161
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 侧边栏「任务中心」磁贴（真机中心 (689,376)，旧值 0.5/0.18 偏左错过）
+          expect:
+            phash: images/快手/landing/ref_task.png
+            phash_max_dist: 8
+            settle: 3.0
+            retry: 1
+    - type: think
+    - type: click_point
+      x: 0.856
+      y: 0.339
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 任务中心[立即签到]（真机中心 (924,793)）
+      expect:
+        phash: images/快手/landing/ref_dialog.png
+        phash_max_dist: 10
+        settle: 3.0
+        retry: 1
+    - type: click_point
+      x: 0.5
+      y: 0.632
+      timeout: 6
+      optional: true
+      vision: false
+      desc: 签到弹窗[立即签到]（真机中心 (540,1480)）
+    - type: reward
+      pattern: 今日签到可领\s*(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到金币
+    withdraw:
+    - type: click_point
+      images:
+      - images/快手/f1ab7643-c156-4612-ae98-8fb425475b29.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-提现-领现金
+    - type: click_point
+      images:
+      - images/快手/9e4c2242-f684-4574-afdc-e7df073e5363.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-提现-立即兑换
+    - type: click_point
+      images:
+      - images/快手/77b164cc-12ca-410f-a0e4-ae9f48460d91.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-提现-立即提现
+    collect:
+    - type: click_point
+      images:
+      - images/快手/0100ec21-8be7-4552-b456-e20e7f831f39.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-任务列表-关闭
+    gift:
+    - type: click_point
+      images:
+      - images/快手/dc7e72b7-ba53-4572-aafa-052262c440d3.png
+      timeout: 6
+      optional: true
+      desc: 图像-快手-白拿礼物-去领取
+- name: 百度地图
+  package: com.baidu.BaiduMap
+  aliases:
+  - 百度地图
+  - 百度地图签到
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 暂不
+          - type: text
+            value: 关闭
+          - type: text
+            value: 以后再说
+          - type: text
+            value: 我知道了
+          timeout: 3
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 现金签到
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.5
+          y: 0.45
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页中部「现金签到」坐标兜底（待真机校准）
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 直接领取
+      - type: text
+        value: 立即签到
+      - type: text
+        value: 领取
+      candidates_from: sign
+      timeout: 6
+      optional: true
+    collect:
+    - type: click_point
+      images:
+      - images/百度地图/95c4a280-5192-4de3-8ad1-a2316f95fa53.png
+      timeout: 6
+      optional: true
+      desc: 图像-百度地图-任务列表-关闭
+- name: 海马畅听
+  package: com.hm.hmct2025
+  aliases:
+  - 海马畅听
+  launch_reset: true
+  behaviors:
+    sign:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到
+      - type: text
+        value: 签到领取
+      timeout: 8
+      optional: false
+      expect:
+        text_any:
+        - 100%中奖
+        - 无套路
+        retry: 1
+        settle: 2.5
+    - type: reward
+      pattern: 立即签到得(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到金币
+    open:
+    - type: click_point
+      images:
+      - images/海马畅听/a1b7fef3-462b-4e39-bfb9-2722764499ab.png
+      timeout: 6
+      optional: true
+      desc: 图像-海马畅听-打开APP-分类按钮
+    bonus:
+    - type: click_id
+      res_id: com.hm.hmct2025:id/llBottom
+      timeout: 6
+      optional: true
+      desc: 文本框-海马畅听-任务列表-领现金
+- name: UC浏览器极速版
+  package: com.ucmobile.lite
+  aliases:
+  - UC浏览器极速版
+  - UC极速版
+  launch_reset: true
+  behaviors:
+    collect:
+    - type: click_point
+      images:
+      - images/UC浏览器极速版/78f0e67e-7696-40da-8296-b2ea3be224b6.png
+      timeout: 6
+      optional: true
+      desc: 图像-UC浏览器极速版-任务列表-任务
+    sign:
+    - type: click_point
+      x: 0.9
+      y: 0.914
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 底部右下「任务」tab（真机中心 (972,2138)）
+      expect:
+        phash: images/UC浏览器极速版/landing/ref_task.png
+        phash_max_dist: 20
+        settle: 3.0
+        retry: 1
+    - type: think
+    - type: click_point
+      x: 0.5
+      y: 0.18
+      images:
+      - images/UC浏览器极速版/banner_qiandao.png
+      timeout: 8
+      optional: true
+      desc: 任务页浮动「连签7天」横幅（图像模板定位；已签到时不存在）
+      expect:
+        phash: images/UC浏览器极速版/landing/ref_dialog.png
+        phash_max_dist: 12
+        settle: 3.0
+        retry: 1
+    - type: click_point
+      x: 0.28
+      y: 0.576
+      timeout: 6
+      optional: true
+      vision: false
+      desc: 签到弹窗[直接领]（真机中心 (302,1348)）
+    - type: reward
+      pattern: 签到\+(?P<amount>[0-9]+)\s*(?P<unit>元宝)
+      unit: 元宝
+      name: 签到元宝
+    withdraw:
+    - type: click_point
+      images:
+      - images/UC浏览器极速版/d0c2a233-7066-4dec-8ed4-d9b1f84c5187.png
+      timeout: 6
+      optional: true
+      desc: 图像-UC浏览器极速版-提现-去提现
+    - type: click_point
+      images:
+      - images/UC浏览器极速版/fac910c2-c85f-4d7e-8da8-1f0ab3c3868e.png
+      timeout: 6
+      optional: true
+      desc: 图像-UC浏览器极速版-提现-支付宝0.3
+    - type: click_point
+      images:
+      - images/UC浏览器极速版/81bcf6ee-8337-4e29-b414-33e15c959a71.png
+      timeout: 6
+      optional: true
+      desc: 图像-UC浏览器极速版-提现-去微信分享
+- name: 飞猪旅行
+  package: com.taobao.trip
+  aliases:
+  - 飞猪旅行
+  - 飞猪
+  behaviors:
+    collect:
+    - type: click_point
+      images:
+      - images/飞猪旅行/99c00b80-3cae-470e-acf7-0071a2e6956b.png
+      timeout: 6
+      optional: true
+      desc: 图像-飞猪旅行-任务列表-关闭
+    bonus:
+    - type: click_point
+      images:
+      - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+      timeout: 6
+      optional: true
+      desc: 图像-飞猪旅行-能量红包-图标
+    - type: click_text
+      text: 天天集能量
+      timeout: 6
+      optional: true
+      desc: 视图框-飞猪-能量红包-立即领取
+      images:
+      - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+    - type: click_text
+      text: 天天集能量
+      timeout: 6
+      optional: true
+      desc: 移动元素-飞猪-能量红包-关闭弹窗
+      images:
+      - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 能量红包
+          - type: desc
+            value: 能量红包
+          candidates_from: task_center
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.5
+          y: 0.42
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页中部「能量红包」坐标兜底（待真机校准）
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即领取
+      - type: text
+        value: 领取
+      - type: text
+        value: 签到
+      candidates_from: sign
+      timeout: 6
+      optional: true
+    - type: back
+    - type: think
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 里程签到
+          - type: desc
+            value: 里程签到
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.5
+          y: 0.55
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页中部「里程签到」坐标兜底（待真机校准）
+    - type: think
+    - type: click_first
+      candidates_from: sign
+      timeout: 6
+      optional: true
+- name: 米读小说
+  package: com.lechuan.midunovel
+  aliases:
+  - 米读小说
+  behaviors:
+    collect:
+    - type: click_point
+      images:
+      - images/米读小说/8b329078-4b67-41d8-8f6a-57b2e7d88a82.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读小说-任务列表-福利中心
+    - type: click_point
+      images:
+      - images/米读小说/8923f381-6c07-4693-9bca-4f435c513168.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读小说-任务列表-我的
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          candidates_from: nav_tab
+          zone: tab_zone
+          timeout: 8
+          optional: false
+        - type: click_point
+          x: 0.9
+          y: 0.931
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 底部最右tab「我的」坐标兜底（真机校准 2026-10-21）
+        - type: think
+        - type: any_of
+          optional: false
+          choices:
+          - - type: click_first
+              candidates:
+              - type: text
+                value: 福利中心
+              candidates_from: task_center
+              timeout: 8
+              optional: false
+          - - type: click_point
+              x: 0.158
+              y: 0.562
+              timeout: 8
+              optional: false
+              vision: false
+              desc: 「我的」页中部「福利中心」坐标兜底（真机校准 2026-10-21）
+    - type: think
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.734
+          y: 0.239
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 福利中心页上部「立即签到」坐标兜底（真机校准 2026-10-21）
+- name: 米读极速版
+  package: com.lechuan.mdwz
+  aliases:
+  - 米读极速版
+  - 米读
+  behaviors:
+    collect:
+    - type: click_point
+      images:
+      - images/米读极速版/82c4a8db-9060-40da-b04c-0642c1e6d098.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读极速版-任务列表-立即领取
+    - type: click_point
+      images:
+      - images/米读极速版/bcf0bf62-9669-49d9-a577-1882d3924bb2.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读极速版-任务列表-福利
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          candidates_from: nav_tab
+          zone: tab_zone
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.7
+          y: 0.914
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 底部右二tab「福利」坐标兜底（待真机校准）
+    - type: think
+    - type: click_first
+      candidates_from: sign
+      timeout: 8
+      optional: true
+    withdraw:
+    - type: click_point
+      images:
+      - images/米读极速版/ebe92c9c-1451-4993-8c68-51501e852660.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读极速版-提现-我的
+    - type: click_point
+      images:
+      - images/米读极速版/868818fc-c1ca-4c26-a74f-9187725e476a.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读极速版-提现-提现
+    - type: click_point
+      images:
+      - images/米读极速版/f624035a-224f-45a4-8863-f7f52a409f63.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读极速版-提现-0.3元
+    - type: click_point
+      images:
+      - images/米读极速版/8544ad2f-a1fe-402f-9ff6-38fa5c68a334.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读极速版-提现-立即提现
+    - type: click_point
+      images:
+      - images/米读极速版/258d92d8-116f-4cc0-a358-e618591324d0.png
+      timeout: 6
+      optional: true
+      desc: 图像-米读极速版-提现-确认提现
+- name: 七猫免费小说
+  package: com.kmxs.reader
+  aliases:
+  - 七猫免费小说
+  - 七猫
+  behaviors:
+    collect:
+    - type: click_point
+      images:
+      - images/七猫免费小说/49ae9a39-b0cf-4c4c-a4a3-c004f52ffcdf.png
+      timeout: 6
+      optional: true
+      desc: 图像-七猫免费小说-任务列表-福利
+    - type: click_point
+      images:
+      - images/七猫免费小说/bdc40552-054f-4072-8079-0a65ad173a3c.png
+      timeout: 6
+      optional: true
+      desc: 图像-七猫免费小说-任务列表-关闭
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
+          timeout: 8
+          optional: false
+          candidates:
+          - type: text
+            value: 福利
+      - - type: click_point
+          x: 0.5
+          y: 0.927
+          timeout: 8
+          optional: false
+          vision: false
+          desc: anchor坐标兜底（待真机校准）
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.398
+          y: 0.372
+          timeout: 8
+          optional: false
+          vision: false
+          desc: sign坐标兜底（待真机校准）
+- name: 大众点评
+  package: com.dianping.v1
+  aliases:
+  - 大众点评
+  - 点评
+  launch_reset: true
+  behaviors:
+    collect:
+    - type: click_point
+      images:
+      - images/大众点评/98c11535-9236-4c0a-8a2b-f9c4874fe5b8.png
+      timeout: 6
+      optional: true
+      desc: 图像-大众点评-任务列表-我的
+    - type: click_point
+      images:
+      - images/大众点评/6f5e67b0-39b9-4f6f-a828-a58a7da94259.png
+      timeout: 6
+      optional: true
+      desc: 图像-大众点评-任务列表-做任务
+    sign:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      timeout: 8
+      optional: false
+    - type: think
+    - type: any_of
+      optional: false
+      choices:
+      - - type: click_point
+          x: 0.89
+          y: 0.75
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 「领点金币」行右侧图标（真机中心 (961,1755)）
+          expect:
+            phash: images/大众点评/landing/ref_coin.png
+            phash_region:
+            - 0.0
+            - 0.03
+            - 1.0
+            - 0.22
+            phash_max_dist: 14
+            settle: 3.0
+            retry: 1
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 领点金币
+          - type: text
+            value: 点金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到
+      timeout: 8
+      optional: true
+- name: 百度极速版
+  package: com.baidu.searchbox.lite
+  aliases:
+  - 百度极速版
+  - 百度
+  behaviors:
+    open:
+    - type: click_point
+      images:
+      - images/百度极速版/8b27e72d-bb6f-4b4e-bab7-4fa4875afbf8.png
+      timeout: 6
+      optional: true
+      desc: 图像-百度极速版-打开APP-百度
+- name: 星图金融
+  package: com.suning.mobile.epa
+  aliases:
+  - 星图金融
+  - 苏宁金融
+  intent_map:
+    collect: collect
+    bonus: bonus
+    sign: sign
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 早起打卡
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.126
+          y: 0.527
+          timeout: 8
+          optional: false
+          vision: false
+    - type: wait
+      seconds: 3
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即打卡
+      - type: text
+        value: 我要打卡
+      - type: text
+        value: 打卡
+      timeout: 8
+      optional: true
+    - type: click_point
+      x: 0.5
+      y: 0.641
+      timeout: 5
+      optional: true
+      vision: false
+    - type: think
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 迎新福利
+      - type: text
+        value: 人人领
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 领好礼
+      - type: text
+        value: 任务
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 立即领取
+      timeout: 6
+      optional: true
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领红包
+      - type: text
+        value: 红包
+      - type: text
+        value: 现金红包
+      - type: text
+        value: 抽奖
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 立即领取
+      timeout: 6
+      optional: true
+    - type: wait
+      seconds: 2
+- name: 微博移动版
+  package: com.sina.weibog3
+  aliases:
+  - 微博移动版
+  - 微博
+  - 新浪微博
+  intent_map:
+    collect: collect
+    bonus: bonus
+    sign: sign
+  behaviors:
+    collect:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚积分
+          - type: text
+            value: 做任务
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚积分
+          - type: text
+            value: 做任务
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 领
+      - type: text
+        value: 签到
+      timeout: 6
+      optional: true
+    sign:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 跳过
+      timeout: 3
+      optional: true
+      desc: 开屏广告-跳过
+    - type: click_point
+      x: 0.93
+      y: 0.915
+      timeout: 2
+      optional: true
+      vision: false
+      desc: 开屏广告-右下角兜底
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我
+          timeout: 4
+          optional: false
+      - - type: click_point
+          x: 0.9
+          y: 0.915
+          timeout: 4
+          optional: false
+          vision: false
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的钱包
+      timeout: 8
+      optional: false
+    - type: click_first
+      candidates:
+      - type: desc
+        value: 早起打卡
+      - type: text
+        value: 早起打卡
+      timeout: 8
+      optional: false
+    - type: click_first
+      candidates:
+      - type: text
+        value: 打卡
+      timeout: 8
+      optional: true
+    - type: think
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 点击领取
+      - type: text
+        value: 红包
+      - type: text
+        value: 现金奖励
+      - type: text
+        value: 翻牌
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      timeout: 6
+      optional: true
+- name: 一淘
+  package: com.taobao.etao
+  aliases:
+  - 一淘
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: desc
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 天天领
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: desc
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 天天领
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 领金币
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去福狸中心做任务
+          - type: text
+            value: 看视频领金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 省金币
+          - type: text
+            value: 今日任务
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 去福狸中心做任务
+          - type: text
+            value: 看视频领金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 省金币
+          - type: text
+            value: 今日任务
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看视频
+      - type: text
+        value: 领
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: 可提现(?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 点淘
+  package: com.taobao.live
+  aliases:
+  - 点淘
+  intent_map:
+    collect: collect
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 待领取
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 天天领
+      - type: text
+        value: 福利
+      - type: text
+        value: 领奖
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 领红包
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 赚更多元宝
+      timeout: 8
+      optional: true
+      desc: '点淘-watch-真机修正: 赚更多元宝->元宝中心(H5)'
+    - type: think
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去兑换
+      timeout: 8
+      optional: true
+      desc: '点淘-withdraw-真机修正: 去兑换->元宝兑权益页'
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元宝)
+      unit: 元宝
+      name: 元宝总额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 火龙漫剧
+  package: com.tencent.kairos
+  aliases:
+  - 火龙漫剧
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 去签到
+          - type: text
+            value: 天天有礼
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 去签到
+          - type: text
+            value: 天天有礼
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 福利中心
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 福利中心
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看短剧
+      - type: text
+        value: 看剧
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 梧桐免费小说
+  package: com.ushaqi.zhuishushenqi.ninenine
+  aliases:
+  - 梧桐免费小说
+  - 梧桐小说
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看书得金币
+          - type: text
+            value: 立即签到
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看书得金币
+          - type: text
+            value: 立即签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 签到领
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 任务
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 我的金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 任务
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 我的金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 继续看书
+      - type: text
+        value: 阅读赚钱
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: 可提现(?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 今日看点极速版
+  package: com.jinrikd.news
+  aliases:
+  - 今日看点极速版
+  - 今日看点
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 直接领取
+          - type: text
+            value: 签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 每日签到
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 直接领取
+          - type: text
+            value: 签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 每日签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: reward
+      pattern: 直接领取(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到奖励
+    - type: click_first
+      candidates:
+      - type: text
+        value: 直接领取322金币
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 看视频
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 看视频
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看视频领金币
+      - type: text
+        value: 去完成
+      - type: text
+        value: 领金币
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 天天快讯极速版
+  package: skysky.cy.kuaixun
+  aliases:
+  - 天天快讯极速版
+  - 天天快讯
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 签到
+          - type: text
+            value: 连续签到
+          - type: text
+            value: 每日签到
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 我的福利
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 金币
+          - type: text
+            value: 领金币
+          - type: text
+            value: 天天领
+          - type: text
+            value: 做任务
+          - type: text
+            value: 任务
+          - type: text
+            value: 钱包
+          - type: text
+            value: 现金
+          - type: text
+            value: 元宝中心
+          - type: text
+            value: 金币中心
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 任务广场
+          - type: text
+            value: 赚金币
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 我的金币
+          - type: text
+            value: 现金奖励
+          timeout: 8
+          optional: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 签到
+          - type: text
+            value: 连续签到
+          - type: text
+            value: 每日签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: reward
+      pattern: 领(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到奖励
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到领2888金币
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看视频
+      - type: text
+        value: 看资讯赚钱
+      - type: text
+        value: 任务中心
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 蛋花免费小说
+  package: com.eggflower.read
+  aliases:
+  - 蛋花免费小说
+  - 蛋花小说
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: dismiss_popups
+      max_rounds: 3
+      back_key: false
+      corner_fallback: false
+      desc: 启动后清扫弹窗（推送权限「取消」/ 版本更新「以后再说」）
+    - type: click_point
+      x: 0.5
+      y: 0.918
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 底部「福利」tab（真机中心 (540,2148)；tab 上「签到」为角标）
+      expect:
+        phash: images/蛋花免费小说/landing/ref_welfare.png
+        phash_max_dist: 12
+        settle: 3.0
+        retry: 2
+    - type: think
+    - type: click_point
+      x: 0.814
+      y: 0.623
+      images:
+      - images/蛋花免费小说/btn_qiandao.png
+      timeout: 8
+      optional: true
+      desc: 福利页「签到领金币」[去签到]（真机中心 (879,1458)；模板自匹配 0.9999 / 首页误匹配 0.65）
+      expect:
+        phash: images/蛋花免费小说/landing/ref_dialog.png
+        phash_region:
+        - 0.0
+        - 0.3
+        - 1.0
+        - 0.55
+        phash_max_dist: 14
+        settle: 3.0
+        retry: 1
+    - type: click_point
+      x: 0.5
+      y: 0.61
+      timeout: 8
+      optional: true
+      vision: false
+      desc: 签到弹窗[立即签到 +488 金币]（真机中心 (540,1428)）
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 任务
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 金币中心
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 任务
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 金币中心
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去看书
+      - type: text
+        value: 去完成
+      - type: text
+        value: 阅读
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 喜番免费短剧
+  package: com.kwai.theater
+  aliases:
+  - 喜番免费短剧
+  - 喜番短剧
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看剧赚金币
+          - type: text
+            value: 去签到
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚现金
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 赚现金
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 我的福利
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 金币
+          - type: text
+            value: 领金币
+          - type: text
+            value: 天天领
+          - type: text
+            value: 做任务
+          - type: text
+            value: 任务
+          - type: text
+            value: 钱包
+          - type: text
+            value: 现金
+          - type: text
+            value: 元宝中心
+          - type: text
+            value: 金币中心
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 任务广场
+          - type: text
+            value: 赚金币
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 我的金币
+          - type: text
+            value: 现金奖励
+          timeout: 8
+          optional: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看剧赚金币
+          - type: text
+            value: 去签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去看剧
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 福利
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 去看剧
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 福利
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看剧
+      - type: text
+        value: 去完成
+      - type: text
+        value: 看短剧
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 河马剧场
+  package: com.dz.hmjc
+  aliases:
+  - 河马剧场
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看剧得金币
+          - type: text
+            value: 立即签到
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 福利中心
+          timeout: 6
+          optional: true
+          desc: 河马剧场-我的-福利入口(真机修正:text 福利)
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看剧得金币
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 去签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 领金币
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 福利中心
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 福利中心
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看剧
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_id
+      res_id: com.dz.hmjc:id/item_cash
+      timeout: 6
+      optional: true
+      desc: 河马剧场-我的-提现入口(rid,离线补锚点)
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 红果免费短剧
+  package: com.phoenix.read
+  aliases:
+  - 红果免费短剧
+  - 红果短剧
+  - 红果
+  launch_reset: true
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+    collect: collect
+  behaviors:
+    sign:
+    - type: click_point
+      x: 0.73
+      y: 0.887
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 底部「福利」tab（真机中心 (788,2075)）
+      expect:
+        phash: images/红果免费短剧/landing/ref_welfare.png
+        phash_max_dist: 12
+        settle: 3.0
+        retry: 1
+    - type: think
+    - type: click_point
+      x: 0.8
+      y: 0.585
+      images:
+      - images/红果免费短剧/btn_qiandao.png
+      timeout: 8
+      optional: false
+      desc: 福利页「签到领金币」[去签到]（真机中心 (864,1370)）
+      expect:
+        phash: images/红果免费短剧/landing/ref_dialog.png
+        phash_region:
+        - 0.0
+        - 0.3
+        - 1.0
+        - 0.55
+        phash_max_dist: 10
+        settle: 3.0
+        retry: 1
+    - type: click_point
+      x: 0.25
+      y: 0.613
+      timeout: 8
+      optional: true
+      vision: false
+      desc: 签到弹窗[重新签到]（真机中心 (270,1434)）
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 看视频得金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 看视频得金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看剧
+      - type: text
+        value: 去完成
+      - type: text
+        value: 看短剧
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 赚钱
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+    collect:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去领取
+          - type: text
+            value: 福利
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 开宝箱
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 去领取
+          - type: text
+            value: 福利
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 开宝箱
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 开
+      timeout: 6
+      optional: true
+- name: 悟空浏览器
+  package: com.cat.readall
+  aliases:
+  - 悟空浏览器
+  - 悟空
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: wait
+      seconds: 3
+      desc: 冷启动等 tab 栏渲染；实测 t=3s 底部导航 5 个文本节点即进树
+    - type: click_text
+      text: 赚钱
+      timeout: 12
+      desc: 底部导航『赚钱』tab。实测 TextView bounds (492,2113)-(588,2170)，中心 (540,2141)=(0.5,0.915)。元素定位自带超时轮询，比固定坐标抗布局漂移；点中后实测落地
+        phash 2
+    - type: click_point
+      x: 0.5
+      y: 0.915
+      timeout: 5
+      optional: true
+      vision: false
+      desc: 兜底：万一 tab 文本节点因沉浸页动画/时序抖动未及时进树，盲点已验证的 tab 中心坐标。已确认 (540,2141) 落在『赚钱』tab
+        命中区内，安全
+    - type: wait
+      seconds: 8
+      desc: 等签到弹窗自动弹出。实测进『赚钱』后 3.5s 时还没有、约 10s+ 才弹；_vision_click 只截一次图无重试循环，timeout
+        对图像锚点无效，必须显式等待
+    - type: click_point
+      x: 0.5
+      y: 0.915
+      images:
+      - images/悟空浏览器/btn_liji_lingqu.png
+      timeout: 6
+      optional: true
+      desc: 签到弹窗『立即领取』。images 命中时用模板精确坐标（实测弹窗内按钮中心 (317,1596)=(0.294,0.682)，模板自匹配
+        1.0000 / 赚钱页误匹配 0.2969，std 82.4）；x/y 只在模板未命中时才用，故特意指回『赚钱』tab(0.5,0.915) 做无操作兜底——已签日不弹窗就只是重复点一次当前
+        tab。注意不能把 x/y 写成弹窗按钮坐标：实测赚钱页 (317,1596) 会跳进看剧播放页(ExcitingVideoActivity) 触发『再看48秒可领993金币』广告陷阱
+    - type: wait
+      seconds: 8
+      desc: 第二次尝试前的等待窗口：弹窗延迟超过首个 8s 时仍能补上
+    - type: click_point
+      x: 0.5
+      y: 0.915
+      images:
+      - images/悟空浏览器/btn_liji_lingqu.png
+      timeout: 6
+      optional: true
+      desc: 第 2 次尝试『立即领取』，x/y 兜底同样是『赚钱』tab 无操作
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看剧
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 看新闻赚钱
+      - type: text
+        value: 阅读赚钱
+      - type: text
+        value: 金币
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 阅读
+      - type: text
+        value: 看视频
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 全民K歌
+  package: com.tencent.karaoke
+  aliases:
+  - 全民K歌
+  - K歌
+  intent_map:
+    collect: collect
+    bonus: bonus
+  behaviors:
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 任务中心
+      - type: desc
+        value: 任务中心
+      - type: text
+        value: 福利
+      - type: text
+        value: 每日任务
+      - type: text
+        value: 做任务
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 红包
+      - type: text
+        value: 领红包
+      - type: text
+        value: 抽奖
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即领取
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+- name: 抖音极速版
+  package: com.ss.android.ugc.aweme.lite
+  aliases:
+  - 抖音极速版
+  launch_reset: true
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: desc
+            value: 福袋
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.8
+          y: 0.069
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页右上角「赚钱」挂件（真机中心 (864,162)）
+          expect:
+            phash: images/抖音极速版/landing/ref_money.png
+            phash_region:
+            - 0.0
+            - 0.0
+            - 1.0
+            - 0.2
+            phash_max_dist: 8
+            settle: 3.5
+            retry: 1
+    - type: think
+    - type: click_point
+      x: 0.436
+      y: 0.927
+      images:
+      - images/抖音极速版/daily_coin_row.png
+      timeout: 8
+      optional: false
+      desc: 赚钱页「天天领金币」行（图像模板定位，抗滚动漂移）
+      expect:
+        phash: images/抖音极速版/landing/ref_wallet.png
+        phash_region:
+        - 0.0
+        - 0.33
+        - 1.0
+        - 0.55
+        phash_max_dist: 8
+        settle: 3.5
+        retry: 1
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 刷视频
+      - type: text
+        value: 看视频赚金币
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 金币朋友
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 看视频
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 抖音火山版
+  package: com.ss.android.ugc.live
+  aliases:
+  - 抖音火山版
+  - 火山小视频
+  intent_map:
+    sign: reserve
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    reserve:
+    - type: wait
+      seconds: 32
+      desc: 冷启动开屏很长，实测 28s 才出现首页元素；--fast 也要留够
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_desc
+          desc: 领火苗，按钮
+          timeout: 12
+      - - type: click_point
+          x: 0.9
+          y: 0.138
+          timeout: 5
+          optional: true
+          vision: false
+    - type: wait
+      seconds: 7
+      desc: 等「我的火苗」任务页落定
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: wait
+      seconds: 2
+    - type: scroll_to
+      text: 预约
+      max_pages: 5
+    - type: wait
+      seconds: 8
+      desc: 等「天天预约领火苗」页
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_text
+          text: 立即预约领取
+          timeout: 10
+      - - type: click_point
+          x: 0.5
+          y: 0.529
+          timeout: 5
+          optional: true
+          vision: false
+    - type: wait
+      seconds: 6
+      desc: 等「恭喜预约成功」弹窗
+    - type: click_text
+      text: 不用提醒我也来
+      timeout: 10
+      optional: true
+      desc: 关掉预约成功弹窗；关不掉也不影响预约已成
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 点击赚钱
+          - type: text
+            value: 看视频赚金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 点击赚钱
+          - type: text
+            value: 看视频赚金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 看视频
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_desc
+      desc: 领火苗，按钮
+      timeout: 12
+      optional: true
+    - type: wait
+      seconds: 7
+    - type: click_text
+      text: 去提现
+      timeout: 10
+      optional: true
+    - type: wait
+      seconds: 5
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+- name: 抖音
+  package: com.ss.android.ugc.aweme
+  aliases:
+  - 抖音
+  intent_map:
+    watch: watch
+    bonus: bonus
+  behaviors:
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 任务
+      - type: text
+        value: 赚积分
+      - type: text
+        value: 去完成
+      timeout: 8
+      optional: true
+    - type: think
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 红包
+      - type: text
+        value: 领红包
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      timeout: 6
+      optional: true
+- name: 今日头条极速版
+  package: com.ss.android.article.lite
+  aliases:
+  - 今日头条极速版
+  - 头条极速版
+  launch_reset: true
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+    bonus: bonus
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 任务
+          candidates_from: nav_tab
+          zone: tab_zone
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.5
+          y: 0.932
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页底部「任务」tab（真机中心 (540,2182)）
+          expect:
+            phash: images/今日头条极速版/landing/ref_task.png
+            phash_region:
+            - 0.0
+            - 0.9
+            - 1.0
+            - 0.97
+            phash_max_dist: 8
+            retry: 1
+    - type: think
+    - type: click_point
+      x: 0.889
+      y: 0.801
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 任务页右下角宝箱入口（2026-10-23 真机校准）
+      expect:
+        phash: images/今日头条极速版/landing/ref_sign.png
+        phash_max_dist: 8
+        retry: 1
+    - type: click_point
+      x: 0.318
+      y: 0.645
+      timeout: 6
+      optional: true
+      vision: false
+      desc: 弹窗「重新签到」按钮（自绘层屏蔽注入点击，见上方阻塞说明）
+    - type: reward
+      pattern: 最高得(?P<amount>[0-9.]+)\s*(?P<unit>元|金币)
+      unit: 元
+      name: 签到奖励
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 看资讯赚金币
+          - type: text
+            value: 看视频
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 看资讯赚金币
+          - type: text
+            value: 看视频
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+    bonus:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 完成挑战得奖励
+          - type: text
+            value: 限时预约领金币
+          - type: text
+            value: 预约
+          - type: text
+            value: 红包
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 完成挑战得奖励
+          - type: text
+            value: 限时预约领金币
+          - type: text
+            value: 预约
+          - type: text
+            value: 红包
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 去预约
+      timeout: 6
+      optional: true
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      timeout: 6
+      optional: true
+- name: 支付宝
+  package: com.eg.android.AlipayGphone
+  aliases:
+  - 支付宝
+  - Alipay
+  - 支 付宝
+  intent_map:
+    collect: collect
+    bonus: bonus
+  behaviors:
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 蚂蚁会员
+      - type: text
+        value: 我的
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 积分
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 任务
+      - type: text
+        value: 签到
+      - type: text
+        value: 领积分
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 红包
+      - type: text
+        value: 领红包
+      - type: text
+        value: 天天领红包
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      - type: text
+        value: 开
+      timeout: 6
+      optional: true
+    - type: wait
+      seconds: 2
+- name: 京东理财
+  package: com.jd.jrapp
+  aliases:
+  - 京东理财
+  - 京东金融
+  - 京东金
+  - 金融
+  intent_map:
+    sign: sign
+    collect: collect
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 签到
+      - type: text
+        value: 去签到
+      - type: text
+        value: 签到领现金
+      - type: text
+        value: 天天领现金
+      timeout: 8
+      optional: true
+    - type: think
+    - type: reward
+      pattern: 至高\\s*¥(?P<amount>[0-9]+(?:\\.[0-9]+)?)
+      unit: 元
+      name: 签到现金
+    - type: click_first
+      candidates:
+      - type: text
+        value: 签到领现金
+      - type: text
+        value: 去签到
+      - type: text
+        value: 立即签到
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 2
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领现金
+      - type: text
+        value: 天天领现金
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 领3.88元
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 2
+    withdraw:
+    - type: click_text
+      text: 我的
+      timeout: 6
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: 可提现(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true

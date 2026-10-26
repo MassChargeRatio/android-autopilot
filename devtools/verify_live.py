@@ -31,6 +31,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
 
+from config_loader import load_config  # noqa: E402
 from calibrate import (  # noqa: E402
     parse_nodes, match_selector, wait_ready, dismiss_popups,
     connect_device, safe_name,
@@ -40,10 +41,44 @@ from calibrate import (  # noqa: E402
 from ui_page import NAV_LABELS, NAV_BAND_Y, at_top_level_nodes  # noqa: E402
 
 ANCHOR_TYPES = ("click_text", "click_id", "click_desc", "click_first")
+POINT_TYPE = "click_point"
 NAV_MARK = "最右侧"
 
 # 底部导航标签（NAV_LABELS）与底部带阈值（NAV_BAND_Y）单一来源在 ui_page.py，
 # 上面已 import；此处不再另立一份，避免与执行器口径漂移。
+
+
+def is_anchor_action(action):
+    """该动作是不是「可校验的锚点」（口径与 webui/data.py::is_anchor 一致）。
+
+    click_point 是**重载**类型，必须按载荷区分用途（本工程实测分布 68 / 31 / 0）：
+      * 带 images/template      —— OpenCV 模板匹配锚点（一等定位手段，**算锚点**）
+      * 带「最右侧」vlm_prompt  —— 「导航到我的」前置步（比例坐标兜底，不算锚点）
+      * 两者皆无                —— 纯比例坐标兜底（不算锚点）
+    踩坑：早期只把 click_text/id/desc/click_first 当锚点，于是 68 个图像锚点
+    动作所在的行为被记成「无锚点动作」→ stability_run 当废、**不进命中率分母**。
+    """
+    if not isinstance(action, dict):
+        return False
+    t = action.get("type")
+    if t in ANCHOR_TYPES:
+        return True
+    if t == POINT_TYPE:
+        return bool(action.get("images") or action.get("template"))
+    return False
+
+
+def act_has_image_anchor(act):
+    """该锚点动作（含 any_of 各分支）里是否含**图像锚点**（需要截图做模板匹配）。"""
+    if isinstance(act, dict) and act.get("type") == "any_of":
+        for ch in act.get("choices") or []:
+            steps = ch if isinstance(ch, list) else [ch]
+            for a in steps:
+                if is_anchor_action(a) and a.get("type") == POINT_TYPE:
+                    return True
+        return False
+    return bool(isinstance(act, dict) and act.get("type") == POINT_TYPE
+                and (act.get("images") or act.get("template")))
 
 # 前置步兜底坐标。实测各 App『我的』中心 y 分布在 2106~2192，
 # 取中位数附近 (0.90, 0.915) 比原来的 0.908 更稳。
@@ -92,8 +127,7 @@ def has_prelude(actions):
 
 
 def _anchor_actions_of_branch(steps):
-    return [a for a in steps
-            if isinstance(a, dict) and a.get("type") in ANCHOR_TYPES]
+    return [a for a in steps if is_anchor_action(a)]
 
 
 def mid_entry_of(act):
@@ -126,9 +160,80 @@ def target_anchor_of(act):
     return act
 
 
-def find_anchor_node(nodes, act, screen_h=None):
+def _screen_gray(screen_img):
+    """把 PIL/ndarray 截图转成灰度 ndarray（与 vision.locate_on_screen 同款逻辑）。"""
+    try:
+        from PIL import Image
+        import numpy as np
+        import cv2
+        if isinstance(screen_img, Image.Image):
+            arr = np.array(screen_img.convert("RGB"))
+            return cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+        arr = np.asarray(screen_img)
+        return cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY) if arr.ndim == 3 else arr
+    except Exception:
+        return None
+
+
+def _image_templates(act):
+    """提取 click_point 的参考图列表（images + template，与 executor 同语义）。"""
+    tpls = list(act.get("images") or [])
+    tpl = act.get("template")
+    if tpl:
+        if isinstance(tpl, (list, tuple)):
+            tpls = list(tpl) + tpls
+        else:
+            tpls = [tpl] + tpls
+    return tpls
+
+
+def _check_image_anchor(act, screen_img, vision):
+    """图像锚点校验：OpenCV 模板匹配（与 executor._step_click_point 同口径，不进 VLM）。"""
+    templates = _image_templates(act)
+    if not templates:
+        return False, "click_point 无参考图（纯比例兜底，不算锚点）"
+    if vision is None or not vision.template_available:
+        return False, "图像锚点但视觉组件不可用（OpenCV 未就绪）"
+    if screen_img is None:
+        return False, "图像锚点但无屏幕截图（本轮无法度量）"
+    gray = _screen_gray(screen_img)
+    if gray is None:
+        return False, "图像锚点截图转灰度失败"
+    for tpl in templates:
+        hit = vision.match_template(gray, tpl)
+        if hit is not None:
+            return True, (f"图像锚点 {os.path.basename(str(tpl))} "
+                          f"score={hit.score:.3f} scale={hit.scale} -> "
+                          f"({hit.x:.0f},{hit.y:.0f})")
+    return False, f"图像锚点全部未命中（{len(templates)} 张参考图）"
+
+
+def _find_image_anchor(act, screen_img, vision):
+    """在截图里定位图像锚点，返回 (伪节点, detail)；伪节点带 center 可直接点击。"""
+    templates = _image_templates(act)
+    if not templates:
+        return None, "click_point 无参考图（纯比例兜底，不算锚点）"
+    if vision is None or not vision.template_available:
+        return None, "图像锚点但视觉组件不可用（OpenCV 未就绪）"
+    if screen_img is None:
+        return None, "图像锚点但无屏幕截图（本轮无法度量）"
+    gray = _screen_gray(screen_img)
+    if gray is None:
+        return None, "图像锚点截图转灰度失败"
+    for tpl in templates:
+        hit = vision.match_template(gray, tpl)
+        if hit is not None:
+            return ({"center": (int(hit.x), int(hit.y))},
+                    f"图像锚点 {os.path.basename(str(tpl))} "
+                    f"score={hit.score:.3f} -> ({hit.x:.0f},{hit.y:.0f})")
+    return None, f"图像锚点全部未命中（{len(templates)} 张参考图）"
+
+
+def find_anchor_node(nodes, act, screen_h=None, screen_img=None, vision=None):
     """返回 (node, detail)；node 为命中的节点（可直接点击），未命中为 None。"""
     t = act.get("type")
+    if t == POINT_TYPE:
+        return _find_image_anchor(act, screen_img, vision)
     if t == "click_first":
         for c in act.get("candidates") or []:
             if not isinstance(c, dict):
@@ -155,13 +260,16 @@ def find_anchor_node(nodes, act, screen_h=None):
     return None, f"非锚点动作 type={t}"
 
 
-def check_anchor(nodes, act, screen_h=None):
+def check_anchor(nodes, act, screen_h=None, screen_img=None, vision=None):
     """按执行器语义校验单个锚点动作，返回 (hit, detail)。
 
     screen_h 给出时，对**底部导航标签**做位置合理性校验：命中的 y 必须落在
     屏幕底部带（y >= NAV_BAND_Y * screen_h），否则判为假命中。
+    screen_img/vision 供**图像锚点**（click_point 带参考图）做 OpenCV 模板匹配。
     """
     t = act.get("type")
+    if t == POINT_TYPE:
+        return _check_image_anchor(act, screen_img, vision)
     if t == "any_of":
         # 一个分支是否命中，取决于该分支的**最后一个**锚点动作（真正的目标），
         # 而不是中途的入口。
@@ -177,11 +285,11 @@ def check_anchor(nodes, act, screen_h=None):
         last = "（无分支）"
         for i, ch in enumerate(act.get("choices") or []):
             steps = ch if isinstance(ch, list) else [ch]
-            anchors = [a for a in steps
-                       if isinstance(a, dict) and a.get("type") in ANCHOR_TYPES]
+            anchors = _anchor_actions_of_branch(steps)
             if not anchors:
                 continue
-            hit, det = check_anchor(nodes, anchors[-1], screen_h)
+            hit, det = check_anchor(nodes, anchors[-1], screen_h,
+                                    screen_img, vision)
             if hit:
                 return True, f"any_of 分支#{i + 1}: {det}"
             last = det
@@ -366,6 +474,27 @@ def verify_app(app_cfg, behaviors, d, vision_cfg, log, probe_nav=False,
         _w, screen_h = d.window_size()
     except Exception:
         screen_h = None
+    # 视觉组件：图像锚点（click_point 带参考图）需要 OpenCV 模板匹配来校验。
+    vs = None
+    try:
+        import vision as vs_mod
+        vs = vs_mod.VisionLocator(vision_cfg or {}, base_dir=ROOT)
+    except Exception as e:
+        log.append(f"视觉组件初始化失败（图像锚点将无法度量）: "
+                   f"{type(e).__name__}: {e}")
+    # 惰性截图：只在当前行为含图像锚点时截，页面变化后强制重截
+    _screen_cache = {"img": None}
+
+    def _fresh_screen():
+        _screen_cache["img"] = None
+
+    def _screen():
+        if _screen_cache["img"] is None:
+            try:
+                _screen_cache["img"] = d.screenshot()
+            except Exception:
+                _screen_cache["img"] = None
+        return _screen_cache["img"]
     # 启动 + 归属校验，最多试 2 次（偶发启动失败会停留上一个 App）
     xml, nodes, waited = "", [], 0.0
     ok_page, dom, mine, dom_n, fg = False, "", 0, 0, ""
@@ -418,7 +547,11 @@ def verify_app(app_cfg, behaviors, d, vision_cfg, log, probe_nav=False,
                          "detail": "该行为无 click_* 动作", "prelude": has_prelude(actions)})
             continue
         prelude = has_prelude(actions)
-        hit, detail = check_anchor(nodes, act, screen_h)
+        need_img = act_has_image_anchor(act)
+        if need_img:
+            _fresh_screen()
+        hit, detail = check_anchor(nodes, act, screen_h,
+                                   _screen() if need_img else None, vs)
         if hit:
             rows.append({"behavior": bid, "status": "首屏命中",
                          "detail": detail, "prelude": prelude})
@@ -519,8 +652,7 @@ def main():
                          "（本机 VLM 图像请求常 90s 超时，跑批时建议开启）")
     args = ap.parse_args()
 
-    import yaml
-    cfg = yaml.safe_load(open(args.config, encoding="utf-8")) or {}
+    cfg = load_config(args.config)
     vision_cfg = cfg.get("vision") or {}
     serial = (cfg.get("device") or {}).get("serial")
 

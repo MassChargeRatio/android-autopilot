@@ -909,7 +909,7 @@ async function loadConfig() {
     $('#cfgIssuesHint').textContent = `共 ${(ov.issues || []).length} 条`;
     renderIssues('#cfgIssues', ov.issues || [], 0);
 
-    $('#cfgAppsHint').textContent = `设备 ${(ov.device || {}).serial || '未配置'} · VLM ${ov.vision_enabled ? '开' : '关'} · 滑块 ${ov.captcha_enabled ? '开' : '关'}`;
+    $('#cfgAppsHint').textContent = `设备 ${(ov.device || {}).serial || '未配置'} · VLM ${ov.vision_enabled ? '开' : '关'} · 滑块 ${ov.captcha_enabled ? '开' : '关'} · App 级配置在 config/apps/`;
     $('#cfgApps').innerHTML = (ov.apps || []).map(a => `
       <div class="cfgapp">
         <div class="h"><b>${esc(a.name)}</b><span class="pkg">${esc(a.package)}</span>

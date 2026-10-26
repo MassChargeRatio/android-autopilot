@@ -200,7 +200,8 @@ def t_build_app_steps_skips_empty_and_flags_money():
         {"name": "B", "behaviors": []},                  # 必须跳过，不能退化成默认签到
         {"name": "", "behaviors": ["sign"]},             # 无名，跳过
         {"name": "C", "behaviors": ["withdraw"]},
-    ], dry_run=True, force=True, serial="1.2.3.4")
+    ], dry_run=True, force=True, serial="1.2.3.4",
+       money_behaviors=["withdraw"])                     # C9 后由调用方注入，测试同步适配
     assert [s.title for s in steps] == ["A", "C"], [s.title for s in steps]
     a = steps[0].cmd
     assert "--dry-run" in a and "--force" in a and "--serial" in a, a
@@ -390,30 +391,31 @@ def t_frontend_only_reads_fields_api_provides():
 
 
 def t_verifier_coverage_uses_verifier_rule():
-    """覆盖率必须照 verify_live.py 的口径算，不能照 GUI 自己的（含图像）算。
+    """覆盖率必须照 verify_live.py 的口径算（含 click_point 图像锚点）。
 
-    verify_live.py 认不出的锚点会记「无锚点动作」，stability_run.py 再把该状态
-    当**作废、不计入命中率分母**。所以「70% 命中率」不含这批行为 ——
-    界面必须把「多少个行为其实没被度量」单独摆出来，否则会被误读成覆盖率。
+    verify_live.py 的 is_anchor_action 已把「带参考图的 click_point」算作锚点，
+    因此图像锚点行为会进入 stability_run 的命中率分母、被真正度量。
+    界面必须与它同口径，否则会把「已度量」误显示成「未度量」。
     """
     img = [{"type": "click_point", "images": ["i/a.png"]}]
     txt = [{"type": "click_first",
             "candidates": [{"type": "text", "value": "签到"}]}]
     anyof = [{"type": "any_of", "choices": [[
         {"type": "click_first", "candidates": [{"type": "text", "value": "签到"}]}]]}]
-    assert D.verifier_can_check(img) is False, "图像锚点行为应算未度量"
+    assert D.verifier_can_check(img) is True, "图像锚点行为现在应可校验（进分母）"
     assert D.verifier_can_check(txt) is True
     assert D.verifier_can_check(anyof) is True
-    # GUI 自己的口径相反：图像锚点是合法锚点（两者故意不同，别搞混）
+    # 与 verify_live.py 的 is_anchor_action 口径一致：图像锚点必须是锚点
     assert D.summarize_behavior(img)["anchors"], "GUI 侧图像锚点必须是锚点"
 
     cov = D.Store(D.CONFIG_YAML, D.DB_PATH).verify_coverage()
     assert cov["verifiable"] + cov["unverifiable"] == cov["total"], cov
-    assert cov["total"] > 0 and cov["image_only"] > 0, cov
-    # 不变式：未被度量的行为全部是「仅图像锚点」这一种原因
-    assert cov["unverifiable"] == cov["image_only"], cov
+    assert cov["total"] > 0, cov
+    # 图像锚点已纳入实机验证器：不再有「仅图像锚点未度量」；配置里无纯兜底行为
+    assert cov["image_only"] == 0, cov
+    assert cov["unverifiable"] == 0, cov
     print(f"OK  实机覆盖率口径（{cov['verifiable']}/{cov['total']} 可校验，"
-          f"{cov['image_only']} 个仅图像锚点未度量）")
+          f"图像锚点已进分母，未度量 {cov['unverifiable']}）")
 
 
 def t_route_match():
@@ -854,7 +856,7 @@ def t_ops_event_humanizer_translates_action_json():
         ("蛋花[watch](看视频) -> 行为[watch]", "蛋花[watch](看视频) -> 行为[watch]"),
     ]
     script = (label_def + "\n" + fn_def + "\n"
-              + "const cases = JSON.parse(process.argv[1]);\n"
+              + "const cases = JSON.parse(require('fs').readFileSync(0, 'utf8'));\n"
               + "const bad = [];\n"
               + "for (const [inp, want] of cases) {\n"
               + "  const got = humanEvent(inp);\n"
@@ -862,11 +864,32 @@ def t_ops_event_humanizer_translates_action_json():
               + "    bad.push([inp, want, got]);\n"
               + "}\n"
               + "console.log(JSON.stringify(bad));\n")
-    p = subprocess.run(
-        [node, "-e", script, json.dumps(cases, ensure_ascii=False)],
-        capture_output=True, text=True, encoding="utf-8", timeout=60)
-    assert p.returncode == 0, f"node 执行失败：{p.stderr[:400]}"
-    bad = json.loads(p.stdout.strip() or "[]")
+    # 传参方式说明（Windows 实机坑，都踩过）：
+    # 1) `node -e "多行脚本"` 会被 CreateProcess -> CommandLineToArgvW 把参数里的
+    #    真实换行当空白分隔符拆 argv，node 只取 argv[1] -> 多行脚本被截断成首行；
+    # 2) 压成单行后源码里的 `//` 注释会吞到行尾，把后续代码全注释掉；
+    # 3) 用 argv 传 payload 时，参数一长（>~500 字符）node v26 在 Windows 上
+    #    会启动期报 "The system cannot find the path specified."（命令行解析错乱）。
+    # 所以：脚本写临时 .js 文件（保留原始换行/注释），payload 走 stdin（readFileSync(0)），
+    # 完全绕开 Windows 命令行传参，任何长度/中文都稳。
+    import tempfile
+    fd, js_path = tempfile.mkstemp(suffix=".js", prefix="human_event_")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(script)
+        p = subprocess.run(
+            [node, js_path],
+            input=json.dumps(cases, ensure_ascii=True).encode("utf-8"),
+            capture_output=True, timeout=60)
+    finally:
+        os.unlink(js_path)
+    if p.returncode != 0:
+        try:
+            err_txt = p.stderr.decode("utf-8")
+        except UnicodeDecodeError:
+            err_txt = p.stderr.decode("gbk", errors="replace")
+        assert False, f"node 执行失败：{err_txt[:400]}"
+    bad = json.loads(p.stdout.decode("utf-8").strip() or "[]")
     assert not bad, "动作 JSON 未被翻译成人话：" + "；".join(
         f"{i!r} -> {g!r}（期望含 {w!r}）" for i, w, g in bad)
     print(f"OK  动作 JSON 翻译成人话（{len(cases)} 个用例，含 `- ` 前缀）")

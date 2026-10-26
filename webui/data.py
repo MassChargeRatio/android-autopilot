@@ -29,6 +29,13 @@ DEVTOOLS = os.path.join(BASE_DIR, "devtools")
 if DEVTOOLS not in sys.path:
     sys.path.insert(0, DEVTOOLS)
 
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from config_loader import load_config as _load_config_merged  # noqa: E402
+from config_loader import latest_config_mtime as _latest_config_mtime  # noqa: E402
+from config_loader import money_behaviors as _money_behaviors  # noqa: E402
+
 # 行为 key -> 自然语言触发词。与 main.py/nlu.py 的意图表保持一致，
 # 保证 GUI 勾选行为后拼出的 --task 能被 nlu.parse_intents 正确解析。
 KEY_TO_TRIGGER = {
@@ -43,6 +50,8 @@ KEY_TO_TRIGGER = {
 
 # 资金类行为：执行前必须由用户显式确认（项目硬约束 —— 提现/支付/转账
 # 不得自动执行，必须先说明影响面并取得授权）。
+# C9 起来源统一收敛到 config_loader.money_behaviors（配置可覆盖），
+# 此处保留兼容别名供 server.py 等旧引用使用。
 MONEY_BEHAVIORS = {"withdraw"}
 
 # 锚点动作类型：带「可校验的定位依据」的动作。这是判断一个行为能否被
@@ -108,7 +117,7 @@ def _anchor_of(action):
     elif t == POINT_TYPE:
         key = imgs[0] if imgs else ""
     elif t == "click_first":
-        key = cands[0] if cands else ""
+        key = cands[0] if cands else (action.get("candidates_from") or "")
     else:
         key = action.get("text") or action.get("desc") or ""
     return {
@@ -160,17 +169,17 @@ def _all_actions(acts):
     return out
 
 
-# verify_live.py 目前**只认**这几种锚点类型（见 devtools/verify_live.py 的
-# ANCHOR_TYPES）；图像锚点不在其中，会被记成「无锚点动作」→ 不进命中率分母。
-# 这里故意照抄它的口径，只为在界面上暴露「有多少行为其实没被度量」。
-# ⚠️ 改 verify_live.py 的 ANCHOR_TYPES 时，这里必须同步，否则覆盖率会显示错。
-VERIFIER_ANCHOR_TYPES = ("click_text", "click_id", "click_desc", "click_first")
+# verify_live.py 的锚点口径已与 is_anchor() 对齐（含 click_point 图像锚点），
+# 见 devtools/verify_live.py 的 is_anchor_action。图像锚点行为现在会被
+# stability_run 计入命中率分母，不再算「未度量」。
+# ⚠️ 改 verify_live.py 的锚点判断时，这里必须同步，否则覆盖率会显示错。
+# VERIFIER_ANCHOR_TYPES 已删除 —— verifier_can_check 直接复用 is_anchor，
+# 避免两套口径再次漂移。
 
 
 def verifier_can_check(actions):
-    """该行为能否被**现有实机验证器**校验到（口径对齐 verify_live.py）。"""
-    return any(isinstance(a, dict)
-               and a.get("type") in VERIFIER_ANCHOR_TYPES + ("any_of",)
+    """该行为能否被**实机验证器**校验到（口径对齐 verify_live.py，图像锚点也算）。"""
+    return any(is_anchor(a) or (isinstance(a, dict) and a.get("type") == "any_of")
                for a in _variant_of(actions))
 
 
@@ -375,11 +384,11 @@ class Store:
     def config(self, reload=False):
         with self._lock:
             try:
-                mtime = os.path.getmtime(self.config_path)
+                mtime = _latest_config_mtime(self.config_path)
             except OSError:
                 mtime = None
             if reload or self._cfg is None or mtime != self._cfg_mtime:
-                self._cfg = load_yaml(self.config_path)
+                self._cfg = _load_config_merged(self.config_path)
                 self._cfg_mtime = mtime
             return self._cfg
 
@@ -393,7 +402,7 @@ class Store:
                 behaviors.append({
                     "id": bid,
                     "trigger": KEY_TO_TRIGGER.get(bid, bid),
-                    "money": bid in MONEY_BEHAVIORS,
+                    "money": bid in _money_behaviors(self.config()),
                     "levels": s["levels"],
                     "branches": s["branches"],
                     "has_prelude": s["has_prelude"],

@@ -27,6 +27,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
+from config_loader import load_config  # noqa: E402
 
 ADB_PATH = None
 try:
@@ -59,13 +60,7 @@ def safe_name(name: str) -> str:
 
 
 def load_apps(config_path):
-    try:
-        import yaml
-    except ImportError:
-        import miniyaml as yaml  # type: ignore
-    with open(config_path, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f) or {}
-    return cfg
+    return load_config(config_path)
 
 
 def parse_nodes(xml_text, drop_statusbar=True):
@@ -431,14 +426,71 @@ def probe_after(d, prompt, wait, log, vision_cfg):
 
 
 def connect_device(serial, retries=3):
-    """连接设备，带自愈重试。
+    """连接设备，带自愈重试 + 无线 adb 修复。
 
-    本机环境特有坑：每条独立 shell 命令结束后 adb daemon 会被回收，
+    本机环境特有坑1：每条独立 shell 命令结束后 adb daemon 会被回收，
     uiautomator2/adbutils 若正好连到"将死的" daemon，会抛
     ConnectionResetError(WinError 10054)。这里先用 adbkit 显式
     start-server + connect，失败则 kill-server 重来。
+
+    本机环境特有坑2（2026-09 实机踩到）：uiautomator2 3.x 在无线 adb 上
+    create_connection 隧道会挂起（d.info/dump 全部卡死），且 u2 服务
+    不自启。修复：1) 建立本地 adb forward；2) 服务未就绪则用 setsid
+    后台拉起（adb shell 退出后进程不被回收）；3) patch HTTP 连接层走
+    本地 forward，绕开无线隧道挂起。
     """
+    import socket
+    import urllib.request
     import uiautomator2 as u2
+    from uiautomator2 import core as u2core
+    _U2_PORT = 9008
+
+    def _ensure_forward():
+        if not ADB_PATH:
+            return False
+        try:
+            os.popen(f'"{ADB_PATH}" -s {serial} '
+                     f'forward tcp:{_U2_PORT} tcp:{_U2_PORT}').read()
+            return True
+        except Exception:
+            return False
+
+    def _ping_local(port=_U2_PORT, timeout=3.0):
+        try:
+            with urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/ping", timeout=timeout) as r:
+                return r.status == 200 and b"pong" in r.read()
+        except Exception:
+            return False
+
+    def _ensure_u2_service():
+        # 服务未就绪则用 setsid 后台拉起（u2.jar 由 u2 库首次连接时推入）
+        if not ADB_PATH:
+            return
+        if _ping_local():
+            return
+        cmd = ("setsid nohup sh -c 'CLASSPATH=/data/local/tmp/u2.jar "
+               f"app_process / com.wetest.uia2.Main -p {_U2_PORT} "
+               f">/data/local/tmp/u2srv{_U2_PORT}.log 2>&1' >/dev/null 2>&1 &")
+        try:
+            os.popen(f'"{ADB_PATH}" -s {serial} shell "{cmd}"').read()
+        except Exception as e:
+            print(f"  u2 服务拉起失败（{type(e).__name__}: {e}）")
+        for _ in range(20):
+            if _ping_local():
+                return
+            time.sleep(2)
+
+    # 0) 无线 adb 修复：forward + 服务保障 + HTTP 层 patch
+    _ensure_forward()
+    _ensure_u2_service()
+
+    def _patched_connect(self):
+        # 走本地 adb forward，而不是设备 create_connection（无线隧道会挂起）
+        self.sock = socket.create_connection(
+            ("127.0.0.1", self._AdbHTTPConnection__port), timeout=20)
+    u2core.AdbHTTPConnection.connect = _patched_connect
+
     last = None
     for i in range(retries):
         try:
@@ -449,7 +501,7 @@ def connect_device(serial, retries=3):
                 Adb(serial=serial, adb_path=ADB_PATH).ensure()
             except Exception as e:
                 print(f"  adb 预连接失败（{type(e).__name__}: {e}），继续尝试 u2")
-            d = u2.connect(serial)
+            d = u2.connect(serial, port=_U2_PORT)
             _ = d.info  # 触发一次真实通信，确认链路可用
             return d
         except Exception as e:
