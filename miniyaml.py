@@ -215,6 +215,18 @@ def _parse_seq(tokens, i, item_level):
                 items.append(None)
                 i += 1
             continue
+        # 嵌套块序列（`- - key: v`）：本项本身又是一个序列。
+        # PyYAML 语义：外层 '-' 占一项，内层 '-' 开出子序列；choices 的每个
+        # 分支就是这样写的。2026-10-20 实测不处理会把整段 any_of 解析成
+        # {"- type": "click_first", ...}——运行时 any_of 静默全灭（0/12 回归
+        # 的根因之一），webui 契约测试同时抓到 vias 为空。
+        if rest.startswith("-"):
+            inner_col = item_level + (len(body) - len(rest))
+            tokens[i] = (inner_col, rest)
+            sub, ni = _parse_seq(tokens, i, inner_col)
+            items.append(sub)
+            i = ni
+            continue
         # 序列项本身是流式容器（{...} / [...]）时，整体作为一个标量，不再拆键值
         if rest.startswith("{") or rest.startswith("["):
             items.append(_parse_scalar(rest))

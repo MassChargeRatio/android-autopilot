@@ -1,0 +1,79 @@
+{
+  "report": {
+    "点淘": [
+      {
+        "behavior": "collect",
+        "status": "首屏未命中",
+        "detail": "candidates=['待领取', '任务中心', '天天领', '福利', '领奖'] 全部未命中",
+        "prelude": false
+      },
+      {
+        "behavior": "watch",
+        "status": "首屏未命中",
+        "detail": "candidates=['赚更多元宝'] 全部未命中",
+        "prelude": false
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏未命中",
+        "detail": "candidates=['去兑换'] 全部未命中",
+        "prelude": false
+      }
+    ],
+    "喜番免费短剧": [
+      {
+        "behavior": "sign",
+        "status": "首屏命中",
+        "detail": "any_of 分支#1: text='赚现金' @(496, 2111)",
+        "prelude": true
+      },
+      {
+        "behavior": "watch",
+        "status": "导航后命中",
+        "detail": "any_of 全部分支未命中（末次: candidates=['去看剧', '赚钱', '任务', '看剧赚钱', '福利'] 全部未命中） | 二级页: text='赚钱' @(968, 756)",
+        "nav_xy": [
+          972,
+          2141
+        ],
+        "prelude": true,
+        "nodes_after": 179
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我的' @(970, 2145)",
+        "prelude": false
+      }
+    ],
+    "河马剧场": [
+      {
+        "behavior": "sign",
+        "status": "导航后命中",
+        "detail": "any_of 全部分支未命中（末次: candidates=['签到', '每日签到', '看剧得金币', '立即签到', '去签到'] 全部未命中） | 二级页: （三级页）text='签到' @(912, 1011)",
+        "nav_xy": [
+          972,
+          2141
+        ],
+        "prelude": true,
+        "nodes_after": 175
+      },
+      {
+        "behavior": "watch",
+        "status": "首屏命中",
+        "detail": "any_of 分支#1: text='福利' @(160, 161)",
+        "prelude": true
+      },
+      {
+        "behavior": "withdraw",
+        "status": "首屏命中",
+        "detail": "text='我的' @(972, 2132)",
+        "prelude": false
+      }
+    ]
+  },
+  "stat": {
+    "首屏未命中": 3,
+    "首屏命中": 4,
+    "导航后命中": 2
+  }
+}

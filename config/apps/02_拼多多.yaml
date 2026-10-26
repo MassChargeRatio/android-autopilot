@@ -1,0 +1,98 @@
+name: 拼多多
+package: com.xunmeng.pinduoduo
+aliases:
+- 拼多多
+behaviors:
+  watch:
+  - type: click_point
+    images:
+    - images/拼多多/e4417c6d-5e2a-4a24-a172-589357b264c5.png
+    timeout: 6
+    optional: true
+    desc: 图像-拼多多-任务界面-多多视频
+  collect:
+  - type: click_point
+    images:
+    - images/拼多多/5c996370-94cc-4137-97f9-da361fd51e9b.png
+    timeout: 6
+    optional: true
+    desc: 图像-拼多多-任务界面-余额
+  withdraw:
+  - type: click_point
+    images:
+    - images/拼多多/526d1934-9de7-4322-9f64-0834118bc519.png
+    timeout: 6
+    optional: true
+    desc: 图像-拼多多-提现-立即提现
+  sign:
+  # 【用户人工描述 2026-10-20】左下数第2 tab=多多视频；其上部最右边缘圆形=签到/提现共用入口；入口任务列表没有签到就滑动；入口上部右侧=提现（暂略）
+  # 注意：签到入口禁止截图 → 只用文案+归一化坐标，不用图像模板
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 多多视频
+        candidates_from: nav_tab
+        zone: tab_zone
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.3
+        y: 0.914
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 底部左二tab「多多视频」坐标兜底
+        expect:
+          phash: images/拼多多/landing/ref_video.png
+          phash_max_dist: 8
+          retry: 1
+  - type: think
+  # 2026-10-23 真机重校准：圆形金币入口实测在 (0.856,0.167)。
+  # 旧值 (0.93,0.12) 偏 80×110px，会静默走到错误页面（整条链后续全错）。
+  # 该页无「签到」二字、可点节点仅 22 个（纯自绘），文案/节点信号全部失效，
+  # 靠 dHash 落地校验兜底（同页距离 0，跨页 12~33，阈值 8 有干净间隔）。
+  - type: click_point
+    x: 0.856
+    y: 0.167
+    timeout: 6
+    optional: false
+    vision: false
+    desc: 多多视频页右上缘圆形金币入口（2026-10-23 真机校准）
+    expect:
+      phash: images/拼多多/landing/ref_coin.png
+      phash_max_dist: 8
+      retry: 1
+  # 金币中心任务列表里没有「签到」二字：签到是顶部 7 天连签条上的「今日可领」卡片，
+  # 需要上滑才会露出来（旧配置 scroll_to text=签到 永远找不到，实测滚动 4 页仍无该词）。
+  - type: swipe
+    from: [0.5, 0.78]
+    to: [0.5, 0.35]
+    duration: 0.4
+  - type: swipe
+    from: [0.5, 0.78]
+    to: [0.5, 0.35]
+    duration: 0.4
+  - type: click_point
+    x: 0.144
+    y: 0.505
+    timeout: 6
+    optional: false
+    vision: false
+    desc: 金币中心7天连签条「今日可领」卡片（2026-10-23 真机校准）
+    expect:
+      phash: images/拼多多/landing/ref_sign.png
+      phash_max_dist: 8
+      retry: 1
+  - type: click_point
+    x: 0.5
+    y: 0.628
+    timeout: 6
+    optional: false
+    vision: false
+    desc: 每日签到弹窗「领取今日现金」按钮（2026-10-23 真机校准）
+    expect:
+      phash: images/拼多多/landing/ref_done.png
+      phash_max_dist: 8

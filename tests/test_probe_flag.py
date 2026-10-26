@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-"""test_probe_flag.py - `_probe_no_vision` 必须有默认值（无需真机）
+"""test_probe_flag.py - 非 any_of 行为的定位未命中不崩溃（无需真机）
 
-背景（真实缺陷）：
-    `any_of` 需要「只有最后一个分支允许视觉兜底」，靠 `self._probe_no_vision`
-    控制。但这个属性最初**只在 `_step_any_of` 内部赋值**，而
-    `_step_click_text/_click_id/_click_desc/_click_first` 里是**直接读取**
-    `self._probe_no_vision` 的。
+背景（真实缺陷，B6 修复）：`_step_click_text/_click_id/_click_desc/_click_first`
+里直接读 `self._probe_no_vision`，而该属性最初只在 `_step_any_of` 内部赋值，
+**任何不含 `any_of` 的行为**一旦走到「元素没找到 → 该走视觉兜底了」就会
+`AttributeError`，把「没找到按钮」这种正常情况变成崩溃。
 
-    后果：**任何不含 `any_of` 的行为**（例如 34 个 App 里大量未改造的行为）
-    一旦走到「元素没找到 → 该走视觉兜底了」这一步，就会
-    `AttributeError: 'Executor' object has no attribute '_probe_no_vision'`，
-    把「没找到按钮」这种正常情况变成崩溃。
-
-    这类缺陷只在真机跑到那一步才暴露，所以必须用单测钉死。
+B7 演进：视觉门控从实例标志位改为显式参数链（`_step_click_*(…, allow_vision=True)`），
+不再有 `_probe_no_vision` 属性。教训：靠"临时改写再还原"的实例标志位做门控，
+异常/新增直调点会留下脏状态；现在 allow_vision 显式贯穿，参数默认值
+天然保证非 any_of 行为可走视觉兜底。原「属性必须有默认值」与「反证删除即崩」
+两用例随之取消（钉的属性已不存在），语义用例保留：非 any_of 定位未命中
+一律返回 False 且不崩溃。
 
 运行：
     python tests/test_probe_flag.py
@@ -23,7 +22,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from executor import Executor, StepError  # noqa: E402
+from executor import Executor, LocateResult  # noqa: E402
 
 
 class _Rec:
@@ -54,23 +53,14 @@ def _mk():
     """用**真实构造函数**造 Executor（dry_run，不连设备）。
 
     刻意不用 `Executor.__new__` 绕过 `__init__` —— 本文件要钉住的正是
-    「`__init__` 有没有给 `_probe_no_vision` 默认值」，
-    绕过 `__init__` 的测试会把这个缺陷藏起来。
+    「`__init__` 缺初始化时行为是否还安全」。B7 后门控是参数默认值，
+    `__init__` 不再有 _probe_no_vision，用例只验行为不崩。
     """
     ex = Executor("fake-serial", _Human(), _Rec(), dry_run=True, config={})
-    ex._locate = lambda k, v, timeout=2.0: None
+    ex._locate = lambda k, v, timeout=2.0: LocateResult(False, None, "测试未命中")
     ex._kb_candidates = lambda app, primary: ([primary], False)
     ex._kb_mark_fail = lambda app, prims: None
     return ex
-
-
-def t_attribute_has_default():
-    """构造出的 Executor 就应带默认值（不依赖 any_of 先跑过）。"""
-    ex = _mk()
-    assert hasattr(ex, "_probe_no_vision"), \
-        "_probe_no_vision 必须有默认值，否则非 any_of 行为会 AttributeError"
-    assert ex._probe_no_vision is False
-    print("OK  Executor 具备 _probe_no_vision 默认值")
 
 
 def t_click_first_without_anyof_does_not_crash():
@@ -83,52 +73,27 @@ def t_click_first_without_anyof_does_not_crash():
     print("OK  非 any_of 行为的 click_first 未命中不崩溃")
 
 
-def t_click_first_without_anyof_raises_when_required():
-    """非 optional 时应当抛 StepError（而不是 AttributeError）。"""
+def t_click_first_without_anyof_returns_false_when_required():
+    """非 optional 时返回 False 并记录 detail（B6 不再抛 StepError）。"""
     ex = _mk()
     act = {"type": "click_first",
            "candidates": [{"type": "text", "value": "签到"}],
            "timeout": 8, "optional": False}
-    try:
-        ex._step_click_first(act, "T")
-    except StepError:
-        print("OK  非 optional 未命中抛 StepError（语义正确）")
-        return
-    except AttributeError as e:
-        raise AssertionError(f"不应是 AttributeError: {e}")
-    raise AssertionError("应当抛 StepError")
+    res = ex._step_click_first(act, "T")
+    assert res is False, f"应返回 False，实际 {res!r}"
+    assert ex._last_fail and "所有候选均未出现" in ex._last_fail, ex._last_fail
+    print("OK  非 optional 未命中返回 False 并记录 detail（语义正确）")
 
 
-def t_click_text_without_anyof_does_not_crash():
+def t_click_text_without_anyof_returns_false():
     ex = _mk()
     act = {"type": "click_text", "text": "提现", "timeout": 6, "optional": True}
     try:
-        ex._step_click_text(act, "T")
-    except StepError:
-        pass          # 未找到按钮 -> StepError 是预期
+        res = ex._step_click_text(act, "T")
     except AttributeError as e:
         raise AssertionError(f"不应是 AttributeError: {e}")
-    print("OK  非 any_of 行为的 click_text 不崩溃")
-
-
-def t_attribute_is_load_bearing():
-    """反证：把这个属性删掉，非 any_of 行为立刻崩 —— 证明测试真的钉住了缺陷。
-
-    如果哪天有人把 `__init__` 里的初始化删掉，上面几个用例会失败；
-    这个用例说明"为什么必须失败"。
-    """
-    ex = _mk()
-    del ex._probe_no_vision
-    act = {"type": "click_first",
-           "candidates": [{"type": "text", "value": "签到"}],
-           "timeout": 8, "optional": True}
-    try:
-        ex._step_click_first(act, "T")
-    except AttributeError as e:
-        assert "_probe_no_vision" in str(e), e
-        print("OK  反证成立：缺该属性会 AttributeError（初始化不可省）")
-        return
-    raise AssertionError("缺属性时竟然没报错，说明读取点已变，测试需更新")
+    assert res is False, f"应返回 False，实际 {res!r}"
+    print("OK  非 any_of 行为的 click_text 未命中返回 False 不崩溃")
 
 
 if __name__ == "__main__":

@@ -10,7 +10,11 @@
   2. `optional: true` 的定位动作「没找到」返回 False（不是 None/异常），
      必须被识别为分支未命中 —— 否则任何分支都会"成功"，any_of 形同虚设；
   3. 分支内某步抛 StepError → 该分支判失败，且**后续步骤不执行**；
-  4. 全部分支未命中时：optional 放行返回 False，否则抛 StepError。
+  4. 全部分支未命中时：optional 放行返回 False，否则 WARN 返回 False；
+  5. 视觉门控是显式参数链：只有最后一个分支 allow_vision=True
+     （B7 教训：早期用 `_probe_no_vision` 实例标志位临时改写再还原，
+     异常/新增直调点会留下脏状态，测试只能靠反证用例兜底；现改为
+     `allow_vision` 参数显式贯穿，反证用例随之取消）。
 
 运行：
     python tests/test_any_of.py
@@ -21,7 +25,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from executor import Executor, StepError  # noqa: E402
+from executor import Executor, StepError, LocateResult  # noqa: E402
 
 
 class _Rec:
@@ -32,20 +36,20 @@ class _Rec:
         self.lines.append(f"[{level}] {event}")
 
 
-def _mk(fake_dispatch):
+def _mk(fake_probe):
     ex = Executor.__new__(Executor)
     ex.recorder = _Rec()
-    ex._dispatch = fake_dispatch
+    ex._dispatch_probe = fake_probe
     return ex
 
 
 def _scripted(mapping, calls):
-    """构造一个按 (type, tag) 返回 True/False/抛异常的假 _dispatch。
+    """构造一个按 (type, tag) 返回 True/False/抛异常的假 _dispatch_probe。
 
     mapping: {(type, tag): True|False|"raise"}
     calls:   调用记录列表，元素为 (type, tag)
     """
-    def fake(act, app_name, ritual):
+    def fake(act, app_name, allow_vision):
         key = (act.get("type"), act.get("tag"))
         calls.append(key)
         res = mapping.get(key, True)
@@ -134,17 +138,14 @@ def t_all_miss_optional_pass():
     print("OK  全部分支未命中 + optional 放行（返回 False）")
 
 
-def t_all_miss_raises():
-    """全部分支未命中 + 非 optional → 抛 StepError。"""
+def t_all_miss_returns_false_warn():
+    """全部分支未命中 + 非 optional → WARN 并返回 False（B6 不再抛 StepError）。"""
     calls = []
     ex = _mk(_scripted({("a", 1): False}, calls))
     act = {"type": "any_of", "choices": [[{"type": "a", "tag": 1}]]}
-    try:
-        ex._step_any_of(act, "T")
-    except StepError:
-        print("OK  全部分支未命中且非 optional 时抛 StepError")
-        return
-    raise AssertionError("应抛 StepError")
+    assert ex._step_any_of(act, "T") is False
+    assert any("any_of 全部分支均未命中" in l for l in ex.recorder.lines)
+    print("OK  全部分支未命中且非 optional 时 WARN 返回 False")
 
 
 def t_empty_choices():
@@ -168,12 +169,12 @@ def t_dict_choice_supported():
 # ---------- 与 _step_click_first 的集成（any_of 成立的前提） ----------
 
 def _mk_real_click_first(locate_result):
-    """构造一个真实的 Executor（不打桩 _dispatch），只打桩定位相关依赖。"""
+    """构造一个真实的 Executor（不打桩 _dispatch_probe），只打桩定位相关依赖。"""
     ex = Executor.__new__(Executor)
     ex.recorder = _Rec()
     ex.dry_run = True
     ex.d = None
-    ex._probe_no_vision = False
+    ex._last_fail = ""
     ex._locate = lambda k, v, timeout=6.0: locate_result
     ex._kb_candidates = lambda app, primary: ([primary], True)
     ex._kb_mark_fail = lambda app, prims: None
@@ -188,7 +189,7 @@ def t_click_first_optional_miss_returns_false():
     这是 any_of 正确工作的前提：若返回 None，_dispatch 会映射为 True，
     于是任何含 optional 定位动作的分支都被判成"成功"，any_of 形同虚设。
     """
-    ex = _mk_real_click_first(None)
+    ex = _mk_real_click_first(LocateResult(False, None, "测试未命中"))
     act = {"type": "click_first", "optional": True,
            "candidates": [{"type": "text", "value": "签到"}]}
     res = ex._step_click_first(act, "T")
@@ -196,17 +197,15 @@ def t_click_first_optional_miss_returns_false():
     print("OK  click_first(optional) 未命中返回 False（any_of 前提）")
 
 
-def t_click_first_nonoptional_miss_raises():
-    """非 optional 且全候选未命中时，应抛 StepError。"""
-    ex = _mk_real_click_first(None)
+def t_click_first_nonoptional_miss_returns_false():
+    """非 optional 且全候选未命中时，返回 False 并记录 detail（B6 不再抛 StepError）。"""
+    ex = _mk_real_click_first(LocateResult(False, None, "测试未命中"))
     act = {"type": "click_first",
            "candidates": [{"type": "text", "value": "签到"}]}
-    try:
-        ex._step_click_first(act, "T")
-    except StepError:
-        print("OK  click_first(非 optional) 未命中抛 StepError")
-        return
-    raise AssertionError("应抛 StepError")
+    res = ex._step_click_first(act, "T")
+    assert res is False, f"应返回 False，实际 {res!r}"
+    assert ex._last_fail and "所有候选均未出现" in ex._last_fail, ex._last_fail
+    print("OK  click_first(非 optional) 未命中返回 False 并记录 detail")
 
 
 def t_three_level_branch_runs_nav_mid_anchor():
@@ -247,11 +246,14 @@ def t_three_level_mid_miss_stops_branch():
 
 
 def t_only_last_branch_allows_vision():
-    """只有最后一个分支允许视觉兜底（前面的分支是"便宜探测"）。"""
+    """只有最后一个分支允许视觉兜底（前面的分支是"便宜探测"）。
+
+    B7：门控是显式参数链，断言 allow_vision 序列 == [False, True]。
+    """
     seen = []
 
-    def fake(act, app_name, ritual):
-        seen.append((act.get("tag"), ex._probe_no_vision))
+    def fake(act, app_name, allow_vision):
+        seen.append((act.get("tag"), allow_vision))
         return act.get("tag") == 2      # 只有最后一个分支命中
 
     ex = _mk(fake)
@@ -260,39 +262,19 @@ def t_only_last_branch_allows_vision():
         [{"type": "x", "tag": 2}],
     ]}
     assert ex._step_any_of(act, "T") is True
-    assert seen == [(1, True), (2, False)], seen
-    # 退出后必须恢复原值（不污染后续动作）
-    assert ex._probe_no_vision is False, ex._probe_no_vision
-    print("OK  仅最后一个分支允许视觉兜底，且退出后恢复原值")
-
-
-def t_vision_flag_restored_even_on_error():
-    """分支抛异常时也要恢复 _probe_no_vision（finally 保证）。"""
-    def fake(act, app_name, ritual):
-        if act.get("tag") == 1:
-            raise StepError("boom")
-        return True
-
-    ex = _mk(fake)
-    ex._probe_no_vision = False
-    act = {"type": "any_of", "optional": True, "choices": [
-        [{"type": "x", "tag": 1}],
-        [{"type": "x", "tag": 2}],
-    ]}
-    assert ex._step_any_of(act, "T") is True
-    assert ex._probe_no_vision is False, "异常路径也必须恢复"
-    print("OK  分支抛异常时 _probe_no_vision 仍被恢复")
+    assert seen == [(1, False), (2, True)], seen
+    print("OK  仅最后一个分支 allow_vision=True（显式参数链）")
 
 
 def t_dispatch_maps_none_to_true():
-    """_dispatch 应把 None 归一化为 True，把 False 原样传出。"""
+    """_dispatch 兼容薄包装：None 归一化为 True，False 原样传出。"""
     ex = Executor.__new__(Executor)
     ex.recorder = _Rec()
     ex.human = type("H", (), {"delay": lambda *a: None,
                               "maybe_wander": lambda *a: None})()
     ex.d = None
     ex._step_wait = lambda act, app: None
-    ex._step_click_first = lambda act, app: False
+    ex._step_click_first = lambda act, app, allow_vision=True: False
     assert ex._dispatch({"type": "wait"}, "T", ritual=False) is True
     assert ex._dispatch({"type": "click_first"}, "T", ritual=False) is False
     assert ex._dispatch({"type": "不存在"}, "T", ritual=False) is False
@@ -303,13 +285,12 @@ if __name__ == "__main__":
     tests = [t_first_branch_wins, t_fallback_to_second_branch,
              t_optional_miss_is_not_success, t_multistep_branch_stops_on_failure,
              t_step_error_treated_as_miss, t_all_miss_optional_pass,
-             t_all_miss_raises, t_empty_choices, t_dict_choice_supported,
+             t_all_miss_returns_false_warn, t_empty_choices, t_dict_choice_supported,
              t_three_level_branch_runs_nav_mid_anchor,
              t_three_level_mid_miss_stops_branch,
              t_only_last_branch_allows_vision,
-             t_vision_flag_restored_even_on_error,
              t_click_first_optional_miss_returns_false,
-             t_click_first_nonoptional_miss_raises,
+             t_click_first_nonoptional_miss_returns_false,
              t_dispatch_maps_none_to_true]
     failed = 0
     for t in tests:

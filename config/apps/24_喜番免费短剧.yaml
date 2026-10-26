@@ -1,0 +1,192 @@
+name: 喜番免费短剧
+package: com.kwai.theater
+aliases:
+- 喜番免费短剧
+- 喜番短剧
+intent_map:
+  sign: sign
+  watch: watch
+  withdraw: withdraw
+behaviors:
+  sign:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 签到
+        - type: text
+          value: 每日签到
+        - type: text
+          value: 看剧赚金币
+        - type: text
+          value: 去签到
+        - type: text
+          value: 福利
+        - type: text
+          value: 赚现金
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 赚现金
+        - type: text
+          value: 任务中心
+        - type: text
+          value: 福利中心
+        - type: text
+          value: 我的福利
+        - type: text
+          value: 福利
+        - type: text
+          value: 赚钱
+        - type: text
+          value: 金币
+        - type: text
+          value: 领金币
+        - type: text
+          value: 天天领
+        - type: text
+          value: 做任务
+        - type: text
+          value: 任务
+        - type: text
+          value: 钱包
+        - type: text
+          value: 现金
+        - type: text
+          value: 元宝中心
+        - type: text
+          value: 金币中心
+        - type: text
+          value: 福利商城
+        - type: text
+          value: 任务广场
+        - type: text
+          value: 赚金币
+        - type: text
+          value: 看剧赚钱
+        - type: text
+          value: 看书赚钱
+        - type: text
+          value: 看视频赚钱
+        - type: text
+          value: 我的金币
+        - type: text
+          value: 现金奖励
+        timeout: 8
+        optional: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 签到
+        - type: text
+          value: 每日签到
+        - type: text
+          value: 看剧赚金币
+        - type: text
+          value: 去签到
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 立即签到
+    - type: text
+      value: 领取
+    timeout: 6
+    optional: true
+  watch:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 去看剧
+        - type: text
+          value: 赚钱
+        - type: text
+          value: 任务
+        - type: text
+          value: 看剧赚钱
+        - type: text
+          value: 福利
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 去看剧
+        - type: text
+          value: 赚钱
+        - type: text
+          value: 任务
+        - type: text
+          value: 看剧赚钱
+        - type: text
+          value: 福利
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 看剧
+    - type: text
+      value: 去完成
+    - type: text
+      value: 看短剧
+    timeout: 6
+    optional: true
+  - type: swipe
+    from:
+    - 0.5
+    - 0.7
+    to:
+    - 0.5
+    - 0.3
+    duration: 0.8
+    natural: true
+  - type: wait
+    seconds: 3
+  withdraw:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 我的
+    - type: text
+      value: 我
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_text
+    text: 提现
+    timeout: 6
+    optional: true
+  - type: reward
+    pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+    unit: 元
+    name: 可提现余额
+  - type: click_text
+    text: 立即提现
+    timeout: 6
+    optional: true

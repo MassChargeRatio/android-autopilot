@@ -1,0 +1,538 @@
+# -*- coding: utf-8 -*-
+"""
+gui.py - Android Autopilot 桌面控制台 (Windows)
+
+纯 Python 标准库 tkinter 实现，零第三方运行时依赖（PyYAML 仅用于读取
+config.yaml，若未安装会自动降级为 subprocess 调用 main.py --list 解析）。
+
+功能：
+  1. 启动时读取项目根目录 config.yaml 的 apps 段，为每个 app（name/package/
+     aliases）生成多选勾选框，并提供"全选/全不选"。
+  2. 每个 app 下列出其 behaviors 的所有 key，动态生成行为多选勾选项；
+     无行为时给出提示。
+  3. 对勾选的 app 依次启动流程：subprocess 调用
+     `python main.py --app <name> --task <行为组装的自然语言> [--serial <地址>]`
+  4. 交互：执行 / 停止 / 预览(dry-run) / 今日收益 / 刷新列表 / 打开配置，
+     日志区实时增量显示 stdout+stderr 并按 app 分段，状态栏显示进度。
+  5. 线程安全：subprocess 全部在后台线程运行，UI 通过 queue + after 轮询更新，
+     不跨线程直接操作控件。
+
+用法：
+  python gui.py
+"""
+
+import argparse
+import os
+import queue
+import re
+import subprocess
+import sys
+import threading
+import tkinter as tk
+from datetime import datetime
+from tkinter import messagebox, ttk
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MAIN_PY = os.path.join(BASE_DIR, "main.py")
+CONFIG_YAML = os.path.join(BASE_DIR, "config.yaml")
+
+# main.py/nlu.py 内置意图 -> 行为触发词 反向映射（行为 key -> 自然语言关键词）。
+# 组装 --task 时用触发词拼接，保证 nlu.parse_intents 能解析出对应意图；
+# 未收录的行为 key 原样塞入（不会命中任何意图，无害）。
+KEY_TO_TRIGGER = {
+    "sign": "签到",
+    "reserve": "预约打卡",
+    "watch": "看视频",
+    "withdraw": "提现",
+    "bonus": "领金币",
+    "collect": "收集",
+    "growth": "做任务",
+}
+
+# 运行子进程时强制使用 UTF-8 输出，避免 Windows 控制台 cp936 与捕获端乱码
+_RUN_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+
+# YAML 读取：优先 PyYAML，缺失时用内置零依赖解析器 miniyaml 兜底
+try:
+    import yaml
+except ImportError:  # pragma: no cover
+    import miniyaml as yaml
+
+
+# ---------------------------------------------------------------------------
+# 配置解析：优先 PyYAML 直读 config.yaml；不可用时降级解析 `main.py --list`
+# ---------------------------------------------------------------------------
+def load_config_apps():
+    """返回 [app dict]，每个 app 含 name/package/aliases/behaviors(list of keys)。"""
+    try:
+        with open(CONFIG_YAML, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+        apps = cfg.get("apps", []) or []
+        # 归一化为 GUI 统一结构
+        return [{
+            "name": (a.get("name") or f"app{i}"),
+            "package": a.get("package") or "",
+            "aliases": list(a.get("aliases", []) or []),
+            "behaviors": list(((a.get("behaviors") or {}) or {}).keys()),
+        } for i, a in enumerate(apps)]
+    except ImportError:
+        return _parse_list_output()
+    except Exception:
+        return _parse_list_output()
+
+
+def _parse_list_output():
+    """降级路径：调用 `python main.py --list` 解析文本（不依赖 PyYAML）。"""
+    apps = []
+    try:
+        r = subprocess.run(
+            [sys.executable, MAIN_PY, "--list"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            cwd=BASE_DIR, env=_RUN_ENV, timeout=30,
+        )
+        out = r.stdout or ""
+    except Exception:
+        return apps
+    blocks = re.split(r"\n\s*\n", out)
+    cur = None
+    for blk in blocks:
+        m = re.match(r"^\s*(\d+)\.\s*(.+?)\s*\[(.*)\]\s*$", blk, re.M)
+        if not m:
+            continue
+        name = m.group(2).strip()
+        pkg = m.group(3).strip()
+        bm = re.search(r"可用行为:\s*(.+)", blk)
+        btext = bm.group(1).strip() if bm else ""
+        behaviors = []
+        if btext and btext != "(无)":
+            behaviors = [x.strip() for x in re.split(r"[、,，]", btext) if x.strip()]
+        cur = {"name": name, "package": pkg, "aliases": [], "behaviors": behaviors}
+        apps.append(cur)
+    return apps
+
+
+# ---------------------------------------------------------------------------
+# 后台任务：subprocess 管理（线程安全）
+# ---------------------------------------------------------------------------
+class Runner:
+    """在独立线程内串行执行多个 app 流程，结果经 queue 回传主线程。"""
+
+    def __init__(self, apps, task_by_name, serial, opts, q):
+        self.apps = apps
+        self.task_by_name = task_by_name
+        self.serial = serial
+        self.opts = opts          # dict(dry_run=bool, force=bool)
+        self.q = q                # queue.Queue 通信
+        self._stop = threading.Event()
+        self._current = None      # Popen 引用（供停止按钮 terminate）
+        self.thread = threading.Thread(target=self._run_all, daemon=True)
+
+    def start(self):
+        self.thread.start()
+
+    def stop(self):
+        """请求停止：终止当前子进程（含子树）并停止后续调度。"""
+        self._stop.set()
+        p = self._current
+        if p is not None and p.poll() is None:
+            try:
+                if os.name == "nt":
+                    subprocess.run(
+                        ["taskkill", "/PID", str(p.pid), "/T", "/F"],
+                        capture_output=True, timeout=10)
+                else:
+                    p.terminate()
+            except Exception as e:
+                self._put("log", f"[终止失败] {e}\n")
+
+    def _put(self, kind, text):
+        self.q.put((kind, text))
+
+    def _run_all(self):
+        n = len(self.apps)
+        finish = ""
+        for i, app in enumerate(self.apps, 1):
+            name = app["name"]
+            if self._stop.is_set():
+                finish = f"已由用户停止（完成 {i - 1}/{n}）"
+                break
+            if i > 1:
+                self._put("log", "\n")
+            self._put("log", "=" * 66 + "\n")
+            self._put("log", f"▶ 开始 app [{i}/{n}]：{name}"
+                      f"  （{datetime.now():%H:%M:%S}）\n")
+            self._put("log", "=" * 66 + "\n")
+            self._put("status", f"[{i}/{n}] 正在执行：{name}")
+            task = self.task_by_name.get(name) or "签到"
+            rc = self._run_one(app, task)
+            if rc == -99:                      # 用户停止
+                finish = f"已由用户停止（完成 {i - 1}/{n}）"
+                break
+            self._put("log", f"—— app[{i}/{n}] {name} 结束，退出码 {rc}"
+                      f"（{datetime.now():%H:%M:%S}）\n")
+        if not finish:
+            finish = f"全部完成（{n}/{n}）"
+        finish += f"  结束时间 {datetime.now():%H:%M:%S}"
+        # 统一追加今日收益（main.py 每次运行也会打印）
+        self._put("status", finish)
+        self._put("done", None)
+
+    def _run_one(self, app, task):
+        cmd = [sys.executable, MAIN_PY, "--app", app["name"], "--task", task]
+        if self.serial:
+            cmd += ["--serial", self.serial]
+        if self.opts.get("dry_run"):
+            cmd += ["--dry-run"]
+        if self.opts.get("force"):
+            cmd += ["--force"]
+        self._put("log", f"$ {' '.join(cmd)}\n")
+        try:
+            p = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                text=True, encoding="utf-8", errors="replace", bufsize=1,
+                cwd=BASE_DIR, env=_RUN_ENV,
+            )
+        except Exception as e:
+            self._put("log", f"[启动失败] {e}\n")
+            return 1
+        self._current = p
+        try:
+            for line in p.stdout:
+                if self._stop.is_set():
+                    p.terminate()
+                    break
+                self._put("out", line)
+        finally:
+            rc = p.wait()
+            self._current = None
+            return -99 if self._stop.is_set() and rc != 0 else rc
+
+
+# ---------------------------------------------------------------------------
+# 带滚动的勾选区容器
+# ---------------------------------------------------------------------------
+class ScrollableFrame(ttk.Frame):
+    """内容超出高度时可滚动的 Frame（鼠标滚轮支持）。"""
+
+    def __init__(self, master, **kw):
+        super().__init__(master, **kw)
+        self.canvas = tk.Canvas(self, highlightthickness=0, bg="#f7f7f7")
+        self.vsb = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.body = ttk.Frame(self.canvas)
+        self.body.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.win = self.canvas.create_window((0, 0), window=self.body, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.vsb.set)
+        self.canvas.bind(
+            "<Configure>",
+            lambda e: self.canvas.itemconfigure(self.win, width=e.width))
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.vsb.pack(side="right", fill="y")
+        self._bind_wheel(self.body)
+        self._bind_wheel(self.canvas)
+
+    def _bind_wheel(self, widget):
+        if os.name == "nt":
+            widget.bind("<MouseWheel>",
+                        lambda e: self.canvas.yview_scroll(-int(e.delta / 120), "units"))
+        else:
+            widget.bind("<Button-4>", lambda e: self.canvas.yview_scroll(-1, "units"))
+            widget.bind("<Button-5>", lambda e: self.canvas.yview_scroll(1, "units"))
+
+
+# ---------------------------------------------------------------------------
+# 主界面
+# ---------------------------------------------------------------------------
+class App:
+    def __init__(self, root):
+        self.root = root
+        root.title("Android Autopilot 控制台")
+        root.geometry("1000x680")
+        root.minsize(860, 560)
+
+        self.q = queue.Queue()
+        self.runner = None
+        self.app_vars = {}          # name -> AppNode
+        self.stop_pending = False
+
+        self._build_toolbar()
+        self._build_main()
+        self._build_statusbar()
+        self.refresh_list()
+
+        self._poll()
+        root.protocol("WM_DELETE_WINDOW", self._on_close)
+
+    # ---------------- 界面搭建 ----------------
+    def _build_toolbar(self):
+        bar = ttk.Frame(self.root, padding=6)
+        bar.pack(fill="x")
+        ttk.Label(bar, text="设备 serial（可留空用 config）：").pack(side="left")
+        self.serial_var = tk.StringVar()
+        ent = ttk.Entry(bar, textvariable=self.serial_var, width=28)
+        ent.pack(side="left", padx=6)
+        # 预填 config.device.serial（若可解析）
+        try:
+            with open(CONFIG_YAML, "r", encoding="utf-8") as f:
+                _cfg = yaml.safe_load(f) or {}
+            self.serial_var.set((_cfg.get("device", {}) or {}).get("serial", ""))
+        except Exception:
+            pass
+        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Button(bar, text="执行", command=self.run_tasks).pack(side="left", padx=2)
+        ttk.Button(bar, text="预览(dry-run)", command=lambda: self.run_tasks(dry=True)).pack(side="left", padx=2)
+        ttk.Button(bar, text="停止", command=self.stop_tasks).pack(side="left", padx=2)
+        ttk.Button(bar, text="今日收益", command=self.today_summary).pack(side="left", padx=2)
+        ttk.Button(bar, text="刷新列表", command=self.refresh_list).pack(side="left", padx=2)
+        ttk.Button(bar, text="打开配置", command=self.open_config).pack(side="left", padx=2)
+        self.force_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(bar, text="强制执行(--force)", variable=self.force_var).pack(side="left", padx=8)
+
+    def _build_main(self):
+        paned = ttk.PanedWindow(self.root, orient="horizontal")
+        paned.pack(fill="both", expand=True, padx=8, pady=2)
+
+        # 左：app 勾选区
+        left = ttk.Frame(paned, width=380)
+        left.pack_propagate(False)
+        ttk.Label(left, text="选择要启动流程的 app（可多选）", font=("", 10, "bold")).pack(anchor="w", pady=(4, 2))
+        sel = ttk.Frame(left)
+        sel.pack(fill="x", pady=2)
+        ttk.Button(sel, text="全选", command=self.select_all_apps, width=8).pack(side="left")
+        ttk.Button(sel, text="全不选", command=self.select_none_apps, width=8).pack(side="left", padx=4)
+        ttk.Button(sel, text="清空日志", command=self.clear_log, width=9).pack(side="right")
+        self.scroll = ScrollableFrame(left)
+        self.scroll.pack(fill="both", expand=True)
+        self.apps_panel = self.scroll.body
+        paned.add(left, weight=3)
+
+        # 右：日志区
+        right = ttk.Frame(paned)
+        ttk.Label(right, text="运行日志", font=("", 10, "bold")).pack(anchor="w", pady=(4, 2))
+        self.log = tk.Text(right, wrap="word", state="disabled",
+                           bg="#121212", fg="#d8d8d8",
+                           insertbackground="#d8d8d8",
+                           font=("Consolas", 9))
+        self.log.pack(fill="both", expand=True, pady=(0, 2))
+        paned.add(right, weight=7)
+
+    def _build_statusbar(self):
+        self.status_var = tk.StringVar(value="就绪。勾选 app 与行为后点击「执行」。")
+        bar = ttk.Label(self.root, textvariable=self.status_var, relief="sunken", anchor="w", padding=(6, 2))
+        bar.pack(fill="x", side="bottom")
+
+    # ---------------- 列表刷新 ----------------
+    def refresh_list(self):
+        for w in self.apps_panel.winfo_children():
+            w.destroy()
+        self.app_vars = {}
+        apps = load_config_apps()
+        if not apps:
+            ttk.Label(self.apps_panel, text="未读取到任何 app。\n检查 config.yaml 或运行 main.py --list。").pack(anchor="w")
+            self.log_text("未读取到任何 app。\n")
+            return
+        for app in apps:
+            self._make_app_block(app)
+        self.log_text(f"已从 config.yaml 读取 {len(apps)} 个 app（{datetime.now():%H:%M:%S}）。\n")
+        self.status_var.set(f"就绪：{len(apps)} 个 app 已加载。")
+
+    def _make_app_block(self, app):
+        name = app["name"]
+        frame = ttk.LabelFrame(self.apps_panel, text=f"{name}  [{app['package']}]", padding=4)
+        frame.pack(fill="x", pady=3, padx=2)
+
+        node = {"on": tk.BooleanVar(value=True), "beh_vars": {}}
+        self.app_vars[name] = node
+        top = ttk.Frame(frame)
+        top.pack(fill="x")
+        ttk.Checkbutton(top, text="启用此 app", variable=node["on"],
+                        command=lambda n=name: self._sync_app_check(n)).pack(side="left")
+        if app.get("aliases"):
+            ttk.Label(top, text=f"别名: {'、'.join(app['aliases'])}",
+                      foreground="#666", font=("", 8)).pack(side="left", padx=6)
+
+        behaviors = app.get("behaviors") or []
+        if not behaviors:
+            ttk.Label(frame, text="（该 app 无可用行为）", foreground="#b00").pack(anchor="w")
+            return
+        bbox = ttk.Frame(frame)
+        bbox.pack(fill="x", padx=8)
+        ttk.Button(bbox, text="行为全选", width=8,
+                   command=lambda n=name: self._set_beh(n, True)).pack(side="left")
+        ttk.Button(bbox, text="全清", width=6,
+                   command=lambda n=name: self._set_beh(n, False)).pack(side="left", padx=3)
+        for b in behaviors:
+            v = tk.BooleanVar(value=True)      # 默认全部勾选
+            node["beh_vars"][b] = v
+            ttk.Checkbutton(bbox, text=b, variable=v).pack(side="left", padx=3)
+
+    def _sync_app_check(self, name):
+        node = self.app_vars.get(name)
+        if not node:
+            return
+        if node["on"].get() and not node["beh_vars"]:
+            self.status_var.set(f"提示：{name} 无可用行为，仅执行默认「签到」。")
+
+    def _set_beh(self, name, value):
+        node = self.app_vars.get(name)
+        if node:
+            for v in node["beh_vars"].values():
+                v.set(value)
+
+    def select_all_apps(self):
+        self._set_all_apps(True)
+
+    def select_none_apps(self):
+        self._set_all_apps(False)
+
+    def _set_all_apps(self, value):
+        for node in self.app_vars.values():
+            node["on"].set(value)
+
+    # ---------------- 执行 ----------------
+    def _selected_plan(self):
+        """返回 [(app_name, [behaviors...])]；无勾选时返回 []。"""
+        plan = []
+        for name, node in self.app_vars.items():
+            if not node["on"].get():
+                continue
+            behs = [b for b, v in node["beh_vars"].items() if v.get()]
+            plan.append((name, behs))
+        return plan
+
+    @staticmethod
+    def task_text(behaviors):
+        parts = [KEY_TO_TRIGGER.get(b, b) for b in behaviors]
+        return "，然后".join(parts) or "签到"
+
+    def run_tasks(self, dry=False):
+        if self.runner is not None and self.runner.thread.is_alive():
+            messagebox.showwarning("提示", "已有任务正在运行，请先停止或等待完成。")
+            return
+        plan = self._selected_plan()
+        valid = []
+        tasks = {}
+        for name, behs in plan:
+            if not behs:
+                messagebox.showwarning("行为未选择",
+                                       f"app「{name}」未勾选任何行为。\n请勾选该 app 下的行为，或取消勾选该 app。")
+                return
+            valid.append(name)
+            tasks[name] = self.task_text(behs)
+        if not valid:
+            messagebox.showinfo("未选择 app", "请至少勾选一个 app。")
+            return
+        serial = self.serial_var.get().strip()
+        opts = {"dry_run": dry, "force": self.force_var.get()}
+        mode = "预览(dry-run)" if dry else "执行"
+        self.log_text(f"\n[{datetime.now():%H:%M:%S}] 开始{mode}：{len(valid)} 个 app\n")
+        self.runner = Runner(valid, tasks, serial, opts, self.q)
+        self._set_running_ui(True)
+        self.runner.start()
+
+    def stop_tasks(self):
+        if self.runner and self.runner.thread.is_alive():
+            self.log_text(f"\n[{datetime.now():%H:%M:%S}] 收到停止请求，正在终止当前子进程…\n")
+            self.runner.stop()
+        else:
+            self.status_var.set("当前没有正在运行的任务。")
+
+    def today_summary(self):
+        if self.runner and self.runner.thread.is_alive():
+            messagebox.showwarning("提示", "请先等待当前任务结束，再查看今日收益。")
+            return
+        threading.Thread(target=self._today_worker, daemon=True).start()
+
+    def _today_worker(self):
+        cmd = [sys.executable, MAIN_PY, "--today"]
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True,
+                               encoding="utf-8", errors="replace",
+                               cwd=BASE_DIR, env=_RUN_ENV, timeout=60)
+            out = (r.stdout or "") + ("\n" + r.stderr if r.stderr else "")
+        except Exception as e:
+            out = f"[今日收益执行失败] {e}"
+        self.q.put(("out", f"\n===== 今日收益（{datetime.now():%H:%M:%S}） =====\n{out}\n"))
+
+    def open_config(self):
+        if os.path.isfile(CONFIG_YAML):
+            try:
+                if os.name == "nt":
+                    os.startfile(CONFIG_YAML)  # noqa
+                else:
+                    subprocess.Popen(["xdg-open", CONFIG_YAML])
+            except Exception as e:
+                messagebox.showerror("打开失败", f"无法打开配置文件：{e}")
+        else:
+            messagebox.showerror("配置缺失", f"未找到 {CONFIG_YAML}")
+
+    # ---------------- UI 更新（主线程） ----------------
+    def _poll(self):
+        try:
+            while True:
+                kind, payload = self.q.get_nowait()
+                if kind == "out":
+                    self.log_text(payload)
+                elif kind == "log":
+                    self.log_text(payload)
+                elif kind == "status":
+                    self.status_var.set(payload)
+                elif kind == "done":
+                    self._set_running_ui(False)
+                    self.runner = None
+                    self.status_var.set(payload or "完成。")
+        except queue.Empty:
+            pass
+        self.root.after(100, self._poll)
+
+    def _set_running_ui(self, running):
+        state = "disabled" if running else "normal"
+        # 按钮状态通过遍历 toolbar 子控件切换不优雅，直接用禁用 Flag 方案：重建 toolbar 按钮命令
+        # 简化：执行/预览/今日收益/刷新/打开配置 在运行期间暂时禁用
+        for w in self.root.winfo_children():
+            self._walk_set_state(w, state, running)
+
+    def _walk_set_state(self, widget, state, running):
+        for child in widget.winfo_children():
+            if isinstance(child, ttk.Button):
+                txt = str(child.cget("text"))
+                if txt in ("执行", "预览(dry-run)", "今日收益", "刷新列表", "打开配置"):
+                    child.configure(state=state)
+                elif txt == "停止":
+                    child.configure(state="normal" if running else "disabled")
+            self._walk_set_state(child, state, running)
+
+    def log_text(self, text):
+        self.log.configure(state="normal")
+        self.log.insert("end", text)
+        self.log.see("end")
+        self.log.configure(state="disabled")
+
+    def clear_log(self):
+        self.log.configure(state="normal")
+        self.log.delete("1.0", "end")
+        self.log.configure(state="disabled")
+
+    def _on_close(self):
+        if self.runner and self.runner.thread.is_alive():
+            if not messagebox.askokcancel("退出", "任务仍在运行，确定退出吗？"):
+                return
+            self.runner.stop()
+        self.root.destroy()
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Android Autopilot 桌面控制台")
+    ap.add_argument("--config", help="config.yaml 路径（默认项目根目录）")
+    args, _ = ap.parse_known_args()
+    if args.config:
+        global CONFIG_YAML
+        CONFIG_YAML = args.config
+    root = tk.Tk()
+    App(root)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()

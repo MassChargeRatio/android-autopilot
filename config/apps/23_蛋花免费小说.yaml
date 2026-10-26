@@ -1,0 +1,161 @@
+name: 蛋花免费小说
+package: com.eggflower.read
+aliases:
+- 蛋花免费小说
+- 蛋花小说
+intent_map:
+  sign: sign
+  watch: watch
+  withdraw: withdraw
+behaviors:
+  sign:
+  # 2026-10-24/25 真机重校准。旧链路「我的 tab -> 找签到」失效（签到不在我的页）。
+  # 与红果同构：底部 tab 为 书城/漫剧/福利/书架/我的，「福利」tab 上「签到」仅角标。
+  # 真实链路（实测 2026-10-25）：
+  #   福利 tab (540,2148) -> 福利页「签到领金币 488」[去签到] (879,1458)
+  #     -> 弹窗[立即签到 +488 金币] (540,1428)。
+  # 两种入口形态都要兼容：
+  #   ① 当日首次进福利页会**自动弹出**签到弹窗（此时无[去签到]可点）；
+  #   ② 再次进入则是普通福利页，须点[去签到]才弹窗。
+  # 故 [去签到] 设为 optional + 图像锚点：锚点命中才点，弹窗已在则自动跳过。
+  # 福利页**全自绘**（无文本节点，只有底部 5 个 tab 有文本），只能靠图像/坐标定位。
+  # 启动后常见弹窗：推送权限「取消」、版本更新「以后再说」——先 dismiss_popups 清掉，
+  # 否则弹窗会吃掉「福利」tab 的点击（2026-10-25 04:14 实测踩过：tab 连点 3 次 phash=36 不动）。
+  - type: dismiss_popups
+    max_rounds: 3
+    back_key: false
+    corner_fallback: false
+    desc: 启动后清扫弹窗（推送权限「取消」/ 版本更新「以后再说」）
+  - type: click_point
+    x: 0.5
+    y: 0.918
+    timeout: 8
+    optional: false
+    vision: false
+    desc: 底部「福利」tab（真机中心 (540,2148)；tab 上「签到」为角标）
+    expect:
+      # 福利页 vs 书城首页 整页 40 -> 阈值 12；昨日/今日福利页互相差 3，很稳
+      phash: images/蛋花免费小说/landing/ref_welfare.png
+      phash_max_dist: 12
+      settle: 3.0
+      retry: 2
+  - type: think
+  - type: click_point
+    x: 0.814
+    y: 0.623
+    images:
+    - images/蛋花免费小说/btn_qiandao.png
+    timeout: 8
+    optional: true
+    desc: 福利页「签到领金币」[去签到]（真机中心 (879,1458)；模板自匹配 0.9999 / 首页误匹配 0.65）
+    expect:
+      # 只比弹窗白卡区(0.30-0.55)：今日弹窗 vs ref 差 7，福利页 28、首页 22 -> 阈值 14
+      phash: images/蛋花免费小说/landing/ref_dialog.png
+      phash_region: [0.0, 0.30, 1.0, 0.55]
+      phash_max_dist: 14
+      settle: 3.0
+      retry: 1
+  - type: click_point
+    x: 0.5
+    y: 0.610
+    timeout: 8
+    optional: true
+    vision: false
+    desc: 签到弹窗[立即签到 +488 金币]（真机中心 (540,1428)）
+  watch:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 福利
+        - type: text
+          value: 任务
+        - type: text
+          value: 看书赚钱
+        - type: text
+          value: 金币中心
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 福利
+        - type: text
+          value: 任务
+        - type: text
+          value: 看书赚钱
+        - type: text
+          value: 金币中心
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 去看书
+    - type: text
+      value: 去完成
+    - type: text
+      value: 阅读
+    timeout: 6
+    optional: true
+  - type: swipe
+    from:
+    - 0.5
+    - 0.7
+    to:
+    - 0.5
+    - 0.3
+    duration: 0.8
+    natural: true
+  - type: wait
+    seconds: 3
+  withdraw:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 我的
+        - type: text
+          value: 我
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 我的
+        - type: text
+          value: 我
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_text
+    text: 提现
+    timeout: 6
+    optional: true
+  - type: reward
+    pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+    unit: 元
+    name: 可提现余额
+  - type: click_text
+    text: 立即提现
+    timeout: 6
+    optional: true

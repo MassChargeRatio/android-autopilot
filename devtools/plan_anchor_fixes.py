@@ -26,7 +26,10 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
+from config_loader import app_config_path, load_config  # noqa: E402
 from calibrate import parse_nodes, match_selector  # noqa: E402
 
 ANCHOR_TYPES = ("click_text", "click_id", "click_desc", "click_first")
@@ -52,9 +55,7 @@ BEHAVIOR_KEYWORDS = {
 
 
 def load_cfg():
-    import yaml
-    with open(os.path.join(ROOT, "config.yaml"), "r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+    return load_config(os.path.join(ROOT, "config.yaml"))
 
 
 def first_anchor_action(actions):
@@ -254,17 +255,28 @@ def apply_prelude(path, app_name, behaviors):
             start = i
             break
     if start is None:
-        return 0
+        # 拆分后 App 级文件：整文件即一个 App 块（首行 `name: xxx`）
+        if lines and lines[0].strip() == f"name: {app_name}":
+            start = 0
+        else:
+            return 0
     end = len(lines)
-    for j in range(start + 1, len(lines)):
-        if lines[j].startswith("- name: "):
-            end = j
-            break
+    if start != 0:
+        for j in range(start + 1, len(lines)):
+            if lines[j].startswith("- name: "):
+                end = j
+                break
     # 从后往前插，避免行号漂移
+    ind = 4
+    for k in range(start, end):
+        s = lines[k].rstrip()
+        if s.endswith(":") and s.strip() == "behaviors":
+            ind = len(s) - len(s.lstrip()) + 2
+            break
     targets = []
     for k in range(start, end):
         s = lines[k]
-        if s.startswith("    ") and not s.startswith("     ") and s.rstrip().endswith(":"):
+        if s.startswith(" " * ind) and not s.startswith(" " * (ind + 1)) and s.rstrip().endswith(":"):
             bid = s.strip().rstrip(":")
             if bid in behaviors:
                 targets.append(k)
@@ -336,19 +348,19 @@ def main():
           f"manual={counts['manual']}")
 
     if args.apply and prelude_by_app:
-        path = os.path.join(ROOT, "config.yaml")
-        bak = f"{path}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
-        shutil.copy2(path, bak)
-        print(f"已备份: {bak}")
         total = 0
         for name, bids in prelude_by_app.items():
+            path = app_config_path(name)
+            bak = f"{path}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
+            shutil.copy2(path, bak)
+            print(f"已备份: {bak}")
             n = apply_prelude(path, name, set(bids))
             print(f"  {name}: 插入 {n} 处导航前置步")
             total += n
         print(f"共插入 {total} 处")
         # 立刻校验可加载
         cfg2 = load_cfg()
-        print(f"复验: config.yaml 加载成功, {len(cfg2.get('apps') or [])} 个 app")
+        print(f"复验: config 加载成功, {len(cfg2.get('apps') or [])} 个 app")
     return 0
 
 

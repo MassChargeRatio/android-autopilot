@@ -1,0 +1,53 @@
+name: 全民K歌
+package: com.tencent.karaoke
+aliases:
+- 全民K歌
+- K歌
+intent_map:
+  collect: collect
+  bonus: bonus
+behaviors:
+  collect:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 任务中心
+    - type: desc
+      value: 任务中心
+    - type: text
+      value: 福利
+    - type: text
+      value: 每日任务
+    - type: text
+      value: 做任务
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 领取
+    - type: text
+      value: 去完成
+    timeout: 6
+    optional: true
+  bonus:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 红包
+    - type: text
+      value: 领红包
+    - type: text
+      value: 抽奖
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 立即领取
+    - type: text
+      value: 领取
+    timeout: 6
+    optional: true

@@ -1,0 +1,86 @@
+name: UC浏览器极速版
+package: com.ucmobile.lite
+aliases:
+- UC浏览器极速版
+- UC极速版
+launch_reset: true   # UC 入口靠底部「任务」tab，必须冷启动（否则恢复上次子页面导致 tab 点空）
+behaviors:
+  collect:
+  - type: click_point
+    images:
+    - images/UC浏览器极速版/78f0e67e-7696-40da-8296-b2ea3be224b6.png
+    timeout: 6
+    optional: true
+    desc: 图像-UC浏览器极速版-任务列表-任务
+  sign:
+  # 2026-10-24 真机重校准。旧链路：底部任务 tab → scroll_to「签到」。
+  # 任务页是 H5（dump 仅 25 节点、无文案），scroll_to 永远失败。
+  # 实测（2026-10-24）：任务页上有一个浮动「连签7天得3108元宝」横幅，点它弹签到窗，
+  #   [直接领] → +138 元宝入账（元宝 276→414 已确认）。
+  # ⚠️ 条件：当日已签到后该浮动横幅不再出现，此链路当天不会再触发（会记为未命中，不报错）。
+  # 🔴 不碰：「UC打卡白拿好礼」[去白拿] → 15元现金/28天 项目，页面有
+  #   「违规操作会导致账号被管控」反自动化警告，本配置不进入该页。
+  # 只用坐标：click_first[任务] 会被全局 nav 词表劫持成「首页」
+  # （显式候选未命中时，合并进来的 nav_tab 词命中「首页」→ 留在首页，链路全错）。
+  - type: click_point
+    x: 0.9
+    y: 0.914
+    timeout: 8
+    optional: false
+    vision: false
+    desc: 底部右下「任务」tab（真机中心 (972,2138)）
+    expect:
+      # 任务页内容天天变（元宝数/搜索任务列表），同页距离实测 8~14；首页 34。
+      # tab 栏不可用（首页/任务高亮差异仅 2）→ 整页 + 阈值 20（远低于错误页 34）。
+      phash: images/UC浏览器极速版/landing/ref_task.png
+      phash_max_dist: 20
+      settle: 3.0
+      retry: 1
+  - type: think
+  # 浮动「连签7天得3108元宝」横幅（真机约 (535,420)）
+  - type: click_point
+    x: 0.5
+    y: 0.18
+    images:
+    - images/UC浏览器极速版/banner_qiandao.png
+    timeout: 8
+    optional: true
+    desc: 任务页浮动「连签7天」横幅（图像模板定位；已签到时不存在）
+    expect:
+      # 弹窗内容会变（+138 今天 → +210 明天），签前签后差 9，阈值取 12；
+      # 弹窗 vs 任务页 30，仍有间隔。
+      phash: images/UC浏览器极速版/landing/ref_dialog.png
+      phash_max_dist: 12
+      settle: 3.0
+      retry: 1
+  # 弹窗 [直接领]（不走「翻倍领」看广告）
+  - type: click_point
+    x: 0.28
+    y: 0.576
+    timeout: 6
+    optional: true
+    vision: false
+    desc: 签到弹窗[直接领]（真机中心 (302,1348)）
+  - type: reward
+    pattern: 签到\+(?P<amount>[0-9]+)\s*(?P<unit>元宝)
+    unit: 元宝
+    name: 签到元宝
+  withdraw:
+  - type: click_point
+    images:
+    - images/UC浏览器极速版/d0c2a233-7066-4dec-8ed4-d9b1f84c5187.png
+    timeout: 6
+    optional: true
+    desc: 图像-UC浏览器极速版-提现-去提现
+  - type: click_point
+    images:
+    - images/UC浏览器极速版/fac910c2-c85f-4d7e-8da8-1f0ab3c3868e.png
+    timeout: 6
+    optional: true
+    desc: 图像-UC浏览器极速版-提现-支付宝0.3
+  - type: click_point
+    images:
+    - images/UC浏览器极速版/81bcf6ee-8337-4e29-b414-33e15c959a71.png
+    timeout: 6
+    optional: true
+    desc: 图像-UC浏览器极速版-提现-去微信分享

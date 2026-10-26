@@ -1,0 +1,58 @@
+name: 百度地图
+package: com.baidu.BaiduMap
+aliases:
+- 百度地图
+- 百度地图签到
+behaviors:
+  sign:
+  # 【用户人工描述 2026-10-20】底部5按钮左下=首页右下=我的；首页中部偏下（或上部）「现金签到」
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 暂不
+        - type: text
+          value: 关闭
+        - type: text
+          value: 以后再说
+        - type: text
+          value: 我知道了
+        timeout: 3
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 现金签到
+        candidates_from: sign
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.5
+        y: 0.45
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 首页中部「现金签到」坐标兜底（待真机校准）
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 直接领取
+    - type: text
+      value: 立即签到
+    - type: text
+      value: 领取
+    candidates_from: sign
+    timeout: 6
+    optional: true
+  collect:
+  - type: click_point
+    images:
+    - images/百度地图/95c4a280-5192-4de3-8ad1-a2316f95fa53.png
+    timeout: 6
+    optional: true
+    desc: 图像-百度地图-任务列表-关闭

@@ -1,52 +1,72 @@
 # ============================================================
-# 敏感信息 —— 绝对不要提交
+# .gitignore — AndroidAutopilot
+#
+# 首要原则：**密钥不进仓库**。config.yaml 里有真实的 VLM API Key
+# （vision.vlm.api_key），只提交 config.example.yaml 模板。
+# 提交前自查：python devtools/check_secrets.py --staged
 # ============================================================
-# 真实配置含 VLM API Key（vision.vlm.api_key / fallback.api_key）。
-# 仓库里只放 config.example.yaml，Key 走环境变量 VLM_KEY 或本机 config.yaml。
-config.yaml
-config.yaml.bak*
-*.bak
-*.bak-*
-# 交接包里另有一份带真实 Key 的配置副本
-handover/03_配置与清单/config.yaml
-# 环境与密钥
-.env
-.env.*
-*.key
-*.pem
 
-# Python
+# ---------- 密钥 / 本地配置 ----------
+config.yaml
+config.local.yaml
+*.env
+.env*
+!.env.example
+
+# ---------- Python ----------
+.venv/
+venv/
 __pycache__/
 *.py[cod]
 *.egg-info/
-.venv/
-venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# 运行时数据（含收益记录，不应上传）
-data/
-*.db
-*.db-journal
-*.db-wal
-run-*.log
+# ---------- 运行产物 ----------
+# 截图、临时脚本输出、体检日志等
+temp/
+data/*.db
+data/*.db-journal
+data/*.sqlite*
+data/*.log
 *.log
-logs/
+!docs/**/*.log
 
-# 调试产物（体积大、无源码价值）
-# 例外：images/ 是 OpenCV 模板匹配的**功能素材**，
-#       docs/gui/ 是界面文档截图 —— 这两处的 png 必须保留，
-#       所以用「先全忽略、再逐个放行」，不要按目录写死。
-*.png
-*.xml
-!images/*.png
-!docs/gui/*.png
-devtools/out/
-handover/archive/
-*.tmp
+# ---------- 第三方二进制（adb/platform-tools，按需自行下载） ----------
+tools/platform-tools/
+tools/platform-tools.zip
+tools/*.zip
 
-# 本机工具链 / 编辑器 / 系统
-.workbuddy-ai/
-.vscode/
-.idea/
+# ---------- 校准工作数据 ----------
+# 只放行报告（.md/.json，约 1MB）；uiprobe dump / 录屏 / 截图 / XML 树
+# 是 30MB 级的工作产物，可重新生成，不入库。
+devtools/calib/**
+!devtools/calib/**/
+!devtools/calib/**/*.md
+!devtools/calib/**/*.json
+
+# ---------- 配置历史备份 ----------
+# 只保留 C9 活基线（tests/test_config_split_parity.py 依赖它），
+# 其余 .pre_* / .bak* / 时间戳副本属本地历史，不入库。
+# 注意：基线本身必须是「只含 apps」的裁剪版 —— 完整 config.yaml 快照会
+# 把 vision.vlm.api_key 一起带进仓库（check_secrets.py 已实测拦下）。
+_backup_pre_fix/*.pre_*
+_backup_pre_fix/*.bak*
+_backup_pre_fix/config.yaml.split_baseline.*
+
+# ---------- 系统 / 编辑器 ----------
 .DS_Store
 Thumbs.db
 desktop.ini
+.idea/
+.vscode/settings.json
+
+# ---------- 未被任何配置引用的落地参考图 ----------
+# 2026-10-25/26 校准期截图留档，config/apps/*.yaml 里没有任何 expect 指向它们，
+# 运行期不参与，故不入库（本机保留）。
+images/悟空浏览器/landing/ref_money_tab.png
+images/悟空浏览器/landing/ref_sign_dialog.png
+images/海马畅听/landing/ref_dialog.png
+images/海马畅听/landing/ref_home.png
+images/美团/landing/ref_video.png

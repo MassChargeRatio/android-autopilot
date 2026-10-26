@@ -13,16 +13,14 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 from adbkit import Adb  # noqa: E402
+from config_loader import load_config  # noqa: E402
 
 
 def load_apps(path):
-    try:
-        import yaml
-    except ImportError:
-        import miniyaml as yaml  # type: ignore
-    with open(path, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f) or {}
+    cfg = load_config(path)
     return cfg.get("apps") or []
 
 

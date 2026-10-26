@@ -1,0 +1,95 @@
+name: 飞猪旅行
+package: com.taobao.trip
+aliases:
+- 飞猪旅行
+- 飞猪
+behaviors:
+  collect:
+  - type: click_point
+    images:
+    - images/飞猪旅行/99c00b80-3cae-470e-acf7-0071a2e6956b.png
+    timeout: 6
+    optional: true
+    desc: 图像-飞猪旅行-任务列表-关闭
+  bonus:
+  - type: click_point
+    images:
+    - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+    timeout: 6
+    optional: true
+    desc: 图像-飞猪旅行-能量红包-图标
+  - type: click_text
+    text: 天天集能量
+    timeout: 6
+    optional: true
+    desc: 视图框-飞猪-能量红包-立即领取
+    images:
+    - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+  - type: click_text
+    text: 天天集能量
+    timeout: 6
+    optional: true
+    desc: 移动元素-飞猪-能量红包-关闭弹窗
+    images:
+    - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+  sign:
+  # 【用户人工描述 2026-10-20】能量红包和里程签到都要自动化，都在首页中部
+  # 第一目标：能量红包
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 能量红包
+        - type: desc
+          value: 能量红包
+        candidates_from: task_center
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.5
+        y: 0.42
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 首页中部「能量红包」坐标兜底（待真机校准）
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 立即领取
+    - type: text
+      value: 领取
+    - type: text
+      value: 签到
+    candidates_from: sign
+    timeout: 6
+    optional: true
+  - type: back
+  - type: think
+  # 第二目标：里程签到
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 里程签到
+        - type: desc
+          value: 里程签到
+        candidates_from: sign
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.5
+        y: 0.55
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 首页中部「里程签到」坐标兜底（待真机校准）
+  - type: think
+  - type: click_first
+    candidates_from: sign
+    timeout: 6
+    optional: true

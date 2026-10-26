@@ -18,6 +18,12 @@ from datetime import datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from config_loader import app_config_path, load_config  # noqa: E402
+
 CONFIG = os.path.join(ROOT, "config.yaml")
 
 # (app, behavior, 实测文案)  —— 顺序与 FIX_PLAN.md 的 candidate 项一致
@@ -49,7 +55,13 @@ def find_app_block(lines, app_name):
             start = i
             break
     if start is None:
-        return None, None
+        # 拆分后 App 级文件：整文件即一个 App 块（首行 `name: xxx`）
+        if lines and lines[0].strip() == f"name: {app_name}":
+            start = 0
+        else:
+            return None, None
+        end = len(lines)
+        return start, end
     end = len(lines)
     for j in range(start + 1, len(lines)):
         if lines[j].startswith("- name: "):
@@ -58,21 +70,30 @@ def find_app_block(lines, app_name):
     return start, end
 
 
-def find_behavior(lines, start, end, behavior):
+def behavior_indent(lines, start, end):
+    """返回 behaviors 子键（行为名）的缩进空格数：拆分后 App 文件=2，旧单文件=4。"""
+    for k in range(start, end):
+        s = lines[k].rstrip()
+        if s.endswith(":") and s.strip() == "behaviors":
+            return len(s) - len(s.lstrip()) + 2
+    return 4
+
+
+def find_behavior(lines, start, end, behavior, indent=4):
     """返回 behavior 名字所在行号。"""
     for k in range(start, end):
         s = lines[k]
-        if s.startswith("    ") and not s.startswith("     ") \
+        if s.startswith(" " * indent) and not s.startswith(" " * (indent + 1)) \
                 and s.rstrip().endswith(":") and s.strip().rstrip(":") == behavior:
             return k
     return None
 
 
-def behavior_span(lines, bstart, app_end):
+def behavior_span(lines, bstart, app_end, indent=4):
     """behavior 块的结束行（下一个行为名 / app 结束）。"""
     for k in range(bstart + 1, app_end):
         s = lines[k]
-        if s.startswith("    ") and not s.startswith("     ") and s.rstrip().endswith(":"):
+        if s.startswith(" " * indent) and not s.startswith(" " * (indent + 1)) and s.rstrip().endswith(":"):
             return k
     return app_end
 
@@ -81,10 +102,11 @@ def apply_one(lines, app, behavior, value):
     s, e = find_app_block(lines, app)
     if s is None:
         return None, f"未找到 app 块: {app}"
-    b = find_behavior(lines, s, e, behavior)
+    ind = behavior_indent(lines, s, e)
+    b = find_behavior(lines, s, e, behavior, ind)
     if b is None:
         return None, f"未找到行为: {app}.{behavior}"
-    bend = behavior_span(lines, b, e)
+    bend = behavior_span(lines, b, e, ind)
     # 在该行为块里找第一个 click_first 的 candidates:
     ci = None
     for k in range(b + 1, bend):
@@ -113,24 +135,32 @@ def main():
     ap.add_argument("--apply", action="store_true", help="写回 config.yaml")
     args = ap.parse_args()
 
-    with open(CONFIG, "r", encoding="utf-8") as f:
-        lines = f.read().split("\n")
+    # 按 App 分组，逐 App 文件行级编辑（拆分后每 App 一个文件）
+    by_app = {}
+    for app, behavior, value in FIXES:
+        by_app.setdefault(app, []).append((behavior, value))
 
     ok, skip, fail = [], [], []
-    # 从后往前应用，避免行号漂移
-    planned = []
-    for app, behavior, value in FIXES:
-        planned.append((app, behavior, value))
-
-    # 先做一次干跑收集行号，再倒序插入
+    # 先做一次干跑收集行号，再倒序插入；任一失败则整体不写盘
     results = []
-    work = list(lines)
-    for app, behavior, value in planned:
-        pos, err = apply_one(work, app, behavior, value)
-        if err:
-            (skip if "已存在" in err else fail).append(err)
-        else:
-            ok.append(f"{app}.{behavior} <- {value!r}")
+    for app, items in by_app.items():
+        path = app_config_path(app)
+        if not os.path.exists(path):
+            fail.append(f"未找到 app 配置文件: {app} ({path})")
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            lines = f.read().split("\n")
+        work = list(lines)
+        local_ok = []
+        for behavior, value in items:
+            pos, err = apply_one(work, app, behavior, value)
+            if err:
+                (skip if "已存在" in err else fail).append(err)
+            else:
+                local_ok.append(f"{app}.{behavior} <- {value!r}")
+        ok.extend(local_ok)
+        if local_ok:
+            results.append((app, path, work))
 
     if fail:
         print("!! 有失败项，未写盘：")
@@ -148,22 +178,21 @@ def main():
         print("\n（预览模式，未写盘；加 --apply 生效）")
         return 0
 
-    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-    bak = f"{CONFIG}.bak-cand-{ts}"
-    shutil.copy2(CONFIG, bak)
-    with open(CONFIG, "w", encoding="utf-8", newline="") as f:
-        f.write("\n".join(work))
-    print(f"\n已写回 {CONFIG}")
-    print(f"备份: {bak}")
+    for app, path, work in results:
+        ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+        bak = f"{path}.bak-cand-{ts}"
+        shutil.copy2(path, bak)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write("\n".join(work))
+        print(f"已写回 {path}")
+        print(f"备份: {bak}")
 
     # 复验
     try:
-        import yaml
-        cfg = yaml.safe_load(open(CONFIG, encoding="utf-8"))
-        print(f"复验: config.yaml 加载成功, {len(cfg['apps'])} 个 app")
+        cfg = load_config(CONFIG)
+        print(f"复验: config 加载成功, {len(cfg['apps'])} 个 app")
     except Exception as ex:  # noqa
-        print(f"复验失败: {ex}，正在回滚")
-        shutil.copy2(bak, CONFIG)
+        print(f"复验失败: {ex}")
         return 2
     return 0
 

@@ -1,0 +1,60 @@
+name: 支付宝
+package: com.eg.android.AlipayGphone
+aliases:
+- 支付宝
+- Alipay
+- 支 付宝
+intent_map:
+  collect: collect
+  bonus: bonus
+behaviors:
+  collect:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 蚂蚁会员
+    - type: text
+      value: 我的
+    - type: text
+      value: 任务中心
+    - type: text
+      value: 积分
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 任务
+    - type: text
+      value: 签到
+    - type: text
+      value: 领积分
+    - type: text
+      value: 去完成
+    timeout: 6
+    optional: true
+  bonus:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 红包
+    - type: text
+      value: 领红包
+    - type: text
+      value: 天天领红包
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 领取
+    - type: text
+      value: 立即领取
+    - type: text
+      value: 开
+    timeout: 6
+    optional: true
+  - type: wait
+    seconds: 2

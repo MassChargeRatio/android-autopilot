@@ -1,0 +1,119 @@
+name: 抖音极速版
+package: com.ss.android.ugc.aweme.lite
+aliases:
+- 抖音极速版
+launch_reset: true   # 抖音极速版入口靠首页右上「赚钱」挂件，必须冷启动（否则恢复上次子页面导致 tab 点空）
+intent_map:
+  sign: sign
+  watch: watch
+  withdraw: withdraw
+behaviors:
+  sign:
+  # 2026-10-24 真机重校准（用户指正：打卡在【连续看视频30天】）。
+  # 入口：首页右上角红色「赚钱」挂件（无障碍名 desc=福袋，中心 (864,162)）。
+  # 链路：首页 → 福袋(赚钱页) → 任务列表「天天领金币」[去领取] → 钱包·天天领金币页。
+  # 视频流顶部另有横幅「看视频打卡30天赚39元 / 攒满1918金币完成今日打卡」(461,380)，
+  # 点击不跳转，仅展示；真正领金币在钱包页。
+  # 🔴 资金红线：钱包页「领取」点击后进入「建行龙卡抖音联名信用卡」申请页
+  #   （同意并申请 = 办卡），属资金类，本配置不点，只记录路径。
+  #   用户说明：需看够视频才能领金币 → 前置是 watch 行为。
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: desc
+          value: 福袋
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.8
+        y: 0.069
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 首页右上角「赚钱」挂件（真机中心 (864,162)）
+        expect:
+          # 只 hash 页眉区(0-0.20)：赚钱页的金额/广告会变，整页参考不稳定（实测同页 10）。
+          # 页眉同页距离 3，首页 40，阈值 8 有干净间隔。
+          phash: images/抖音极速版/landing/ref_money.png
+          phash_region: [0.0, 0.0, 1.0, 0.20]
+          phash_max_dist: 8
+          settle: 3.5
+          retry: 1
+  - type: think
+  # 用文案定位而非固定坐标：列表滑动后行位置会漂（实测固定坐标点到「看广告赚金币」行）。
+  # 该行 clickable=false，但点其中心可命中父容器整行。
+  # 该行只有一条 25 字的 desc（超过 12 字「过长文案」阈值，文案定位会被判误命中），
+  # 且标题文字未暴露 → 改用图像模板定位，与滚动位置无关。
+  - type: click_point
+    x: 0.436
+    y: 0.927
+    images:
+    - images/抖音极速版/daily_coin_row.png
+    timeout: 8
+    optional: false
+    desc: 赚钱页「天天领金币」行（图像模板定位，抗滚动漂移）
+    expect:
+      # 只 hash 服务宫格区(0.33-0.55)：该区不随金币数/弹窗变化，
+      # 同页距离 0，赚钱页 35，信用卡页 30，阈值 8 有干净间隔。
+      phash: images/抖音极速版/landing/ref_wallet.png
+      phash_region: [0.0, 0.33, 1.0, 0.55]
+      phash_max_dist: 8
+      settle: 3.5
+      retry: 1
+  watch:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 刷视频
+    - type: text
+      value: 看视频赚金币
+    - type: text
+      value: 任务中心
+    - type: text
+      value: 金币朋友
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 去完成
+    - type: text
+      value: 看视频
+    timeout: 6
+    optional: true
+  - type: swipe
+    from:
+    - 0.5
+    - 0.7
+    to:
+    - 0.5
+    - 0.3
+    duration: 0.8
+    natural: true
+  - type: wait
+    seconds: 3
+  withdraw:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 我的
+    - type: text
+      value: 我
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_text
+    text: 提现
+    timeout: 6
+    optional: true
+  - type: reward
+    pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+    unit: 元
+    name: 可提现余额
+  - type: click_text
+    text: 立即提现
+    timeout: 6
+    optional: true

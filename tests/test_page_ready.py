@@ -110,12 +110,26 @@ def t_min_nodes_enforced():
 
 
 def t_timeout_returns_last():
-    """一直变化（始终不稳定）时超时返回，且不抛异常。"""
-    ex = _mk(_FakeDevice([50, 100, 200, 400, 800, 1600]))
+    """一直变化（始终不稳定）时超时返回，且不抛异常。
+
+    2026-10-23：节点数保持在 80 以下，避免触发「波动型页面提前放行」兜底
+    （该兜底见 t_volatile_page_accepted_early）。
+    """
+    ex = _mk(_FakeDevice([10, 20, 40, 60, 30, 70]))
     n, waited, stable = ex._wait_page_ready(PKG, "T", max_wait=0.05, poll=0.01)
     assert stable is False
     assert n > 0
     print("OK  持续不稳定时超时返回（不阻塞流程）")
+
+
+def t_volatile_page_accepted_early():
+    """波动型页面（节点数一直小幅变化但已很丰富）应提前放行，不再白等满 max_wait。"""
+    ex = _mk(_FakeDevice([100, 300, 500, 900, 1300, 1700]))
+    n, waited, stable = ex._wait_page_ready(PKG, "T", max_wait=0.2, poll=0.01)
+    assert stable is True, "节点数充足且已过半数预算时应提前放行"
+    assert n >= 80
+    assert waited < 0.2, f"应早于 max_wait 返回，实际 {waited}"
+    print("OK  波动型页面提前放行（省下等待时间）")
 
 
 def t_dump_exception_is_tolerated():

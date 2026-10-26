@@ -93,7 +93,7 @@ def t_reset_called_between_behaviors():
     ex = _mk(dry_run=False)
     calls = []
     ran = []
-    ex._open_app = lambda pkg, name: None
+    ex._open_app = lambda pkg, name, reset=False: None
     ex._run_actions = lambda actions, name, bid: ran.append(bid) or True
     ex._reset_to_landing = lambda pkg, name, max_back=3: calls.append(pkg)
     ex.run_app_flow(APP, [("sign", "签到"), ("watch", "看视频"),
@@ -108,7 +108,7 @@ def t_reset_not_called_for_single_behavior():
     """只有一个行为时不需要复位。"""
     ex = _mk(dry_run=False)
     calls = []
-    ex._open_app = lambda pkg, name: None
+    ex._open_app = lambda pkg, name, reset=False: None
     ex._run_actions = lambda actions, name, bid: True
     ex._reset_to_landing = lambda pkg, name, max_back=3: calls.append(pkg)
     ex.run_app_flow(APP, [("sign", "签到")])

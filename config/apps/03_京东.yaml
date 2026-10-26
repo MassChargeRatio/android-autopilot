@@ -1,0 +1,72 @@
+name: 京东
+package: com.jingdong.app.mall
+aliases:
+- 京东
+launch_reset: true   # 逛 tab 入口需从首页冷启动
+behaviors:
+  sign:
+  # 2026-10-24 真机重校准（用户指正：「逛」= 首页与消息之间那个位置，图标常被促销图覆盖）。
+  # 旧配置两个错：
+  #   1) (0.3,0.914)=(324,2139) 落在内容区——真 tab 栏在 y≈2100，逛 的真实中心是 **(330,2105)**；
+  #   2) 假设「逛页右侧浮动金币胶囊 (990,559)」——该胶囊不存在，进逛页会自动弹金币面板。
+  # 真实链路：逛 tab → 自动弹「金币面板」→「连续签到7天」第 N 天 [签到领] (259,1008)。
+  # 实测 2026-10-24：现金 20.08 → 20.12 元，第 2 天打勾、第 3 天转「明日可领」。
+  # 落地校验用文案（本页暴露「赚现金 / 领金币」两个胶囊标签）。
+  - type: click_point
+    x: 0.306
+    y: 0.900
+    timeout: 8
+    optional: false
+    vision: false
+    desc: 底部「逛」tab（首页与消息之间；真机中心 (330,2105)）
+    expect:
+      text_any: [赚现金, 领金币]
+      settle: 3.0
+      retry: 1
+  - type: think
+  - type: click_point
+    x: 0.24
+    y: 0.431
+    images:
+    - images/京东/btn_qiandao.png
+    timeout: 8
+    optional: true
+    desc: 金币面板「连续签到7天」当日[签到领]（图像锚点+坐标兜底）
+  withdraw:
+  - type: click_point
+    images:
+    - images/京东/dc8480ee-0d96-4ae4-880a-894ae13d9ee4.png
+    timeout: 6
+    optional: true
+    desc: 图像-京东-提现-提现至京东钱包
+  - type: click_point
+    images:
+    - images/京东/3c265ddf-12c5-4858-8f71-65c17d98886b.png
+    timeout: 6
+    optional: true
+    desc: 图像-京东-提现-可提现
+  - type: click_point
+    images:
+    - images/京东/b0280879-92dd-4bd9-920c-ec465e0e39e8.png
+    timeout: 6
+    optional: true
+    desc: 图像-京东-提现-提现至钱包
+  collect:
+  - type: click_point
+    images:
+    - images/京东/83342289-5e5c-4765-93f3-1b5446f742be.png
+    timeout: 6
+    optional: true
+    desc: 图像-京东-任务界面-赚现金
+  - type: click_point
+    images:
+    - images/京东/043972e5-c653-418b-ad5e-cdfd357ab366.png
+    timeout: 6
+    optional: true
+    desc: 图像-京东-任务界面-京东图标
+  - type: click_point
+    images:
+    - images/京东/07950812-d018-4f13-b6b2-e17571d77cf0.png
+    timeout: 6
+    optional: true
+    desc: 图像-京东-任务列表-关闭

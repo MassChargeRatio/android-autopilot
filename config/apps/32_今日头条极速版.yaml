@@ -1,0 +1,195 @@
+name: 今日头条极速版
+package: com.ss.android.article.lite
+aliases:
+- 今日头条极速版
+- 头条极速版
+launch_reset: true   # 头条极速版入口靠首页底部「任务」tab，必须冷启动（否则恢复上次子页面导致 tab 点空）
+intent_map:
+  sign: sign
+  watch: watch
+  withdraw: withdraw
+  bonus: bonus
+behaviors:
+  sign:
+  # 2026-10-23 真机重校准（用户确认入口在首页底部「任务」tab）。
+  # 旧链路走「我的」tab 找开宝箱 —— 任务页里根本没有该入口，any_of 全分支 miss。
+  # 实际链路：首页底部「任务」tab → 任务页右下角宝箱 → 「7天签到」弹窗。
+  # ⚠️ 阻塞点：弹窗内「重新签到 / 看视频立即续签」两个按钮对注入点击无响应
+  #    （连点 3 次屏幕 mean diff 仅 0.07，自绘层屏蔽 injected touch）。
+  #    所以本配置只可靠完成「到达签到弹窗」，最后一步留给人工或后续研究注入方式。
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 任务
+        candidates_from: nav_tab
+        zone: tab_zone
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.5
+        y: 0.932
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 首页底部「任务」tab（真机中心 (540,2182)）
+        expect:
+          # 只 hash 底部 tab 栏（y 0.90-0.97）：该区域不随页面内容/广告变化，
+          # 且「任务」高亮态与其它 tab 明显可辨。整页 phash 会被冷启动状态干扰（实测 >14）。
+          phash: images/今日头条极速版/landing/ref_task.png
+          phash_region: [0.0, 0.90, 1.0, 0.97]
+          phash_max_dist: 8
+          retry: 1
+  - type: think
+  # 任务页右下角宝箱（真机中心 (960,1875)）；点开即「7天签到」弹窗
+  - type: click_point
+    x: 0.889
+    y: 0.801
+    timeout: 6
+    optional: false
+    vision: false
+    desc: 任务页右下角宝箱入口（2026-10-23 真机校准）
+    expect:
+      phash: images/今日头条极速版/landing/ref_sign.png
+      phash_max_dist: 8
+      retry: 1
+  # 弹窗内按钮：坐标已校准（重新签到 (343,1509) / 看视频立即续签 (759,1509)），
+  # 但对注入点击无响应，optional=true 不阻断流程，仅作为「已尝试」留痕。
+  - type: click_point
+    x: 0.318
+    y: 0.645
+    timeout: 6
+    optional: true
+    vision: false
+    desc: 弹窗「重新签到」按钮（自绘层屏蔽注入点击，见上方阻塞说明）
+  - type: reward
+    pattern: 最高得(?P<amount>[0-9.]+)\s*(?P<unit>元|金币)
+    unit: 元
+    name: 签到奖励
+  watch:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 看资讯赚金币
+        - type: text
+          value: 看视频
+        - type: text
+          value: 任务中心
+        - type: text
+          value: 金币
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 看资讯赚金币
+        - type: text
+          value: 看视频
+        - type: text
+          value: 任务中心
+        - type: text
+          value: 金币
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 去完成
+    - type: text
+      value: 领取
+    timeout: 6
+    optional: true
+  - type: swipe
+    from:
+    - 0.5
+    - 0.7
+    to:
+    - 0.5
+    - 0.3
+    duration: 0.8
+    natural: true
+  - type: wait
+    seconds: 3
+  withdraw:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 我的
+    - type: text
+      value: 我
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_text
+    text: 提现
+    timeout: 6
+    optional: true
+  - type: reward
+    pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+    unit: 元
+    name: 可提现余额
+  - type: click_text
+    text: 立即提现
+    timeout: 6
+    optional: true
+  bonus:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 完成挑战得奖励
+        - type: text
+          value: 限时预约领金币
+        - type: text
+          value: 预约
+        - type: text
+          value: 红包
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 完成挑战得奖励
+        - type: text
+          value: 限时预约领金币
+        - type: text
+          value: 预约
+        - type: text
+          value: 红包
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_text
+    text: 去预约
+    timeout: 6
+    optional: true
+  - type: click_first
+    candidates:
+    - type: text
+      value: 领取
+    - type: text
+      value: 立即领取
+    timeout: 6
+    optional: true

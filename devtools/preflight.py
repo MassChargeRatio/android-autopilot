@@ -24,6 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
+from config_loader import load_config  # noqa: E402
 
 OK, WARN, FAIL = "OK  ", "WARN", "FAIL"
 _results = []
@@ -107,16 +108,11 @@ def check_vlm(cfg):
 
 
 def check_config(path):
-    try:
-        import yaml
-    except ImportError:
-        import miniyaml as yaml  # type: ignore
     if not os.path.exists(path):
         rec(FAIL, "config.yaml", f"不存在: {path}")
         return {}
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            cfg = yaml.safe_load(f) or {}
+        cfg = load_config(path)
     except Exception as e:
         rec(FAIL, "config.yaml 解析", f"{type(e).__name__}: {e}")
         return {}

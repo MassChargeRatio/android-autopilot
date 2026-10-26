@@ -1,0 +1,135 @@
+name: 微博移动版
+package: com.sina.weibog3
+aliases:
+- 微博移动版
+- 微博
+- 新浪微博
+intent_map:
+  collect: collect
+  bonus: bonus
+  sign: sign
+behaviors:
+  collect:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 任务中心
+        - type: text
+          value: 福利
+        - type: text
+          value: 赚积分
+        - type: text
+          value: 做任务
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 任务中心
+        - type: text
+          value: 福利
+        - type: text
+          value: 赚积分
+        - type: text
+          value: 做任务
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 领取
+    - type: text
+      value: 领
+    - type: text
+      value: 签到
+    timeout: 6
+    optional: true
+  sign:
+  # 1) 开屏广告：右下角/文案命中「跳过」，看到就点（Tmall 双11 全屏广告自定义绘制，XML 不可点）
+  - type: click_first
+    candidates:
+    - type: text
+      value: 跳过
+    timeout: 3
+    optional: true
+    desc: 开屏广告-跳过
+  - type: click_point
+    x: 0.93
+    y: 0.915
+    timeout: 2
+    optional: true
+    vision: false
+    desc: 开屏广告-右下角兜底
+  # 2) 底部「我」tab（文案单字「我」先试，坐标兜底 864-1080 x 2073-2205 / 1080x2340）
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 我
+        timeout: 4
+        optional: false
+    - - type: click_point
+        x: 0.9
+        y: 0.915
+        timeout: 4
+        optional: false
+        vision: false
+  # 3) 「我的钱包」@(86,1201)-(230,1252)
+  - type: click_first
+    candidates:
+    - type: text
+      value: 我的钱包
+    timeout: 8
+    optional: false
+  # 4) 「早起打卡」入口（微博钱包页 desc 图标 @(834,1212)-(1031,1452)）
+  - type: click_first
+    candidates:
+    - type: desc
+      value: 早起打卡
+    - type: text
+      value: 早起打卡
+    timeout: 8
+    optional: false
+  # 5) 打卡大按钮：未打卡文案「打卡」；已打卡变「打卡倒计时」，点击无副作用
+  - type: click_first
+    candidates:
+    - type: text
+      value: 打卡
+    timeout: 8
+    optional: true
+  - type: think
+  bonus:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 点击领取
+    - type: text
+      value: 红包
+    - type: text
+      value: 现金奖励
+    - type: text
+      value: 翻牌
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 领取
+    - type: text
+      value: 立即领取
+    timeout: 6
+    optional: true

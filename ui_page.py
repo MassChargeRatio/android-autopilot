@@ -48,6 +48,33 @@ def _label_of(node):
             (node.get("content-desc") or "").strip())
 
 
+def nodes_from_xml(xml):
+    """从 uiautomator2 dump_hierarchy 的 XML 文本抽节点（纯函数，无设备依赖）。
+
+    规则：对每个 <node> 抽 text / content-desc / bounds（left,top,right,bottom
+    四个 int），键名与 _label_of/_bounds_of 对齐 —— 解析结果可直接喂给
+    band_labels / at_top_level_nodes，保证「度量与执行同口径」。
+    """
+    import re
+
+    nodes = []
+    if not xml:
+        return nodes
+    for m in re.finditer(r"<node[^>]*>", xml):
+        tag = m.group(0)
+
+        def _attr(name):
+            mm = re.search(name + r'="([^"]*)"', tag)
+            return mm.group(1) if mm else ""
+
+        text = _attr("text")
+        desc = _attr("content-desc")
+        bm = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', tag)
+        bounds = [int(bm.group(i)) for i in range(1, 5)] if bm else None
+        nodes.append({"text": text, "content-desc": desc, "bounds": bounds})
+    return nodes
+
+
 def band_labels(nodes, screen_h=None):
     """返回落在底部导航带里的标签集合。"""
     out = set()

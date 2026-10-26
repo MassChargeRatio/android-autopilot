@@ -13,6 +13,7 @@ main.py - Android Autopilot 入口
 import argparse
 import os
 import sys
+import zlib
 from datetime import datetime
 
 try:
@@ -22,6 +23,7 @@ except ImportError:  # 无 PyYAML 时用内置零依赖解析器兜底
 
 from human import Human
 from recorder import Recorder
+from config_loader import load_config as _load_config_merged
 from nlu import match_app, parse_intents
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -36,17 +38,27 @@ def parse_args():
     ap.add_argument("--serial", default=None, help="覆盖设备 adb 地址，如 127.0.0.1:5555")
     ap.add_argument("--dry-run", action="store_true", help="只打印执行计划，不触碰设备")
     ap.add_argument("--force", action="store_true", help="忽略作息窗口限制强制执行")
+    ap.add_argument("--fast", action="store_true",
+                    help="跳过启动随机等待（回归/批跑用；间隔/抖动/乱逛等真人模拟保留）")
     ap.add_argument("--today", action="store_true", help="仅打印今日收益汇总")
     ap.add_argument("--list", action="store_true", help="列出配置的 app 与可用行为")
+    ap.add_argument("--seed", type=int, default=None,
+                    help="随机种子；缺省按 日期|app|任务 派生（同 seed 可复现）")
     return ap.parse_args()
 
 
 def load_config(path: str) -> dict:
+    """经 config_loader 加载：拆分后自动拼接 config/apps/（C9 读方收敛）。"""
     if not os.path.exists(path):
         print(f"配置文件不存在: {path}")
         sys.exit(1)
-    with open(path, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f) or {}
+    cfg = _load_config_merged(path)
+    # 第3项（AUTOP-NL-2026-10-22）：登记全量 App，供跨 App 共性词表归纳使用。
+    try:
+        from candidates import register_apps
+        register_apps(cfg.get("apps") or [])
+    except Exception:  # 词表归纳失败不影响主流程
+        pass
     return cfg
 
 
@@ -69,7 +81,6 @@ def main():
     args = parse_args()
     cfg = load_config(args.config)
 
-    human = Human(cfg)
     data_dir = os.path.join(BASE_DIR, "data")
     recorder = Recorder(
         db_path=os.path.join(data_dir, "records.db"),
@@ -97,6 +108,13 @@ def main():
         recorder.close()
         sys.exit(1)
 
+    # ---- 随机种子（A5）：同 seed 可复现整条动作序列 ----
+    seed = args.seed
+    if seed is None:
+        seed = zlib.crc32(
+            f"{datetime.now():%Y-%m-%d}|{app_cfg.get('name')}|{args.task}".encode())
+    human = Human(cfg, seed=seed)
+
     # ---- 自然语言 -> 意图 ----
     intents = parse_intents(args.task)
     if not intents:
@@ -116,7 +134,8 @@ def main():
         return
 
     # ---- 启动时刻随机偏移（打散节奏）----
-    wait = human.start_wait()
+    # --fast：回归/批跑跳过这段纯睡眠（60-350s/次），其余真人模拟不变
+    wait = 0.0 if args.fast else human.start_wait()
     if wait > 0 and not args.dry_run:
         print(f"[Human] 随机等待 {int(wait)}s 后开始……")
         import time

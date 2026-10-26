@@ -1,0 +1,226 @@
+/* yaml_editor.css - WebUI YAML 编辑器样式（AUTOP-WEBUI-YAML-2026-10-22）
+   marvis B 卡会话 failed 零产物，由 Host 接手实现。
+   只引用 app.css 已有的 CSS 变量，不引入硬编码主色；三栏布局，窄屏堆叠。 */
+
+.yaml-page {
+  margin: 0;
+  padding: 0;
+  background: var(--color-background-tertiary, #f6f7f9);
+  color: var(--color-text-primary, #1f2328);
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.yhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border-tertiary, rgba(0, 0, 0, .15));
+  background: var(--color-background-primary, #fff);
+}
+
+.yhead h1 {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.ymain {
+  display: grid;
+  grid-template-columns: 240px minmax(360px, 1fr) 380px;
+  gap: 12px;
+  padding: 12px;
+  align-items: start;
+}
+
+/* ---- 左：App 列表 ---- */
+
+.yside {
+  background: var(--color-background-primary, #fff);
+  border: 1px solid var(--color-border-tertiary, rgba(0, 0, 0, .15));
+  border-radius: var(--border-radius-lg, 12px);
+  padding: 10px;
+  max-height: calc(100vh - 90px);
+  overflow: auto;
+}
+
+.ylist {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.ylist li {
+  padding: 6px 8px;
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ylist li:hover {
+  background: var(--color-background-secondary, #f1efe8);
+}
+
+.ylist li.on {
+  background: var(--color-background-info, #e6f1fb);
+  color: var(--color-text-info, #0c447c);
+}
+
+/* ---- 中：编辑器 ---- */
+
+.ybody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--color-background-primary, #fff);
+  border: 1px solid var(--color-border-tertiary, rgba(0, 0, 0, .15));
+  border-radius: var(--border-radius-lg, 12px);
+  padding: 10px;
+}
+
+.ybar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.yeditor {
+  width: 100%;
+  min-height: 52vh;
+  resize: vertical;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  line-height: 1.6;
+  tab-size: 2;
+  padding: 10px;
+  border: 1px solid var(--color-border-tertiary, rgba(0, 0, 0, .15));
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-background-secondary, #faf9f6);
+  color: var(--color-text-primary, #1f2328);
+  white-space: pre;
+  overflow: auto;
+}
+
+/* ---- 右：自然语言生成 ---- */
+
+.ynl {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--color-background-primary, #fff);
+  border: 1px solid var(--color-border-tertiary, rgba(0, 0, 0, .15));
+  border-radius: var(--border-radius-lg, 12px);
+  padding: 10px;
+}
+
+.ynl h2 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.yopts {
+  border: 1px dashed var(--color-border-secondary, rgba(0, 0, 0, .3));
+  border-radius: var(--border-radius-md, 8px);
+  padding: 6px 8px;
+}
+
+.yopts summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text-secondary, #5f5e5a);
+}
+
+.yopts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+  margin-top: 8px;
+}
+
+.yopts-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--color-text-secondary, #5f5e5a);
+}
+
+.ychk {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 6px !important;
+}
+
+/* ---- 通用控件 ---- */
+
+.yinput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  font-size: 12.5px;
+  border: 1px solid var(--color-border-tertiary, rgba(0, 0, 0, .15));
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-background-secondary, #faf9f6);
+  color: var(--color-text-primary, #1f2328);
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+select.yinput {
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.ymsg {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 30vh;
+  overflow: auto;
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-background-secondary, #f1efe8);
+  color: var(--color-text-secondary, #5f5e5a);
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+.ymsg.ok {
+  background: var(--color-success, #eaf3de);
+  color: var(--color-text-success, #27500a);
+}
+
+.ymsg.bad {
+  background: var(--color-danger, #fcebeb);
+  color: var(--color-text-danger, #501313);
+}
+
+.ymsg.dim {
+  opacity: .85;
+}
+
+.muted.ok {
+  color: var(--color-text-success, #27500a);
+}
+
+.muted.bad {
+  color: var(--color-text-danger, #501313);
+}
+
+/* ---- 窄屏堆叠 ---- */
+
+@media (max-width: 1100px) {
+  .ymain {
+    grid-template-columns: 1fr;
+  }
+
+  .yside {
+    max-height: 220px;
+  }
+
+  .yeditor {
+    min-height: 40vh;
+  }
+}

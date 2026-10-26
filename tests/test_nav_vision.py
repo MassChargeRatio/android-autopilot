@@ -32,6 +32,12 @@ class _Human:
     def jitter_point(self, x, y):
         return x, y
 
+    def tap(self, d, x, y):
+        # F2 统一点击入口；测试里直通 d.click，保持 clicked 断言口径
+        self.tapped = getattr(self, "tapped", [])
+        self.tapped.append((x, y))
+        d.click(x, y)
+
 
 class _Size:
     """uiautomator2 的 window_size() 返回带 width/height 的对象，不是元组。"""

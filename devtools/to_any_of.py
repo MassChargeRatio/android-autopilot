@@ -50,6 +50,10 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from config_loader import app_config_path, load_config  # noqa: E402
 
 CONFIG = os.path.join(ROOT, "config.yaml")
 NAV_MARK = "最右侧"
@@ -215,8 +219,7 @@ def main():
     args = ap.parse_args()
 
     import yaml
-    with open(args.config, encoding="utf-8") as f:
-        cfg = yaml.safe_load(f) or {}
+    cfg = load_config(args.config)
 
     # 探针结果 -> {(app, behavior): 二级入口文案 or None(我的页即命中)}
     # 支持多个探针文件（分轮跑的合并）
@@ -245,6 +248,7 @@ def main():
     force = set(x.strip() for x in args.add_nav.split(",")) if args.add_nav else set()
 
     changed = []
+    changed_apps = {}
     for app in cfg.get("apps") or []:
         name = app.get("name")
         if only and name not in only:
@@ -260,6 +264,7 @@ def main():
             if ch:
                 app["behaviors"][bid] = new
                 changed.append((key, why))
+                changed_apps[name] = app
 
     if not changed:
         print("没有需要转换的行为")
@@ -272,26 +277,28 @@ def main():
         print("\n（预览模式，未写盘；加 --apply 生效）")
         return 0
 
-    bak = f"{args.config}.bak-anyof-{time.strftime('%Y%m%d-%H%M%S')}"
-    shutil.copy2(args.config, bak)
-    out = yaml.dump(cfg, allow_unicode=True, sort_keys=False,
-                    default_flow_style=False, width=200)
-    out = restore_comments(out)
-    with open(args.config, "w", encoding="utf-8", newline="") as f:
-        f.write(out)
-    print(f"已写回 {args.config}\n备份: {bak}")
+    # 拆分后：逐 App 文件写回（App 级文件无注释，直接 dump）
+    for name in sorted(changed_apps):
+        app = changed_apps[name]
+        path = app_config_path(name)
+        bak = f"{path}.bak-anyof-{time.strftime('%Y%m%d-%H%M%S')}"
+        shutil.copy2(path, bak)
+        out = yaml.dump(app, allow_unicode=True, sort_keys=False,
+                        default_flow_style=False, width=200)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(out)
+        print(f"已写回 {path}\n备份: {bak}")
 
     # 复验
     try:
-        cfg2 = yaml.safe_load(open(args.config, encoding="utf-8"))
+        cfg2 = load_config(args.config)
         n = sum(1 for a in cfg2["apps"] for b, acts in (a.get("behaviors") or {}).items()
                 if isinstance(acts, list) and any(
                     isinstance(x, dict) and x.get("type") == "any_of" for x in acts))
         print(f"复验: 加载成功, {len(cfg2['apps'])} 个 app, "
               f"{n} 个行为已用 any_of")
     except Exception as ex:
-        print(f"复验失败: {ex}，回滚")
-        shutil.copy2(bak, args.config)
+        print(f"复验失败: {ex}（各 App 备份文件已保留，可手动回滚）")
         return 2
     return 0
 

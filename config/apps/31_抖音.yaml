@@ -1,0 +1,49 @@
+name: 抖音
+package: com.ss.android.ugc.aweme
+aliases:
+- 抖音
+intent_map:
+  watch: watch
+  bonus: bonus
+behaviors:
+  watch:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 任务
+    - type: text
+      value: 赚积分
+    - type: text
+      value: 去完成
+    timeout: 8
+    optional: true
+  - type: think
+  - type: swipe
+    from:
+    - 0.5
+    - 0.7
+    to:
+    - 0.5
+    - 0.3
+    duration: 0.8
+    natural: true
+  - type: wait
+    seconds: 3
+  bonus:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 红包
+    - type: text
+      value: 领红包
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 领取
+    - type: text
+      value: 立即领取
+    timeout: 6
+    optional: true

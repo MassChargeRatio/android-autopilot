@@ -1,0 +1,151 @@
+name: 河马剧场
+package: com.dz.hmjc
+aliases:
+- 河马剧场
+intent_map:
+  sign: sign
+  watch: watch
+  withdraw: withdraw
+behaviors:
+  sign:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 签到
+        - type: text
+          value: 每日签到
+        - type: text
+          value: 看剧得金币
+        - type: text
+          value: 立即签到
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 福利
+        - type: text
+          value: 福利中心
+        timeout: 6
+        optional: true
+        desc: 河马剧场-我的-福利入口(真机修正:text 福利)
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 签到
+        - type: text
+          value: 每日签到
+        - type: text
+          value: 看剧得金币
+        - type: text
+          value: 立即签到
+        - type: text
+          value: 去签到
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 领取
+    - type: text
+      value: 领金币
+    timeout: 6
+    optional: true
+  watch:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 福利
+        - type: text
+          value: 赚钱
+        - type: text
+          value: 任务
+        - type: text
+          value: 看剧赚钱
+        - type: text
+          value: 福利中心
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 福利
+        - type: text
+          value: 赚钱
+        - type: text
+          value: 任务
+        - type: text
+          value: 看剧赚钱
+        - type: text
+          value: 福利中心
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 看剧
+    - type: text
+      value: 去完成
+    timeout: 6
+    optional: true
+  - type: swipe
+    from:
+    - 0.5
+    - 0.7
+    to:
+    - 0.5
+    - 0.3
+    duration: 0.8
+    natural: true
+  - type: wait
+    seconds: 3
+  withdraw:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 我的
+    - type: text
+      value: 我
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_id
+    res_id: com.dz.hmjc:id/item_cash
+    timeout: 6
+    optional: true
+    desc: 河马剧场-我的-提现入口(rid,离线补锚点)
+  - type: click_text
+    text: 提现
+    timeout: 6
+    optional: true
+  - type: reward
+    pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+    unit: 元
+    name: 可提现余额
+  - type: click_text
+    text: 立即提现
+    timeout: 6
+    optional: true

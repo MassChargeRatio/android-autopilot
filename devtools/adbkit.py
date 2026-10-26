@@ -25,7 +25,10 @@ import subprocess
 import time
 
 # 常见 adb 位置（按优先级）。仅作为 PATH 之外的兜底，不做强绑定。
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _CANDIDATE_PATHS = [
+    # 项目自带（随仓库走，换机器不丢，最优先）
+    os.path.join(_ROOT, "tools", "platform-tools", "adb.exe"),
     r"D:\Program Files\Netease\MuMu Player 12\shell\adb.exe",
     r"C:\Program Files\Netease\MuMu Player 12\shell\adb.exe",
     r"C:\Users\Administrator\platform-tools\platform-tools\adb.exe",

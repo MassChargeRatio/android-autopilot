@@ -1,0 +1,77 @@
+name: 米读小说
+package: com.lechuan.midunovel
+aliases:
+- 米读小说
+behaviors:
+  collect:
+  - type: click_point
+    images:
+    - images/米读小说/8b329078-4b67-41d8-8f6a-57b2e7d88a82.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读小说-任务列表-福利中心
+  - type: click_point
+    images:
+    - images/米读小说/8923f381-6c07-4693-9bca-4f435c513168.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读小说-任务列表-我的
+  sign:
+  # 【真机校准 2026-10-21 05:10 实测】路径（1080x2340）：
+  #   书城页底tab最右「我的」(972,2178)=norm(0.900,0.931)
+  #   →「我的」页中部「福利中心」(171,1315)=norm(0.158,0.562)
+  #   → 福利中心页上部「立即签到」标签中心(835,517)，实际可点区在标签下方，用(793,560)=norm(0.734,0.239)
+  #   点击后按钮变「已签」；当日已签则文案为「已签」（末步 optional 放行）。
+  # 一轮回归全 miss 根因：夜间启动书城页未加载完/被开屏层遮，文案候选超时；
+  # 现补坐标兜底 + 保留文案优先。
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 我的
+        candidates_from: nav_tab
+        zone: tab_zone
+        timeout: 8
+        optional: false
+      - type: click_point
+        x: 0.9
+        y: 0.931
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 底部最右tab「我的」坐标兜底（真机校准 2026-10-21）
+      - type: think
+      - type: any_of
+        optional: false
+        choices:
+        - - type: click_first
+            candidates:
+            - type: text
+              value: 福利中心
+            candidates_from: task_center
+            timeout: 8
+            optional: false
+        - - type: click_point
+            x: 0.158
+            y: 0.562
+            timeout: 8
+            optional: false
+            vision: false
+            desc: 「我的」页中部「福利中心」坐标兜底（真机校准 2026-10-21）
+  - type: think
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates_from: sign
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.734
+        y: 0.239
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 福利中心页上部「立即签到」坐标兜底（真机校准 2026-10-21）

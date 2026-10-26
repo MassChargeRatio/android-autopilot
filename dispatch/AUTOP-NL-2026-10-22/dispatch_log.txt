@@ -1,0 +1,5 @@
+PRE total=15 busy=1 ['A2A mesh probe']
+SENT AUTOP-NL-A-2026-10-22 cid=conv_7f3de672ebd8473baf8ce0debc55cf25
+  evidence: ['marvis gateway create+run -> conversation=conv_7f3de672ebd8473baf8ce0debc55cf25', "reply tail: '用户发来一个派单任务，要求开发 devtools/nl_to_steps.py + tests/test_nl_to_steps.py。第一步是读取任务卡片文件，并创建 PROGRESS.md 骨架。\\
+SENT AUTOP-NL-B-2026-10-22 cid=conv_e22156a6780f4229bb736fa91aa6b4d2
+  evidence: ['marvis gateway create+run -> conversation=conv_e22156a6780f4229bb736fa91aa6b4d2', "reply tail: '我先读取任务卡片并同步创建 PROGRESS.md 骨架。'"]

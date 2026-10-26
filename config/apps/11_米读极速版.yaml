@@ -1,0 +1,75 @@
+name: 米读极速版
+package: com.lechuan.mdwz
+aliases:
+- 米读极速版
+- 米读
+behaviors:
+  collect:
+  - type: click_point
+    images:
+    - images/米读极速版/82c4a8db-9060-40da-b04c-0642c1e6d098.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读极速版-任务列表-立即领取
+  - type: click_point
+    images:
+    - images/米读极速版/bcf0bf62-9669-49d9-a577-1882d3924bb2.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读极速版-任务列表-福利
+  sign:
+  # 【用户人工描述 2026-10-20】底部5按钮右下=我的、右二=福利；福利上部=立即签到
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 福利
+        candidates_from: nav_tab
+        zone: tab_zone
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.7
+        y: 0.914
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 底部右二tab「福利」坐标兜底（待真机校准）
+  - type: think
+  - type: click_first
+    candidates_from: sign
+    timeout: 8
+    optional: true
+  withdraw:
+  - type: click_point
+    images:
+    - images/米读极速版/ebe92c9c-1451-4993-8c68-51501e852660.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读极速版-提现-我的
+  - type: click_point
+    images:
+    - images/米读极速版/868818fc-c1ca-4c26-a74f-9187725e476a.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读极速版-提现-提现
+  - type: click_point
+    images:
+    - images/米读极速版/f624035a-224f-45a4-8863-f7f52a409f63.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读极速版-提现-0.3元
+  - type: click_point
+    images:
+    - images/米读极速版/8544ad2f-a1fe-402f-9ff6-38fa5c68a334.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读极速版-提现-立即提现
+  - type: click_point
+    images:
+    - images/米读极速版/258d92d8-116f-4cc0-a358-e618591324d0.png
+    timeout: 6
+    optional: true
+    desc: 图像-米读极速版-提现-确认提现

@@ -21,7 +21,10 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
+from config_loader import app_config_path, load_config  # noqa: E402
 from plan_anchor_fixes import apply_prelude, NAV_ACTION  # noqa: E402
 
 CONFIG = os.path.join(ROOT, "config.yaml")
@@ -66,14 +69,19 @@ def main():
     print(f"已备份: {bak}")
     inserted = 0
     for app, bs in plan.items():
-        n = apply_prelude(CONFIG, app, set(bs))
+        path = app_config_path(app)
+        if not os.path.exists(path):
+            print(f"  !! 未找到 app 配置文件: {app} ({path})")
+            continue
+        bak_app = f"{path}.bak-nav-{time.strftime('%Y%m%d-%H%M%S')}"
+        shutil.copy2(path, bak_app)
+        n = apply_prelude(path, app, set(bs))
         print(f"  {app}: 插入 {n} 处（{len(bs)} 个行为中 {len(bs) - n} 个已有前置步）")
         inserted += n
     print(f"共插入 {inserted} 处")
     try:
-        import yaml
-        cfg = yaml.safe_load(open(CONFIG, encoding="utf-8"))
-        print(f"复验: config.yaml 加载成功, {len(cfg['apps'])} 个 app")
+        cfg = load_config(CONFIG)
+        print(f"复验: config 加载成功, {len(cfg['apps'])} 个 app")
     except Exception as ex:
         print(f"复验失败: {ex}，回滚")
         shutil.copy2(bak, CONFIG)

@@ -1,0 +1,51 @@
+[
+  {
+    "app": "抖音火山版",
+    "behavior": "sign",
+    "tries": [
+      {
+        "entry": "右侧中红包图标(1000,1100)",
+        "error": "入口后未命中"
+      },
+      {
+        "entry": "右侧中红包图标B(960,1050)",
+        "error": "入口后未命中"
+      },
+      {
+        "entry": "开宝箱",
+        "error": "首屏无入口文本"
+      }
+    ],
+    "hit": null
+  },
+  {
+    "app": "点淘",
+    "behavior": "watch",
+    "tries": [
+      {
+        "entry": "元宝中心悬浮标",
+        "error": "首屏无入口文本"
+      },
+      {
+        "entry": "元宝中心坐标兜底",
+        "error": "入口后页面非目标App(主导=)"
+      }
+    ],
+    "hit": null
+  },
+  {
+    "app": "点淘",
+    "behavior": "withdraw",
+    "tries": [
+      {
+        "entry": "底部我的",
+        "error": "首屏无入口文本"
+      },
+      {
+        "entry": "元宝中心悬浮标",
+        "error": "首屏无入口文本"
+      }
+    ],
+    "hit": null
+  }
+]

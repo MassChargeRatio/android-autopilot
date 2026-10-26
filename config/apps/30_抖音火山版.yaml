@@ -1,0 +1,194 @@
+name: 抖音火山版
+package: com.ss.android.ugc.live
+aliases:
+- 抖音火山版
+- 火山小视频
+intent_map:
+  # 2026-10-25 整理：本 app 没有签到、只有预约。把「签到」意图接到 reserve
+  # 行为上，用户说「抖音火山版签到」能跑通；同时 behavior 名与它真实做的事
+  # 一致，不会再让人以为这条链路点过签到按钮。
+  sign: reserve
+  watch: watch
+  withdraw: withdraw
+behaviors:
+  # 2026-10-25 整理：behavior 名 sign → reserve（原名会误导判定，见下方注释）
+  reserve:
+  # ============ 2026-10-25 用户定调 + 实机验证（probe_huoshan1-15，PD1911/1080x2340）============
+  #   **抖音火山版没有签到，只有预约。**
+  #
+  # 旧配置全错：底部导航是 首页/朋友/消息/我，根本没有「赚钱」tab；任务页里那条
+  # 「今日签到立即领30金币」是钱包任务的引流文案，点了落进 CJPay 钱包页
+  # （CJLiveDummyActivity，WebView 无文本节点），不是签到。
+  #
+  # 真实链路（已实跑通，弹出「恭喜预约成功」）：
+  #   首页 → 右上角悬浮件「领火苗，按钮」→「我的火苗」任务页
+  #        → 回顶后下滑 → 「预约领火苗 / 今日预约，明日领火苗」行
+  #        → 「天天预约领火苗」页 →「立即预约领取」→「恭喜预约成功」弹窗
+  #        →「不用提醒我也来」。
+  # 预约成功后该行文案变「已预约，HH:MM:SS后可领取」——所以锚点文本用「预约」，
+  # 两种状态都能命中；此时页面按钮变成「看视频10秒领 / 直接领」，无需再点。
+  #
+  # 注意：本行为做的是**预约**，不是签到。按 2026-10-25 用户判定规则，
+  # 这个 app 永远不算「已成功签到」——它没有签到按钮可点。
+  - type: wait
+    seconds: 32
+    desc: 冷启动开屏很长，实测 28s 才出现首页元素；--fast 也要留够
+  # 悬浮件 bounds=[900,252]-[1044,396] → 中心 (972,324) = (0.900, 0.138)
+  # 坑（2026-10-25 实测）：曾把 y 写成 0.339，结果点到视频流正中，任务页从未打开，
+  # 后面 scroll_to 自然全线失败。比例坐标必须用**中心点**除屏幕尺寸算。
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_desc
+        desc: 领火苗，按钮
+        timeout: 12
+    - - type: click_point
+        x: 0.9
+        y: 0.138
+        timeout: 5
+        optional: true
+        vision: false
+  - type: wait
+    seconds: 7
+    desc: 等「我的火苗」任务页落定
+  # 回顶：向上滑=内容向下滚。
+  # 2026-10-25 更新：这几个 swipe 仍保持不写 natural —— 不是不能写，而是
+  # natural:true 忽略 from/to 的 bug 当天已在 _step_swipe 修掉（现在写了也
+  # 尊重坐标）；不写则走默认轨迹注入，行为等价且少一层随机，保持实测原样。
+  - type: swipe
+    from:
+    - 0.5
+    - 0.25
+    to:
+    - 0.5
+    - 0.78
+    duration: 0.45
+  - type: swipe
+    from:
+    - 0.5
+    - 0.25
+    to:
+    - 0.5
+    - 0.78
+    duration: 0.45
+  - type: swipe
+    from:
+    - 0.5
+    - 0.25
+    to:
+    - 0.5
+    - 0.78
+    duration: 0.45
+  - type: swipe
+    from:
+    - 0.5
+    - 0.25
+    to:
+    - 0.5
+    - 0.78
+    duration: 0.45
+  - type: wait
+    seconds: 2
+  # 滚到预约行并点它（点文本中心即可，实测整行可点）
+  - type: scroll_to
+    text: 预约
+    max_pages: 5
+  - type: wait
+    seconds: 8
+    desc: 等「天天预约领火苗」页
+  # 预约主按钮。该页是自绘视图，u2 的 text= 选择器时常匹配不到（XML 里却有），
+  # 所以 click_text 之外必须带坐标兜底：(540,1237) = (0.5, 0.529)
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_text
+        text: 立即预约领取
+        timeout: 10
+    - - type: click_point
+        x: 0.5
+        y: 0.529
+        timeout: 5
+        optional: true
+        vision: false
+  - type: wait
+    seconds: 6
+    desc: 等「恭喜预约成功」弹窗
+  - type: click_text
+    text: 不用提醒我也来
+    timeout: 10
+    optional: true
+    desc: 关掉预约成功弹窗；关不掉也不影响预约已成
+  watch:
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 点击赚钱
+        - type: text
+          value: 看视频赚金币
+        - type: text
+          value: 任务中心
+        - type: text
+          value: 金币
+        timeout: 8
+        optional: false
+    - - type: click_point
+        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+        x: 0.9
+        y: 0.915
+        optional: true
+        vision: false
+      - type: think
+      - type: click_first
+        candidates:
+        - type: text
+          value: 点击赚钱
+        - type: text
+          value: 看视频赚金币
+        - type: text
+          value: 任务中心
+        - type: text
+          value: 金币
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 去完成
+    - type: text
+      value: 看视频
+    timeout: 6
+    optional: true
+  - type: swipe
+    from:
+    - 0.5
+    - 0.7
+    to:
+    - 0.5
+    - 0.3
+    duration: 0.8
+    natural: true
+  - type: wait
+    seconds: 3
+  withdraw:
+  # 2026-10-25 实机修正：提现入口在「我的火苗」页右上角「去提现」
+  # （不是底部「我的」）。已见提现页显示余额 9.68 元，银行卡/支付宝/话费充值三档。
+  - type: click_desc
+    desc: 领火苗，按钮
+    timeout: 12
+    optional: true
+  - type: wait
+    seconds: 7
+  - type: click_text
+    text: 去提现
+    timeout: 10
+    optional: true
+  - type: wait
+    seconds: 5
+  - type: reward
+    pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+    unit: 元
+    name: 可提现余额

@@ -37,6 +37,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
 
+from config_loader import load_config  # noqa: E402
 from calibrate import connect_device, safe_name  # noqa: E402
 from verify_live import verify_app  # noqa: E402
 
@@ -100,9 +101,7 @@ def main():
     ap.add_argument("--json", default=os.path.join(HERE, "calib", "STABILITY.json"))
     args = ap.parse_args()
 
-    import yaml
-    with open(args.config, encoding="utf-8") as f:
-        cfg = yaml.safe_load(f) or {}
+    cfg = load_config(args.config)
     vision_cfg = cfg.get("vision") or {}
     serial = (cfg.get("device") or {}).get("serial")
 

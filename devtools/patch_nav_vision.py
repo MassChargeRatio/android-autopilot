@@ -27,6 +27,12 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from config_loader import app_config_path, load_config  # noqa: E402
+
 CONFIG = os.path.join(ROOT, "config.yaml")
 NAV_MARK = "最右侧"
 
@@ -56,12 +62,20 @@ def main():
     ap.add_argument("--apply", action="store_true")
     args = ap.parse_args()
 
+    import copy
     import yaml
-    with open(args.config, encoding="utf-8") as f:
-        cfg = yaml.safe_load(f) or {}
+    cfg = load_config(args.config)
 
     counter = {"patched": 0, "already": 0}
-    patch(cfg.get("apps") or [], counter)
+    patched_apps = {}
+    for app in cfg.get("apps") or []:
+        name = app.get("name")
+        c1 = {"patched": 0, "already": 0}
+        patch([app], c1)
+        counter["patched"] += c1["patched"]
+        counter["already"] += c1["already"]
+        if c1["patched"] and name:
+            patched_apps[name] = app
     print(f"导航前置步: 待补 {counter['patched']} 处，"
           f"已补过 {counter['already']} 处")
 
@@ -72,19 +86,19 @@ def main():
         print("\n（预览模式，未写盘；加 --apply 生效）")
         return 0
 
-    # 保留关键注释（PyYAML dump 会丢注释）
-    import to_any_of as T
-    bak = f"{args.config}.bak-navvision-{time.strftime('%Y%m%d-%H%M%S')}"
-    shutil.copy2(args.config, bak)
-    out = yaml.dump(cfg, allow_unicode=True, sort_keys=False,
-                    default_flow_style=False, width=200)
-    out = T.restore_comments(out)
-    with open(args.config, "w", encoding="utf-8", newline="") as f:
-        f.write(out)
-    print(f"已写回 {args.config}\n备份: {bak}")
+    # 拆分后：逐 App 文件写回（App 级文件无注释，直接 dump）
+    for name in sorted(patched_apps):
+        path = app_config_path(name)
+        bak = f"{path}.bak-navvision-{time.strftime('%Y%m%d-%H%M%S')}"
+        shutil.copy2(path, bak)
+        out = yaml.dump(patched_apps[name], allow_unicode=True, sort_keys=False,
+                        default_flow_style=False, width=200)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(out)
+        print(f"已写回 {path}\n备份: {bak}")
 
     try:
-        cfg2 = yaml.safe_load(open(args.config, encoding="utf-8"))
+        cfg2 = load_config(args.config)
         c2 = {"patched": 0, "already": 0}
         patch(cfg2.get("apps") or [], c2)
         print(f"复验: 加载成功, {len(cfg2['apps'])} 个 app, "
@@ -92,8 +106,7 @@ def main():
         if c2["patched"]:
             raise RuntimeError("复验发现仍有未补项")
     except Exception as ex:
-        print(f"复验失败: {ex}，回滚")
-        shutil.copy2(bak, args.config)
+        print(f"复验失败: {ex}（各 App 备份文件已保留，可手动回滚）")
         return 2
     return 0
 

@@ -346,13 +346,17 @@ class JobManager:
 # 命令构造（纯函数，便于单测）
 # ===========================================================================
 def build_app_steps(plan, dry_run=False, force=False, serial=None,
-                    python=None):
+                    python=None, money_behaviors=None):
     """把 [{name, behaviors}] 编成 main.py 子进程步骤。
 
     plan 中 behaviors 为空表示「该 App 不做任何事」，直接跳过 ——
     不要退化成默认「签到」，那会让用户以为没选却跑了。
+    money_behaviors: 资金类行为集合（提现等需人工确认的行为 key），
+    由调用方从 config_loader.money_behaviors 注入，避免在命令构造层
+    硬编码行为名单。
     """
     py = python or sys.executable
+    mb = set(money_behaviors or ())
     steps = []
     for item in plan or []:
         name = (item.get("name") or "").strip()
@@ -369,7 +373,7 @@ def build_app_steps(plan, dry_run=False, force=False, serial=None,
             cmd += ["--force"]
         steps.append(Step(name, cmd, meta={
             "app": name, "behaviors": behaviors,
-            "money": [b for b in behaviors if b == "withdraw"],
+            "money": [b for b in behaviors if b in mb],
         }))
     return steps
 

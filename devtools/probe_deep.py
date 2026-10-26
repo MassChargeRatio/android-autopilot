@@ -34,6 +34,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
 
+from config_loader import load_config  # noqa: E402
 from calibrate import (  # noqa: E402
     parse_nodes, match_selector, wait_ready, dismiss_popups,
     connect_device, safe_name, page_belongs_to,
@@ -275,8 +276,7 @@ def main():
     ap.add_argument("--json", default=os.path.join(HERE, "calib", "DEEP_PROBE.json"))
     args = ap.parse_args()
 
-    import yaml
-    cfg = yaml.safe_load(open(args.config, encoding="utf-8")) or {}
+    cfg = load_config(args.config)
     apps = {a["name"]: a for a in (cfg.get("apps") or []) if a.get("name")}
     only_a = set(x.strip() for x in args.apps.split(",")) if args.apps else None
     only_b = set(x.strip() for x in args.behaviors.split(",")) if args.behaviors else None

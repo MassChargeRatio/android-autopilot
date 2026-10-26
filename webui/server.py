@@ -59,6 +59,9 @@ class Console:
 
         known = {a["name"]: {b["id"] for b in a["behaviors"]}
                  for a in self.store.apps()}
+        # 资金类行为集合统一来自 config_loader.money_behaviors（配置可覆盖），
+        # 不在此硬编码行为名单（C9 MONEY 驱动收敛）。
+        money_behaviors = D._money_behaviors(self.store.config())
         clean, money_apps = [], []
         for item in plan:
             name = str((item or {}).get("name") or "").strip()
@@ -70,7 +73,7 @@ class Console:
                 raise ValueError(f"{name} 未配置行为：{', '.join(bad)}")
             if behaviors:
                 clean.append({"name": name, "behaviors": behaviors})
-            if any(b in D.MONEY_BEHAVIORS for b in behaviors):
+            if any(b in money_behaviors for b in behaviors):
                 money_apps.append(name)
         if not clean:
             raise ValueError("没有可执行的步骤（请至少勾选一个 App 的行为）")
@@ -82,7 +85,8 @@ class Console:
                 "。提现属于资金操作，需人工确认后才会执行。")
 
         steps = J.build_app_steps(clean, dry_run=dry_run, force=force,
-                                  serial=serial)
+                                  serial=serial,
+                                  money_behaviors=money_behaviors)
         mode = "预览" if dry_run else "执行"
         # 标题必须带 App 名：否则历史列表里十条全是「执行 1 个 App」，
         # 完全分不清哪条是哪条（实测就是这么撞上的）。
@@ -179,6 +183,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_get(path, q)
             if path in ("/", "/index.html"):
                 return self._serve_index()
+            if path == "/yaml.html":
+                return self._serve_page("yaml.html")
             return self._serve_static(path)
         except Exception as e:  # noqa: BLE001
             self._err(500, f"{type(e).__name__}: {e}")
@@ -208,6 +214,15 @@ class Handler(BaseHTTPRequestHandler):
     # ---------- GET ----------
     def _api_get(self, path, q):
         c = self.console
+        # YAML 配置读写 / 自然语言生成（AUTOP-WEBUI-YAML-2026-10-22）
+        try:
+            from webui.routes_yaml import YamlRoutes
+            hit = YamlRoutes(self).handle_get(path, q)
+        except (ImportError, NotImplementedError):
+            hit = None
+        if hit is not None:
+            code, obj = hit
+            return self._json(obj, code)
         if path == "/api/health":
             return self._json({
                 "ok": True, "version": _version(), "root": BASE_DIR,
@@ -265,6 +280,15 @@ class Handler(BaseHTTPRequestHandler):
     # ---------- POST ----------
     def _api_post(self, path, payload):
         c = self.console
+        # YAML 配置读写 / 自然语言生成（写操作已由 do_POST 统一鉴权）
+        try:
+            from webui.routes_yaml import YamlRoutes
+            hit = YamlRoutes(self).handle_post(path, payload)
+        except (ImportError, NotImplementedError):
+            hit = None
+        if hit is not None:
+            code, obj = hit
+            return self._json(obj, code)
         if path == "/api/overview/reload":
             c.store.config(reload=True)
             return self._json(c.store.overview())
@@ -323,6 +347,20 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(200, html, "text/html; charset=utf-8",
                           {"Cache-Control": "no-store"})
 
+    def _serve_page(self, name: str):
+        """ serve 其它顶层页面（如 yaml.html），同样注入一次性 token。"""
+        p = os.path.join(STATIC_DIR, name)
+        if name not in ("yaml.html",):        # 白名单，避免当任意文件读取器用
+            return self._err(404, "未知页面")
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                html = f.read()
+        except OSError as e:
+            return self._err(500, f"缺少前端文件 {p}: {e}")
+        html = html.replace("__CONSOLE_TOKEN__", self.console.token)
+        return self._send(200, html, "text/html; charset=utf-8",
+                          {"Cache-Control": "no-store"})
+
     def _serve_static(self, path):
         # URL 形如 /static/app.css —— 前缀 "/static/" 是路由，不是目录名，
         # 必须剥掉，否则会拼成 webui/static/static/app.css（实测踩过）。
@@ -374,11 +412,13 @@ def _version():
 
 
 def find_free_port(preferred=8765, host="127.0.0.1", tries=20):
+    # Windows 下 SO_REUSEADDR 允许抢占已监听端口，探测不得带该选项；
+    # bind+listen 双成功才算端口真实空闲（踩坑：8765 被 MySessions 占用仍误判可用）。
     for port in range(preferred, preferred + tries):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 s.bind((host, port))
+                s.listen(1)
                 return port
             except OSError:
                 continue
@@ -387,7 +427,12 @@ def find_free_port(preferred=8765, host="127.0.0.1", tries=20):
 
 def make_server(host="127.0.0.1", port=8765, console=None):
     console = console or Console()
-    httpd = ThreadingHTTPServer((host, port), Handler)
+
+    class _Server(ThreadingHTTPServer):
+        # Windows 上 allow_reuse_address=1 同样可抢占已监听端口，必须关掉。
+        allow_reuse_address = False
+
+    httpd = _Server((host, port), Handler)
     httpd.daemon_threads = True
     httpd.console = console
     return httpd

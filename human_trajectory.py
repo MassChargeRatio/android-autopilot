@@ -35,6 +35,24 @@ def _clamp(v, lo, hi):
     return max(lo, min(hi, v))
 
 
+def _win_wh(d):
+    """窗口尺寸 (w, h)；d.window_size() 实测是 plain tuple，禁 .width 访问
+    （2026-10-20 回归实测的 latent crash 族，与 human.py 同款包装）。"""
+    try:
+        ws = d.window_size()
+        if ws is None:
+            return None
+        if isinstance(ws, (tuple, list)) and len(ws) >= 2:
+            return (ws[0], ws[1])
+        w = getattr(ws, "width", None)
+        h = getattr(ws, "height", None)
+        if w and h:
+            return (w, h)
+        return None
+    except Exception:
+        return None
+
+
 def _gauss(mu=0.0, sigma=1.0):
     """单值高斯采样；无 numpy 时用 Box-Muller 近似。"""
     if _HAS_NUMPY:
@@ -290,8 +308,10 @@ class HumanTrajectory:
         """
         if d is None:
             return None, None
-        info = d.window_size()
-        w, h = info.width, info.height
+        wh = _win_wh(d)
+        if not wh:
+            return None, None
+        w, h = wh
         if start is None:
             sx = int(w * random.uniform(0.35, 0.65))
             sy = int(h * random.uniform(0.55, 0.75))

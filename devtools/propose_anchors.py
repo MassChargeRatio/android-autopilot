@@ -21,16 +21,17 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
+from config_loader import load_config  # noqa: E402
 from calibrate import parse_nodes, match_selector  # noqa: E402
 
 ANCHOR_TYPES = ("click_text", "click_id", "click_desc", "click_first")
 
 
 def load_cfg():
-    import yaml
-    with open(os.path.join(ROOT, "config.yaml"), "r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+    return load_config(os.path.join(ROOT, "config.yaml"))
 
 
 def search_all_kinds(nodes, value):

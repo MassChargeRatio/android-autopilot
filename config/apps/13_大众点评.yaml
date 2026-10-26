@@ -1,0 +1,68 @@
+name: 大众点评
+package: com.dianping.v1
+aliases:
+- 大众点评
+- 点评
+launch_reset: true   # 入口从「我的」tab 进，需冷启动
+behaviors:
+  collect:
+  - type: click_point
+    images:
+    - images/大众点评/98c11535-9236-4c0a-8a2b-f9c4874fe5b8.png
+    timeout: 6
+    optional: true
+    desc: 图像-大众点评-任务列表-我的
+  - type: click_point
+    images:
+    - images/大众点评/6f5e67b0-39b9-4f6f-a828-a58a7da94259.png
+    timeout: 6
+    optional: true
+    desc: 图像-大众点评-任务列表-做任务
+  sign:
+  # 2026-10-24 真机重校准。旧配置唯一候选是 `desc=签到` —— **节点类型写错了**：
+  # 该按钮是 text「立即签到」，不是 desc，所以永远匹配不到。
+  # 真实链路（三步全是 text 节点，无需坐标）：
+  #   底部「我的」→「领点金币」→「今日签到必得10金币」页的「立即签到」。
+  # 实测 2026-10-24：已签 1 天，金币 49310 可抵 ¥4.93。
+  - type: click_first
+    candidates:
+    - type: text
+      value: 我的
+    timeout: 8
+    optional: false
+  - type: think
+  # 「领点金币」的可点区域是**右侧图标**，点文字中心不会跳转（实测点文字无效）。
+  # 所以坐标优先（图标中心），文案兜底。
+  - type: any_of
+    optional: false
+    choices:
+    - - type: click_point
+        x: 0.89
+        y: 0.75
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 「领点金币」行右侧图标（真机中心 (961,1755)）
+        expect:
+          # 金币页底部有推荐商品列表会变（整页两次差 10），
+          # 只比顶部签到条(0.03-0.22)：同页 10，「我的」页 36 → 阈值 14。
+          phash: images/大众点评/landing/ref_coin.png
+          phash_region: [0.0, 0.03, 1.0, 0.22]
+          phash_max_dist: 14
+          settle: 3.0
+          retry: 1
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 领点金币
+        - type: text
+          value: 点金币
+        timeout: 8
+        optional: false
+  - type: think
+  - type: click_first
+    candidates:
+    - type: text
+      value: 立即签到
+    timeout: 8
+    optional: true

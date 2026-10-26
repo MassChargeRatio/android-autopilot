@@ -8,6 +8,11 @@ nlu.py - 自然语言行为解析器
 import re
 
 # 内置意图 -> 行为 ID 词典（app 配置中若自定义 intent_map 则优先）
+# 2026-10-25 整理：
+#   ① 新增 gift（快马的「白拿礼物」原是中文自定义 behavior 名，现收编为标准意图）；
+#   ② growth 删掉「签到领」—— _ORDERED_ITEMS 长词优先，「签到领」会抢在
+#      「签到」之前命中，导致「签到领金币」被解析成 growth 而不是 sign；
+#   ③ reserve 正式启用（抖音火山版没有签到只有预约，intent_map: sign→reserve）。
 DEFAULT_INTENT_MAP = {
     "sign":    ["签到", "每日签到", "打卡", "签到打卡"],
     "reserve": ["预约打卡", "预约签到", "预约"],
@@ -15,7 +20,8 @@ DEFAULT_INTENT_MAP = {
     "withdraw": ["提现", "提钱", "兑换红包", "提收益"],
     "bonus":   ["领红包", "领金币", "领取奖励", "领任务奖励", "领积分"],
     "collect": ["收集", "收取能量", "喂鸡", "浇水", "收取金币"],
-    "growth":  ["浇花", "施肥", "升级", "签到领", "做任务"],
+    "growth":  ["浇花", "施肥", "升级", "做任务"],
+    "gift":    ["白拿礼物", "白拿", "免费领", "领礼物"],
     # `open` 是部分 App（百度极速版、海马畅听）唯一/主要的配置行为名，
     # 之前没有对应关键词，导致「百度极速版」只能用回退意图（sign）而被跳过。
     "open":    ["打开", "启动", "开启应用", "开应用"],
@@ -129,17 +135,6 @@ def match_app(text: str, apps_cfg: list):
             return apps_cfg[idx], None
     return None, f"在配置中未找到匹配的 app（当前共 {len(apps_cfg)} 个）"
 
-
-def resolve_behavior(app_cfg: dict, intent: str):
-    """把意图 ID 解析为 app 上下文中真实存在的行为 ID。
-    返回 behavior_id；若 app 未定义该行为则返回 None。"""
-    behaviors = app_cfg.get("behaviors", {}) or {}
-    # 1) app 自定义意图映射
-    imap = app_cfg.get("intent_map", {}) or {}
-    bid = imap.get(intent)
-    if bid and bid in behaviors:
-        return bid
-    # 2) 内置默认同名行为
-    if intent in behaviors:
-        return intent
-    return None
+# 注：意图 → behavior 的解析在 behavior_runner.Executor._resolve（唯一实现）。
+# 此处原有一份 resolve_behavior 与它逐行相同且全仓库无人调用（2026-10-25
+# 清理死代码时删除）—— 两处相同逻辑必然漂移，只保留执行层那一份。

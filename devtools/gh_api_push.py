@@ -33,6 +33,15 @@ ROOT = os.path.dirname(HERE)
 GCM = (r"C:/Users/Mass/.workbuddy-ai/binaries/PortableGit/versions/1.2.0"
        r"/mingw64/bin/git-credential-manager.exe")
 
+# 2026-10-26 实测（本机 VUL / 代理 127.0.0.1:52068）：
+#   走代理：大二进制（100KB+ 的 png）正常，但 ~8KB 以上的**文本** blob 会被
+#           弄坏 —— GitHub 回 400 "We received a malformed request"。
+#   走直连：文本正常，大 png 写入超时（60s 不够）。
+# 两者互补，所以每次请求先走代理，遇到 400 malformed 再换直连重试一次；
+# 超时放宽到 240s 让直连的大文件也能传完。
+_DIRECT = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+_TIMEOUT = 240
+
 
 # --------------------------------------------------------------------------
 # git 侧
@@ -95,24 +104,35 @@ class Api:
         self.calls = 0
 
     def __call__(self, path, method="GET", payload=None, ok=(200, 201)):
+        """发一次请求；代理弄坏 body 时自动换直连重试一次（见文件头说明）。"""
         if self.dry_run and method != "GET":
             return {"_dry_run": True}
-        req = urllib.request.Request(
-            API + path, method=method,
-            data=json.dumps(payload).encode() if payload is not None else None,
-            headers={"Authorization": "Bearer " + self.token,
-                     "Accept": "application/vnd.github+json",
-                     "User-Agent": "gh-api-push",
-                     "Content-Type": "application/json"})
-        self.calls += 1
-        try:
-            with urllib.request.urlopen(req, timeout=60) as r:
-                return json.loads(r.read().decode("utf-8") or "{}")
-        except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8", "replace")
-            if e.code in ok:
-                return {"_http": e.code}
-            raise RuntimeError(f"{method} {path} -> HTTP {e.code}: {body[:300]}") from None
+        data = json.dumps(payload).encode() if payload is not None else None
+        headers = {"Authorization": "Bearer " + self.token,
+                   "Accept": "application/vnd.github+json",
+                   "User-Agent": "gh-api-push",
+                   "Content-Type": "application/json"}
+        last = None
+        for direct in (False, True):
+            self.calls += 1
+            try:
+                req = urllib.request.Request(API + path, method=method,
+                                             data=data, headers=headers)
+                opener = _DIRECT.open if direct else urllib.request.urlopen
+                with opener(req, timeout=_TIMEOUT) as r:
+                    return json.loads(r.read().decode("utf-8") or "{}")
+            except urllib.error.HTTPError as e:
+                body = e.read().decode("utf-8", "replace")
+                if e.code in ok:
+                    return {"_http": e.code}
+                last = f"{method} {path} -> HTTP {e.code}: {body[:300]}"
+                # 只有「代理把 body 弄坏」才值得换链路；权限/不存在类 4xx 换也没用
+                if e.code != 400 or "malformed" not in body:
+                    raise RuntimeError(last) from None
+            except (urllib.error.URLError, TimeoutError, OSError) as e:
+                last = f"{method} {path} -> {type(e).__name__}: {e}"
+                # 直连大文件可能写超时，但此时已无链路可换，交给外层报错
+        raise RuntimeError(last)
 
 
 def get_token(explicit=None):

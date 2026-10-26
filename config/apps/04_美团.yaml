@@ -1,0 +1,95 @@
+name: 美团
+package: com.sankuai.meituan
+aliases:
+- 美团
+- 美团外卖
+- 美图
+launch_reset: true   # 视频 tab 入口需从首页冷启动
+behaviors:
+  sign:
+  # 2026-10-24 真机重校准（用户指正：入口是底部【视频】tab，和拼多多同构）。
+  # 旧配置第 3 步「视频页右上缘圆形共用入口」坐标写成了 (0.3,0.914)——与底部 tab 完全相同，
+  # 属复制粘贴错误，等于原地再点一次 tab，所以永远「动作未命中」。
+  # 真实链路：底部【视频】tab (324,2105) → 视频页右上角圆形徽标 **(994,477)**
+  #      → 「赚钱中心」→「今日签到 [去签到]」(231,650)。
+  # 徽标内容会在「71488金币」和「495元」之间切换，但位置固定。
+  # 🔴 阻塞（2026-10-24 实测）：点[去签到]后弹「连签7天必得55.4万金币」，
+  #   选[放弃赚更多 领48988] 会再弹「仅差1步得组件专属权益」，选[放弃权益] 反而
+  #   拉起**系统桌面小组件安装器**，返回键退不出，只能 force-stop。
+  #   金币 71488 未变 → 签到是否入账无法确认。故最后一步 optional，留人工。
+  - type: click_point
+    x: 0.3
+    y: 0.900
+    timeout: 8
+    optional: false
+    vision: false
+    desc: 底部【视频】tab（真机中心 (324,2105)）
+    expect:
+      # 视频页内容是随机视频，整页 phash 必不匹配（实测同页 33）。
+      # 改用文案：视频页独有的「倍速 / 上滑继续看视频」，与首页可区分。
+      text_any: [倍速, 上滑继续看视频]
+      settle: 3.0
+      retry: 1
+  - type: think
+  # 视频页右上角圆形金币徽标（内容会变：金币/现金）
+  - type: click_point
+    x: 0.92
+    y: 0.204
+    timeout: 8
+    optional: false
+    vision: false
+    desc: 视频页右上角圆形金币徽标（真机中心 (994,477)）
+    expect:
+      phash: images/美团/landing/ref_center.png
+      phash_max_dist: 12
+      settle: 3.5
+      retry: 1
+  - type: think
+  # 赚钱中心「今日签到」[去签到]
+  - type: click_point
+    x: 0.214
+    y: 0.278
+    images:
+    - images/美团/btn_qiandao.png
+    timeout: 8
+    optional: true
+    desc: 赚钱中心[去签到]（图像锚点+坐标兜底）；后续弹窗会推桌面组件，见上方阻塞说明
+  withdraw:
+  - type: click_point
+    images:
+    - images/美团/7aeb4e5b-dbae-4a18-8dde-6ba9ea09f126.png
+    timeout: 6
+    optional: true
+    desc: 图像-美团-提现-活动钱包
+  - type: click_point
+    images:
+    - images/美团/eb3599b0-882d-4c1e-907d-6b498576c8a1.png
+    timeout: 6
+    optional: true
+    desc: 图像-美团-提现-提现到美团钱包
+  - type: click_point
+    images:
+    - images/美团/1ca55c04-27a2-4bda-bbc6-1f58970ffc9f.png
+    timeout: 6
+    optional: true
+    desc: 图像-美团-提现-提现
+  collect:
+  - type: click_point
+    images:
+    - images/美团/9c28a301-b81e-4b27-8795-e25d3d21e9be.png
+    timeout: 6
+    optional: true
+    desc: 图像-美团-任务界面-换现金
+  - type: click_point
+    images:
+    - images/美团/62a94570-7063-4599-9739-2d707b85eb66.png
+    timeout: 6
+    optional: true
+    desc: 图像-美团-任务列表-关闭
+  watch:
+  - type: click_point
+    images:
+    - images/美团/32c261fe-128b-4dd9-b15c-c56a71478108.png
+    timeout: 6
+    optional: true
+    desc: 图像-美团-任务界面-视频

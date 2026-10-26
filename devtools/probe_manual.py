@@ -30,6 +30,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
 
+from config_loader import load_config  # noqa: E402
 from calibrate import (  # noqa: E402
     parse_nodes, wait_ready, dismiss_popups, connect_device, safe_name,
 )
@@ -93,8 +94,7 @@ MINE_XY = (0.9, 0.908)
 
 
 def load_cfg(path):
-    import yaml
-    return yaml.safe_load(open(path, encoding="utf-8")) or {}
+    return load_config(path)
 
 
 def goto_mine(d, loc, log):

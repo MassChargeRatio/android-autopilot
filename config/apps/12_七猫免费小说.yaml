@@ -1,0 +1,52 @@
+name: 七猫免费小说
+package: com.kmxs.reader
+aliases:
+- 七猫免费小说
+- 七猫
+behaviors:
+  collect:
+  - type: click_point
+    images:
+    - images/七猫免费小说/49ae9a39-b0cf-4c4c-a4a3-c004f52ffcdf.png
+    timeout: 6
+    optional: true
+    desc: 图像-七猫免费小说-任务列表-福利
+  - type: click_point
+    images:
+    - images/七猫免费小说/bdc40552-054f-4072-8079-0a65ad173a3c.png
+    timeout: 6
+    optional: true
+    desc: 图像-七猫免费小说-任务列表-关闭
+
+  sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
+          timeout: 8
+          optional: false
+          candidates:
+          - type: text
+            value: 福利
+      - - type: click_point
+          x: 0.5
+          y: 0.927
+          timeout: 8
+          optional: false
+          vision: false
+          desc: anchor坐标兜底（待真机校准）
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.398
+          y: 0.372
+          timeout: 8
+          optional: false
+          vision: false
+          desc: sign坐标兜底（待真机校准）
