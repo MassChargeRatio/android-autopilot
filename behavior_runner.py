@@ -674,12 +674,22 @@ class BehaviorRunner:
             obj, has_entry, attempted = self._locate_with_kb(
                 app_name, primary, act.get("timeout", 6))
             if obj is not None:
-                self._click_tracked(
-                    obj, app_name, primary, has_entry,
-                    f"{verb}: {value}",
-                    # StaleObject 自救：点击前元素失效时按同 selector 重定位
-                    relocate=lambda: self._locate_with_kb(app_name, primary, 2.0)[0])
-                return True
+                try:
+                    self._click_tracked(
+                        obj, app_name, primary, has_entry,
+                        f"{verb}: {value}",
+                        # StaleObject 自救：点击前元素失效时按同 selector 重定位
+                        relocate=lambda: self._locate_with_kb(app_name, primary, 2.0)[0])
+                    return True
+                except StepError:
+                    # 点击前元素失效（stale 重定位失败 / RPC 溢出超限）：
+                    # 有余量则按「未命中」处理，交给下方 BACK 重露导航再扫；
+                    # 否则透传（与 back_retry=0 时行为一致，上层记「步骤失败」）。
+                    self.recorder.log(
+                        f"click[{by}={value}] 点击前元素失效，按 BACK 后重试",
+                        app_name, "DEBUG")
+                    if attempt >= back_retry:
+                        raise
             if attempt >= back_retry:
                 break
             self.recorder.log(
@@ -962,7 +972,16 @@ class BehaviorRunner:
                         self.knowledge.mark_ok(app_name, prim)
                     if not self.dry_run:
                         # StaleObject 自救：按同 (kind, value) 重定位再点。
-                        self._click_obj(obj, relocate=lambda: self._relocate_candidate(k, v))
+                        try:
+                            self._click_obj(obj, relocate=lambda: self._relocate_candidate(k, v))
+                        except StepError:
+                            # 点击前元素失效：按「未命中」处理，换下一个候选；
+                            # 池尽后由 scroll_retry/back_retry 重扫，否则落
+                            # vision/miss 返回 False（不再崩流程）。
+                            self.recorder.log(
+                                f"多候选命中但点击前失效 ({k}){v}，换下个候选",
+                                app_name, "DEBUG")
+                            continue
                     self.recorder.log(f"多候选命中并点击: ({k}){v}", app_name)
                     # 2026-10-24：click_first 点中后同样做落地校验（与 click_point 一致），
                     # 否则「点中了 A 却落在 B」仍然无声无息。

@@ -20,6 +20,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 from executor import Executor, LocateResult  # noqa: E402
+from behavior_runner import StepError  # noqa: E402
 
 
 class _Rec:
@@ -220,6 +221,77 @@ def t_back_retry_first_round_hits_no_back():
     assert ex._step_click_first(_act_back(2), "T") is True
     assert d.back_presses == 0, f"首轮命中不应按 BACK，实际 {d.back_presses}"
     print("OK  首轮命中不按 BACK")
+
+
+# ---------- 点击前元素失效（stale）+ back_retry（AUTOP-FAMILY-2026-11-02）----------
+# 悟空浏览器实测：back_retry 能「重新露出导航并找到赚钱」，但找到后点击瞬间元素
+# 又失效（2s 可见窗口闭合）→ 抛 StepError 冲出 back_retry 循环，未按 BACK 再试。
+# 修复：stale 按「未命中」处理，有余量则走 BACK/重扫，否则透传（click）或软失败
+# （click_first）。缺省 back_retry=0 行为零变化（回归保护）。
+
+
+class _StaleClick:
+    """前 stale_until 次点击抛 StepError（元素失效），之后成功。"""
+    def __init__(self, stale_until):
+        self.n = 0
+        self.stale_until = stale_until
+
+    def __call__(self, obj, relocate=None):
+        if self.n < self.stale_until:
+            self.n += 1
+            raise StepError("点击前元素已失效（测试）")
+        self.n += 1
+
+
+def t_click_first_stale_then_back_hit():
+    """click_first：首轮命中但点击失效 -> back_retry=1 按 BACK 重扫 -> 命中并点击成功。"""
+    d = _BackD()
+    ex = _mk_back(_ScriptBack(d, hit_after_back=0), d)
+    ex._click_obj = _StaleClick(stale_until=1)
+    assert ex._step_click_first(_act_back(1), "T") is True
+    assert d.back_presses == 1, f"stale 后应按 1 次 BACK，实际 {d.back_presses}"
+    assert any("点击前失效" in l for l in ex.recorder.lines), ex.recorder.lines
+    assert any("多候选命中并点击" in l for l in ex.recorder.lines), ex.recorder.lines
+    print("OK  click_first stale 后按 BACK 重扫命中")
+
+
+def t_click_first_stale_no_back_soft_fail():
+    """click_first：命中但一直点击失效，back_retry=0 -> 返回 False（不崩流程）。"""
+    d = _BackD()
+    ex = _mk_back(_ScriptBack(d, hit_after_back=0), d)
+    ex._click_obj = _StaleClick(stale_until=99)
+    assert ex._step_click_first(_act_back(0, optional=True), "T") is False
+    assert d.back_presses == 0, f"无 back_retry 不应按 BACK，实际 {d.back_presses}"
+    assert any("点击前失效" in l for l in ex.recorder.lines), ex.recorder.lines
+    print("OK  click_first stale 无 back_retry 软失败")
+
+
+def t_click_stale_then_back_hit():
+    """click：定位命中但点击失效 -> back_retry=1 按 BACK 重定位 -> 点击成功。"""
+    d = _BackD()
+    ex = _mk_back(_ScriptBack(d, hit_after_back=0), d)
+    ex._click_obj = _StaleClick(stale_until=1)
+    act = {"type": "click", "by": "text", "text": "签到", "back_retry": 1}
+    assert ex._step_click(act, "T") is True
+    assert d.back_presses == 1, f"stale 后应按 1 次 BACK，实际 {d.back_presses}"
+    assert any("点击前元素失效，按 BACK 后重试" in l for l in ex.recorder.lines), ex.recorder.lines
+    print("OK  click stale 后按 BACK 重定位命中")
+
+
+def t_click_stale_no_back_propagates():
+    """click：命中但点击失效，back_retry=0 -> StepError 透传（行为与旧版一致）。"""
+    d = _BackD()
+    ex = _mk_back(_ScriptBack(d, hit_after_back=0), d)
+    ex._click_obj = _StaleClick(stale_until=99)
+    act = {"type": "click", "by": "text", "text": "签到", "back_retry": 0}
+    raised = False
+    try:
+        ex._step_click(act, "T")
+    except StepError:
+        raised = True
+    assert raised, "back_retry=0 时 stale 应透传 StepError"
+    assert d.back_presses == 0, f"不应按 BACK，实际 {d.back_presses}"
+    print("OK  click stale 无 back_retry 透传 StepError")
 
 
 if __name__ == "__main__":
