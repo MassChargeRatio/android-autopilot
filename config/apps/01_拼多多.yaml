@@ -65,6 +65,12 @@ behaviors:
       phash: images/拼多多/landing/ref_coin.png
       phash_max_dist: 8
       retry: 1
+      # 2026-11-01 phash落地校验族排查：金币中心页是纯自绘，但「我的现金」标签
+      # 是原生节点、实证暴露在 dump 里（temp/dump_sign_text.py: ✓我的现金）。
+      # 页面上部有轮播横幅/任务卡会随内容漂移（全页 dHash 10-35 假失败），
+      # 语义信号与像素信号任一通过即算落地（min_pass:1），横幅漂移不再误杀。
+      text_any: [我的现金]
+      min_pass: 1
   # 金币中心任务列表里没有「签到」二字：签到是顶部 7 天连签条上的「今日可领」卡片，
   # 需要上滑才会露出来（旧配置 scroll_to text=签到 永远找不到，实测滚动 4 页仍无该词）。
   - type: swipe

@@ -90,8 +90,12 @@ behaviors:
   - type: wait
     seconds: 2
   # 滚到预约行并点它（点文本中心即可，实测整行可点）
+  # 2026-11-01 UI 变更：该行文案从 text 挪到 content-desc
+  # （'今日预约，明日领火苗' / 已预约态 '已预约，HH:MM:SS后可领取'），
+  # 只搜 text 永远找不到 → 5 页必败。改为 desc 匹配（descriptionContains='预约'，
+  # 两种状态都能命中）。
   - type: scroll_to
-    text: 预约
+    desc: 预约
     max_pages: 5
   - type: wait
     seconds: 8

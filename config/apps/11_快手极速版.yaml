@@ -1,0 +1,67 @@
+name: 快手极速版
+package: com.kuaishou.nebula
+launch_reset: true
+popups:
+  close_points:
+  - x: 0.91
+    y: 0.195
+    desc: 任务中心「瓜分百亿金币」弹窗关闭X（真机 (983,456)）
+aliases:
+- 快手极速版
+behaviors:
+  sign:
+  - type: click_point
+    x: 0.072
+    y: 0.0645
+    timeout: 6
+    optional: false
+    vision: false
+    desc: 首页左上角☰打开侧边栏（2026-10-30 真机校准：旧值 0.07/0.06=(76,140) 落在图标上沿点空，实测中心 (78,151)）
+  - type: think
+  - type: any_of
+    optional: false
+    choices:
+    - - type: click_first
+        candidates:
+        - type: desc
+          value: 任务中心
+        - type: text
+          value: 任务中心
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.638
+        y: 0.161
+        timeout: 8
+        optional: false
+        vision: false
+        desc: 侧边栏「任务中心」磁贴（真机中心 (689,376)，旧值 0.5/0.18 偏左错过）
+        expect:
+          phash: images/快手/landing/ref_task.png
+          phash_max_dist: 8
+          settle: 3.0
+          retry: 1
+  - type: think
+  - type: click_point
+    x: 0.856
+    y: 0.339
+    timeout: 6
+    optional: false
+    vision: false
+    desc: 任务中心[立即签到]（真机中心 (924,793)）
+    expect:
+      phash: images/快手/landing/ref_dialog.png
+      phash_max_dist: 10
+      settle: 3.0
+      retry: 0
+  - type: click_point
+    x: 0.5
+    y: 0.632
+    timeout: 6
+    optional: true
+    vision: false
+    desc: 签到弹窗[立即签到]（真机中心 (540,1480)）
+  - type: reward
+    pattern: 今日签到可领\s*(?P<amount>[0-9]+)\s*(?P<unit>金币)
+    unit: 金币
+    name: 签到金币

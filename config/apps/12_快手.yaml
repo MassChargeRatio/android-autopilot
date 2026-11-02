@@ -1,5 +1,13 @@
 name: 快手
 package: com.smile.gifmaker
+launch_reset: true   # 2026-10-30 真机实证：不冷启动会恢复上次停留的「用户主页」，首页左上角☰点空（点到头像）
+popups:
+  # 2026-10-30 真机实测：进任务中心会自弹「瓜分百亿金币」，没有可点文案/id，
+  # 关闭 X 在 (983,456) = 归一化 (0.910, 0.195)。全局 corner (0.93,0.11) 打不中。
+  close_points:
+  - x: 0.910
+    y: 0.195
+    desc: 任务中心「瓜分百亿金币」弹窗关闭X（真机 (983,456)）
 aliases:
 - 快手
 behaviors:
@@ -29,12 +37,12 @@ behaviors:
   #      → 「连续签到14天得0.4元」行 [立即签到](924,793) → 弹窗 [立即签到](540,1480)。
   # 实测 2026-10-24 已连签 5/14 → 6/14 成功，明日可领 688 金币。
   - type: click_point
-    x: 0.07
-    y: 0.06
+    x: 0.072
+    y: 0.0645
     timeout: 6
     optional: false
     vision: false
-    desc: 首页左上角☰打开侧边栏
+    desc: 首页左上角☰打开侧边栏（2026-10-30 真机校准：旧值 0.07/0.06=(76,140) 落在图标上沿点空，实测中心 (78,151)）
   - type: think
   - type: any_of
     optional: false
@@ -74,7 +82,9 @@ behaviors:
       phash: images/快手/landing/ref_dialog.png
       phash_max_dist: 10
       settle: 3.0
-      retry: 1
+      # 2026-10-30：retry 1→0。这张基准图是「签到前」弹窗，签到成功后内容必变、
+      # 距离实测 23~27 必然失配，再点一次注定还是失配——一次无效重试 13s。
+      retry: 0
   # 弹窗内 [立即签到]：点完 288 金币入账、连签 5/14 → 6/14
   - type: click_point
     x: 0.5

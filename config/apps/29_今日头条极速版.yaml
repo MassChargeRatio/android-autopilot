@@ -17,6 +17,9 @@ behaviors:
   # ⚠️ 阻塞点：弹窗内「重新签到 / 看视频立即续签」两个按钮对注入点击无响应
   #    （连点 3 次屏幕 mean diff 仅 0.07，自绘层屏蔽 injected touch）。
   #    所以本配置只可靠完成「到达签到弹窗」，最后一步留给人工或后续研究注入方式。
+  # 2026-11-02 实机诊断：冷启动 >8s 底部导航才出现（6s 时无导航）。原 timeout 8 在
+  # 未加载页上 miss → 落坐标+phash 分支 → 未加载页 phash dist 25/30 FAIL。timeout 14
+  # 让 click_first[任务] 可靠命中（命中即走文案分支，不触发 phash）。
   - type: any_of
     optional: true
     choices:
@@ -26,7 +29,7 @@ behaviors:
           value: 任务
         candidates_from: nav_tab
         zone: tab_zone
-        timeout: 8
+        timeout: 14
         optional: false
     - - type: click_point
         x: 0.5
@@ -43,27 +46,29 @@ behaviors:
           phash_max_dist: 8
           retry: 1
   - type: think
-  # 任务页右下角宝箱（真机中心 (960,1875)）；点开即「7天签到」弹窗
+  # 2026-11-02 实机重校准：任务页宝箱 UI 改版，旧链路（宝箱→「7天签到」弹窗→重新签到）
+  # 已不存在。现链路：宝箱可领时（倒计时归零）点击 →「恭喜获得宝箱奖励 +2金币」弹窗
+  #   （自绘弹窗，dump 无文案节点 at_top=False）；不可领时点击无反应（安全 no-op）。
+  # 宝箱真机中心 (880,1829) -> (0.815, 0.782)。移除旧 phash expect（ref_sign.png 是旧
+  # 「7天签到」弹窗基准，UI 改版后必然失配 -> phash FAIL）。optional：不可领时静默跳过。
   - type: click_point
-    x: 0.889
-    y: 0.801
-    timeout: 6
-    optional: false
-    vision: false
-    desc: 任务页右下角宝箱入口（2026-10-23 真机校准）
-    expect:
-      phash: images/今日头条极速版/landing/ref_sign.png
-      phash_max_dist: 8
-      retry: 1
-  # 弹窗内按钮：坐标已校准（重新签到 (343,1509) / 看视频立即续签 (759,1509)），
-  # 但对注入点击无响应，optional=true 不阻断流程，仅作为「已尝试」留痕。
-  - type: click_point
-    x: 0.318
-    y: 0.645
+    x: 0.815
+    y: 0.782
     timeout: 6
     optional: true
     vision: false
-    desc: 弹窗「重新签到」按钮（自绘层屏蔽注入点击，见上方阻塞说明）
+    desc: 任务页右下角宝箱（倒计时归零后可领，真机中心 (880,1829)）
+  - type: wait
+    seconds: 2
+  # 关闭「恭喜获得宝箱奖励」弹窗：自绘弹窗 X 真机中心 (270,1406) -> (0.25, 0.601)。
+  # optional=true：宝箱未领/已领（无弹窗）时点空白区，安全 no-op，不阻断流程。
+  - type: click_point
+    x: 0.25
+    y: 0.601
+    timeout: 4
+    optional: true
+    vision: false
+    desc: 宝箱奖励弹窗关闭X（自绘弹窗，真机中心 (270,1406)）
   - type: reward
     pattern: 最高得(?P<amount>[0-9.]+)\s*(?P<unit>元|金币)
     unit: 元
@@ -146,50 +151,36 @@ behaviors:
     timeout: 6
     optional: true
   bonus:
+  # 2026-11-02 实机重校准：任务页内容全 H5 渲染（dump 仅底部导航，文案按钮不可见），
+  # 旧候选（完成挑战得奖励/限时预约领金币/预约/红包）与「去预约」在当前页已不存在。
+  # 现任务页可领奖励：①「待领取」金币片（滚动位姿敏感）②宝箱（固定位 (880,1829)，
+  # 倒计时归零可领）。宝箱固定位最可靠，作为主目标；文本候选先试（若将来 H5 进树）。
   - type: any_of
     optional: true
     choices:
     - - type: click_first
         candidates:
         - type: text
-          value: 完成挑战得奖励
+          value: 去翻倍
         - type: text
-          value: 限时预约领金币
+          value: 去赚钱
         - type: text
-          value: 预约
-        - type: text
-          value: 红包
-        timeout: 8
+          value: 立即看剧
+        timeout: 6
         optional: false
     - - type: click_point
-        vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
-        x: 0.9
-        y: 0.915
+        x: 0.815
+        y: 0.782
+        timeout: 4
         optional: true
         vision: false
-      - type: think
-      - type: click_first
-        candidates:
-        - type: text
-          value: 完成挑战得奖励
-        - type: text
-          value: 限时预约领金币
-        - type: text
-          value: 预约
-        - type: text
-          value: 红包
-        timeout: 8
-        optional: false
-  - type: think
-  - type: click_text
-    text: 去预约
-    timeout: 6
+        desc: 任务页宝箱（固定位，倒计时归零可领，真机中心 (880,1829)）
+  - type: wait
+    seconds: 2
+  - type: click_point
+    x: 0.25
+    y: 0.601
+    timeout: 4
     optional: true
-  - type: click_first
-    candidates:
-    - type: text
-      value: 领取
-    - type: text
-      value: 立即领取
-    timeout: 6
-    optional: true
+    vision: false
+    desc: 宝箱奖励弹窗关闭X（自绘弹窗，真机中心 (270,1406)）

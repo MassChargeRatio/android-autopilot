@@ -1,0 +1,42 @@
+name: 河马畅听
+package: com.hm.hmysct
+aliases:
+- 河马畅听
+launch_reset: true   # 签到入口在首页固定位置，需冷启动
+behaviors:
+  sign:
+  # 2026-10-24 真机重校准。旧链路「领现金 tab → scroll_to 签到」纯属多余且必失败：
+  # 签到就在**首页**「连续七天签到 领大额金币」卡片上，按钮文案「立即签到得2288金币」
+  # （[198,1490][882,1640]，clickable=true，11 字未超 12 字阈值）。
+  # 实测：点一下即签到成功（已领 2→3，按钮变「看视频再领1299金币」）。
+  # 落地校验用**文案信号**（本 App 节点暴露文案）：弹窗独有「100%中奖 / 无套路」，
+  # 不受「今天第几天」影响，比整页 phash 稳（弹窗 vs 首页整页差 32，但状态会变）。
+  - type: click_first
+    candidates:
+    - type: text
+      value: 立即签到
+    - type: text
+      value: 签到领取
+    timeout: 8
+    optional: false
+    expect:
+      text_any: [100%中奖, 无套路]
+      retry: 1
+      settle: 2.5
+  - type: reward
+    pattern: 立即签到得(?P<amount>[0-9]+)\s*(?P<unit>金币)
+    unit: 金币
+    name: 签到金币
+  open:
+  - type: click_point
+    images:
+    - images/海马畅听/a1b7fef3-462b-4e39-bfb9-2722764499ab.png
+    timeout: 6
+    optional: true
+    desc: 图像-海马畅听-打开APP-分类按钮
+  bonus:
+  - type: click_id
+    res_id: com.hm.hmysct:id/llBottom
+    timeout: 6
+    optional: true
+    desc: 文本框-海马畅听-任务列表-领现金

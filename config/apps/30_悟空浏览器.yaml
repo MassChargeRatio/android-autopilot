@@ -3,30 +3,29 @@ package: com.cat.readall
 aliases:
 - 悟空浏览器
 - 悟空
+# 2026-11-01 未找到文本按钮族：冷/温启动**随机**落在两种页——①带底部导航的
+# 剧集详情页（「赚钱」已在树上）；②无底部导航的全屏播放页（「赚钱」不在树上，
+# 90s 内不再出现）。实测 ② 态按 2 次 BACK 后底部导航（首页/看剧/赚钱/商城/我的）
+# 进树，「赚钱」为 text 节点 bounds [492,2113][588,2170]。① 态由 helper 的
+# _at_top_level 判定拦下（0 次 BACK）。故 launch_back=2：脏态退 2 次、正常态 0 次。
+# 不再设 1：实测 1 次 BACK 从全屏播放页仍退不回导航（BACK x1 后赚钱仍不在树）。
+launch_back: 2
 intent_map:
   sign: sign
   watch: watch
   withdraw: withdraw
 behaviors:
   sign:
-  # ---- 2026-10-25 实机校准（192.168.1.54:5555 / 1080x2340 / V1911A）----
-  # 原配置是纯猜测（click_first 找『签到/每日签到/阅读赚金币』文本）。实测：
-  #   * 签到入口不在任何文本节点里 —— 进『赚钱』tab 后 App 自动弹一个 WebView
-  #     自绘的签到弹窗（『今日签到领NN金币』+『立即领取』），整棵元素树只有
-  #     系统状态栏文字，text/desc/id 全查不到，只能图像锚点。
-  #   * 『领取金币』卡片(0.527,0.392) 不是签到，是广告奖励弹窗
-  #     （『恭喜获得惊喜奖励 1 金币』+『看视频再领416金币』），已排除。
-  #   * 冷启动后**不要急着清扫弹窗**：dismiss_popups 逐条查文案要 ~14s，
-  #     等它跑完沉浸式信息流已自动播放、tab 栏又隐藏了。实测冷启动后 tab 栏
-  #     t=3s 自然出现，直接轮询点击即可；BACK 反而危险——两次 BACK 有时
-  #     会直接退出 App 到桌面(.Launcher)，反而拿不到 tab。
-  - type: wait
-    seconds: 3
-    desc: 冷启动等 tab 栏渲染；实测 t=3s 底部导航 5 个文本节点即进树
+  # ---- 2026-11-01 修复（未找到文本按钮族）----
+  # 不再冷启动后固定 wait 3s：App 落地随机（①带导航详情页 ②无导航全屏播放页），
+  # 且全屏播放页会**盖住**底部导航（90s 内不再出现），launch_back=2 后导航仅短暂
+  # 可见 ~2s 又被盖住。固定 wait 会把 2s 窗口睡过去。改为**立即轮询 + back_retry**：
+  # 目标不在树上就按 BACK 重新露出导航再试（最多 4 次），实测 BACK 后导航可复现。
   - type: click_text
     text: 赚钱
-    timeout: 12
-    desc: 底部导航『赚钱』tab。实测 TextView bounds (492,2113)-(588,2170)，中心 (540,2141)=(0.5,0.915)。元素定位自带超时轮询，比固定坐标抗布局漂移；点中后实测落地 phash 2
+    timeout: 5
+    back_retry: 4
+    desc: 底部导航『赚钱』tab。实测 TextView bounds (492,2113)-(588,2170)，中心 (540,2141)=(0.5,0.915)。元素定位自带超时轮询，比固定坐标抗布局漂移；点中后实测落地 phash 2。back_retry=4：全屏播放页盖住 tab 时按 BACK 复现导航再点
   - type: click_point
     x: 0.5
     y: 0.915
@@ -70,7 +69,9 @@ behaviors:
     - type: text
       value: 金币
     timeout: 8
+    back_retry: 2
     optional: true
+    desc: 底部导航『看剧』tab。back_retry=2：播放页盖住导航时按 BACK 复现再扫
   - type: think
   - type: click_first
     candidates:

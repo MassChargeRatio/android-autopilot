@@ -36,6 +36,11 @@ behaviors:
       phash_max_dist: 20
       settle: 3.0
       retry: 1
+      # 2026-10-30 全量跑实证：这一步 phash 失配 dist=30/34 判失败，但紧接着
+      # 下一步用另一张基准图 dist=8 通过 —— 说明这一步其实已经落到任务页，
+      # 是基准图（点击前那一态）失配导致的误判。开启结构变化兜底。
+      accept_structure_change: true
+      structure_change_min: 0.15
   - type: think
   # 浮动「连签7天得3108元宝」横幅（真机约 (535,420)）
   - type: click_point

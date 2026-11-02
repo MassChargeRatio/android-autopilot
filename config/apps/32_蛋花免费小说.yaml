@@ -62,6 +62,18 @@ behaviors:
     optional: true
     vision: false
     desc: 签到弹窗[立即签到 +488 金币]（真机中心 (540,1428)）
+  # 2026-11-02 实机诊断：签到后「当前已翻出9金币/看视频继续翻十位卡」自绘弹窗未清，
+  # uiautomator dump 部分化（79节点无底部导航）→ 下一行为 watch 的 click_first 找不到 tab
+  # 候选 →「候选均未出现」。点弹窗 X@(540,1560) 关掉，dump 恢复（79→151 节点, at_top False→True）。
+  - type: wait
+    seconds: 1.5
+  - type: click_point
+    x: 0.5
+    y: 0.667
+    timeout: 4
+    optional: true
+    vision: false
+    desc: 签到后翻卡弹窗关闭X（真机中心 (540,1560)）
   watch:
   - type: any_of
     optional: true

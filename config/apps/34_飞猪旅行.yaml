@@ -1,5 +1,8 @@
 name: 飞猪旅行
 package: com.taobao.trip
+# 2026-11-02 实机诊断：冷启动落「下载并安装」插屏（at_top=False），BACK 一次即露真首页
+# （能量红包@(540,1109)/里程签到@(964,1109)）。热启动已首页则 _at_top_level=True 不按 BACK。
+launch_back: 1
 aliases:
 - 飞猪旅行
 - 飞猪
@@ -33,42 +36,10 @@ behaviors:
     images:
     - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
   sign:
-  # 【用户人工描述 2026-10-20】能量红包和里程签到都要自动化，都在首页中部
-  # 第一目标：能量红包
-  - type: any_of
-    optional: true
-    choices:
-    - - type: click_first
-        candidates:
-        - type: text
-          value: 能量红包
-        - type: desc
-          value: 能量红包
-        candidates_from: task_center
-        timeout: 8
-        optional: false
-    - - type: click_point
-        x: 0.5
-        y: 0.42
-        timeout: 8
-        optional: false
-        vision: false
-        desc: 首页中部「能量红包」坐标兜底（待真机校准）
-  - type: think
-  - type: click_first
-    candidates:
-    - type: text
-      value: 立即领取
-    - type: text
-      value: 领取
-    - type: text
-      value: 签到
-    candidates_from: sign
-    timeout: 6
-    optional: true
-  - type: back
-  - type: think
-  # 第二目标：里程签到
+  # 2026-11-02 实机重校准：sign 只做「里程签到」（首页中部「里程签到」@(964,1109)）。
+  # 原配置把「能量红包→立即领取」也放进 sign，但能量红包页实际是「天天集能量」
+  # （collect 动作），无 立即领取/领取/签到 文案 → 步骤失败 → 未完成。
+  # 能量红包/天天集能量由 bonus 行为覆盖（图像锚点→天天集能量）。
   - type: any_of
     optional: true
     choices:
@@ -82,12 +53,12 @@ behaviors:
         timeout: 8
         optional: false
     - - type: click_point
-        x: 0.5
-        y: 0.55
+        x: 0.892
+        y: 0.474
         timeout: 8
         optional: false
         vision: false
-        desc: 首页中部「里程签到」坐标兜底（待真机校准）
+        desc: 首页中部「里程签到」坐标兜底（真机中心 (964,1109)）
   - type: think
   - type: click_first
     candidates_from: sign

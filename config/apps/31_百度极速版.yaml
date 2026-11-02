@@ -1,0 +1,19 @@
+name: 百度极速版
+package: com.baidu.searchbox.lite
+aliases:
+- 百度极速版
+- 百度
+# 2026-10-29：nlu 的 `open` 意图已删除（它属于系统动作，不是用户目标）。
+# 本 app 只有 open 一条链，若不重定向，`--task 签到` 会解析成 sign 而 _resolve 返回 None，
+# 整个 app 静默不可用。这里把 sign 指到 open，保持可执行。
+# 注意：这条链只点一张图，没有签到文案，`sign_evidence` 不会给出"已签到"证据 —— 这是如实反映。
+intent_map:
+  sign: open
+behaviors:
+  open:
+  - type: click_point
+    images:
+    - images/百度极速版/8b27e72d-bb6f-4b4e-bab7-4fa4875afbf8.png
+    timeout: 6
+    optional: true
+    desc: 图像-百度极速版-打开APP-百度

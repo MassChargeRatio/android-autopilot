@@ -1,0 +1,103 @@
+name: 星图金融
+package: com.suning.mobile.epa
+aliases:
+- 星图金融
+- 苏宁金融
+intent_map:
+  collect: collect
+  bonus: bonus
+  sign: sign
+behaviors:
+  sign:
+  # 1) 首页「早起打卡」入口（第3排左1，节点 clickable=false 需坐标兜底）@(36,1189)-(236,1282)
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 早起打卡
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.126
+        y: 0.527
+        timeout: 8
+        optional: false
+        vision: false
+  # 2) H5 打卡页加载等待
+  - type: wait
+    seconds: 3
+  # 3) 打卡按钮：未打卡文案「打卡」/「立即打卡」；已打卡变「打卡倒计时」不误点
+  #    按钮区 (264,1386)-(816,1551)；标签中心 (540,1468) 上半部被透明层遮挡点不动，
+  #    实测有效点 (540,1500) -> (0.5, 0.641)
+  #    ⚠ 2026-10-29 改为 any_of：原先是「click_first + click_point」两个并列步骤，
+  #      文字命中后仍会盲点 (540,1500)——而打卡成功后该位置可能变成「再次挑战」，
+  #      旧元素库里还有「早起打卡-免密付款」。命中即停才符合本意，坐标只作兜底。
+  #      本改动尚未实机回归（当日设备离线），设备上线后需复跑 sign 链确认。
+  - type: any_of
+    optional: true
+    choices:
+    - - type: click_first
+        candidates:
+        - type: text
+          value: 立即打卡
+        - type: text
+          value: 我要打卡
+        - type: text
+          value: 打卡
+        timeout: 8
+        optional: false
+    - - type: click_point
+        x: 0.5
+        y: 0.641
+        timeout: 5
+        optional: false
+        vision: false
+  - type: think
+  collect:
+  - type: click_first
+    candidates:
+    - type: text
+      value: 迎新福利
+    - type: text
+      value: 人人领
+    - type: text
+      value: 任务中心
+    - type: text
+      value: 领好礼
+    - type: text
+      value: 任务
+    timeout: 8
+    optional: true
+  - type: think
+  - type: click_text
+    text: 立即领取
+    timeout: 6
+    optional: true
+  bonus:
+  # 2026-11-02 实机诊断：候选 `领红包` 子串命中首页「天天领红包」→ 打开「红包签到」页，
+  # 该页无「立即领取」，真实按钮是「签到领8积分」。改为 红包签到(精确入口) → 签到领8积分。
+  - type: click_first
+    candidates:
+    - type: text
+      value: 红包签到
+    - type: text
+      value: 天天领红包
+    - type: text
+      value: 领红包
+    - type: text
+      value: 现金红包
+    timeout: 8
+    optional: true
+  - type: think
+  # 2026-11-02 实机诊断：红包签到页为 H5 渲染，「签到领8积分」按钮 accessibility 树加载
+  # 时序波动（4s~>12s），且页面启动后 ~10s 会自动下滚（human.tap 误触-回退触发）把按钮滚出屏幕。
+  # 修复：不要 think（think 15s 会等过自动滚动窗口），点击后立即 _locate 轮询——按钮一出现
+  # （~3-4s，早于自动滚动）即命中。timeout 15 覆盖慢加载。
+  - type: click_text
+    text: 签到领8积分
+    timeout: 15
+    optional: true
+  - type: wait
+    seconds: 2
