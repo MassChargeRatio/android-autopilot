@@ -1851,6 +1851,7 @@ apps:
   package: com.taobao.etao
   aliases:
   - 一淘
+  launch_reset: true
   intent_map:
     sign: sign
     watch: watch
@@ -2650,6 +2651,7 @@ apps:
   package: com.tencent.kairos
   aliases:
   - 火龙漫剧
+  launch_reset: true
   intent_map:
     sign: sign
     watch: watch

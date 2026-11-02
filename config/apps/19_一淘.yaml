@@ -2,6 +2,7 @@ name: 一淘
 package: com.taobao.etao
 aliases:
 - 一淘
+launch_reset: true   # 2026-11-02：复位重启需冷启动回首页（否则恢复脏子页，领取/领金币候选未出现）
 intent_map:
   sign: sign
   watch: watch

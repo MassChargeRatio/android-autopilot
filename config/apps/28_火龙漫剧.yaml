@@ -2,6 +2,7 @@ name: 火龙漫剧
 package: com.tencent.kairos
 aliases:
 - 火龙漫剧
+launch_reset: true   # 2026-11-02：复位重启需冷启动回首页（否则恢复脏子页，看短剧/去完成候选未出现）
 intent_map:
   sign: sign
   watch: watch
