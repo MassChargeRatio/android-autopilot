@@ -95,7 +95,7 @@ def t_reset_called_between_behaviors():
     ran = []
     ex._open_app = lambda pkg, name, reset=False: None
     ex._run_actions = lambda actions, name, bid: ran.append(bid) or True
-    ex._reset_to_landing = lambda pkg, name, max_back=3: calls.append(pkg)
+    ex._reset_to_landing = lambda pkg, name, max_back=3, launch_reset=False, launch_back=0: calls.append(pkg)
     ex.run_app_flow(APP, [("sign", "签到"), ("watch", "看视频"),
                           ("withdraw", "提现")])
     assert ran == ["sign", "watch", "withdraw"], ran
@@ -110,7 +110,7 @@ def t_reset_not_called_for_single_behavior():
     calls = []
     ex._open_app = lambda pkg, name, reset=False: None
     ex._run_actions = lambda actions, name, bid: True
-    ex._reset_to_landing = lambda pkg, name, max_back=3: calls.append(pkg)
+    ex._reset_to_landing = lambda pkg, name, max_back=3, launch_reset=False, launch_back=0: calls.append(pkg)
     ex.run_app_flow(APP, [("sign", "签到")])
     assert calls == [], calls
     print("OK  单行为不复位")
@@ -126,6 +126,43 @@ def t_at_top_level_true_when_ui_page_missing():
     finally:
         E.TOP_LEVEL_LABELS = saved
     print("OK  ui_page 缺失时优雅降级（关闭复位，不崩）")
+
+
+def t_reset_propagates_launch_flags():
+    """复位调用点把 launch_reset/launch_back 从 app_cfg 传给 _reset_to_landing。"""
+    ex = _mk(dry_run=False)
+    calls = []
+    ex._open_app = lambda pkg, name, reset=False: None
+    ex._run_actions = lambda actions, name, bid: True
+    ex._reset_to_landing = (
+        lambda pkg, name, max_back=3, launch_reset=False, launch_back=0:
+        calls.append((launch_reset, launch_back)))
+    app = dict(APP, launch_reset=True, launch_back=2)
+    ex.run_app_flow(app, [("sign", "签到"), ("watch", "看视频")])
+    assert calls == [(True, 2)], f"应传 (launch_reset=True, launch_back=2)，实际 {calls}"
+    print("OK  复位调用点传递 launch_reset/launch_back")
+
+
+def t_reopen_clean_cold_starts_when_launch_reset():
+    """复位重启：launch_reset=True 时冷启动（reset=True）；launch_back>0 时退脏页。"""
+    ex = _mk(dry_run=False)
+    got = []
+    ex._open_app = lambda pkg, name, reset=False: got.append(("open", reset)) or True
+    ex._back_to_landing_after_launch = lambda pkg, name, n: got.append(("back", n)) or True
+    ex._reopen_clean("com.test.app", "测试App", launch_reset=True, launch_back=2)
+    assert got == [("open", True), ("back", 2)], f"应冷启动+退脏页，实际 {got}"
+    print("OK  复位重启冷启动+退脏页")
+
+
+def t_reopen_clean_resumes_when_no_launch_reset():
+    """复位重启：无 launch_reset 时 resume（reset=False），无 launch_back 时不退脏页。"""
+    ex = _mk(dry_run=False)
+    got = []
+    ex._open_app = lambda pkg, name, reset=False: got.append(("open", reset)) or True
+    ex._back_to_landing_after_launch = lambda pkg, name, n: got.append(("back", n)) or True
+    ex._reopen_clean("com.test.app", "测试App", launch_reset=False, launch_back=0)
+    assert got == [("open", False)], f"默认应 resume，实际 {got}"
+    print("OK  复位重启默认 resume 不退脏页")
 
 
 if __name__ == "__main__":

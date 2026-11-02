@@ -320,7 +320,7 @@ def t_dedup_consecutive_same_behavior_real():
     ex = Executor("fake-serial", _Human(), rec, dry_run=False, config={})
     ex._open_app = lambda pkg, name, reset=False: None
     ex._run_actions = lambda actions, name, bid: ran.append(bid) or True
-    ex._reset_to_landing = lambda pkg, name, max_back=3: None
+    ex._reset_to_landing = lambda pkg, name, max_back=3, launch_reset=False, launch_back=0: None
     ex._maybe_sweep_popups = lambda *a, **k: None
     ex._close_app = lambda name: None
     ex.human.think = lambda *a, **k: None

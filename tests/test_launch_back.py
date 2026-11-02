@@ -70,7 +70,7 @@ def t_launch_back_calls_helper_when_configured():
     calls = []
     ex._open_app = lambda pkg, name, reset=False: True
     ex._back_to_landing_after_launch = lambda pkg, name, n: calls.append((pkg, n)) or True
-    ex._reset_to_landing = lambda pkg, name, max_back=3: None
+    ex._reset_to_landing = lambda pkg, name, max_back=3, launch_reset=False, launch_back=0: None
     ex._run_actions = lambda actions, name, bid: True
     ex.run_app_flow(_mk_app(launch_back=1), [("sign", "签到")])
     assert calls == [("com.test.app", 1)], calls
@@ -83,7 +83,7 @@ def t_launch_back_not_called_without_config():
     calls = []
     ex._open_app = lambda pkg, name, reset=False: True
     ex._back_to_landing_after_launch = lambda pkg, name, n: calls.append((pkg, n)) or True
-    ex._reset_to_landing = lambda pkg, name, max_back=3: None
+    ex._reset_to_landing = lambda pkg, name, max_back=3, launch_reset=False, launch_back=0: None
     ex._run_actions = lambda actions, name, bid: True
     ex.run_app_flow(_mk_app(), [("sign", "签到")])
     assert calls == [], calls

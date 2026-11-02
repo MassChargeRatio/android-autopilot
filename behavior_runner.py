@@ -227,7 +227,10 @@ class BehaviorRunner:
             # 行为之间复位：上一个行为可能已把 App 留在二级/三级页，
             # 不复位则本行为会从脏页面起步（详见 _reset_to_landing 注释）。
             if i > 0:
-                self._reset_to_landing(pkg, app_name)
+                self._reset_to_landing(
+                    pkg, app_name,
+                    launch_reset=bool(app_cfg.get("launch_reset")),
+                    launch_back=int(app_cfg.get("launch_back") or 0))
             actions = self._pick_variant(self._behavior_actions(bid_cfg),
                                          app_name, bid)
             # F1：行为执行前全局弹窗清扫（"看到就关"；黑名单熔断仅告警不拦截行为）

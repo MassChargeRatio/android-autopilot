@@ -111,7 +111,8 @@ class DeviceSession:
         nodes = nodes_from_xml(xml)
         return at_top_level_nodes(nodes, h)
 
-    def _reset_to_landing(self, pkg, app_name, max_back=3):
+    def _reset_to_landing(self, pkg, app_name, max_back=3,
+                          launch_reset=False, launch_back=0):
         """把 App 退回顶层页。**行为之间必须复位。**
 
         为什么：一个行为可能已经导航到二级/三级页（我的 → 福利中心 → 签到）。
@@ -127,6 +128,12 @@ class DeviceSession:
 
         为什么必须先判断：多数 App 在顶层页（如「我的」tab）按 BACK 会**直接
         退出 App**。实测复位前不看一眼就按，一按就退到桌面，白白多吃一次冷启动。
+
+        重启路径（AUTOP-FAMILY-2026-11-02）：BACK 回不去时 `_open_app` 必须
+        尊重 app 的 `launch_reset`（冷启动）与 `launch_back`（退脏落地页）。
+        旧版固定 `_open_app(pkg)` = **resume 恢复上次停留的脏子页**，实测
+        美团/一淘/河马畅听/火龙漫剧/红果 复位失败后下一行为候选全未出现
+        （「复位: BACK 未回到顶层页 -> 重启 App」签名，OK app 均无此签名）。
         """
         if self.dry_run or self.d is None:
             return
@@ -149,14 +156,24 @@ class DeviceSession:
                 self.recorder.log(
                     f"复位: 第{i}次 BACK 后前台={fg}（非目标 App）-> 重启",
                     app_name, "WARN")
-                self._open_app(pkg, app_name)
+                self._reopen_clean(pkg, app_name, launch_reset, launch_back)
                 return
             if self._at_top_level():
                 self.recorder.log(f"复位: 第{i}次 BACK 回到顶层页",
                                   app_name, "DEBUG")
                 return
         self.recorder.log("复位: BACK 未回到顶层页 -> 重启 App", app_name, "WARN")
-        self._open_app(pkg, app_name)
+        self._reopen_clean(pkg, app_name, launch_reset, launch_back)
+
+    def _reopen_clean(self, pkg, app_name, launch_reset, launch_back):
+        """复位重启的公共收尾：冷启动（若 launch_reset）+ 退脏落地页（若 launch_back）。
+
+        旧版 `_open_app(pkg)` 是 resume，会恢复上次停留的子页面；冷启动 + 退脏页
+        才能保证下一行为从**干净顶层页**起步（见 _reset_to_landing 注释）。
+        """
+        self._open_app(pkg, app_name, reset=bool(launch_reset))
+        if launch_back:
+            self._back_to_landing_after_launch(pkg, app_name, int(launch_back))
 
     def _back_to_landing_after_launch(self, pkg, app_name, max_back):
         """launch_back: 启动后把 App 退到顶层页（处理**脏落地页**）。
