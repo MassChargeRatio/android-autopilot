@@ -122,6 +122,42 @@ def t_two_level_anyof_unchanged():
     print("OK  二级 any_of 语义不变")
 
 
+def t_first_anchor_image_click_point():
+    """flat 行为唯一锚点是「带图 click_point」-> first_anchor_action 必须找到。
+
+    回归（2026-11-02）：早期 first_anchor_action 只认 ANCHOR_TYPES+any_of，
+    漏掉带图 click_point，导致红果 sign 这类「唯一锚点是图像 click_point」的
+    行为被 verify_live 误判为「无锚点动作」（不进命中率分母）。
+    """
+    from verify_live import first_anchor_action
+    actions = [
+        {"type": "click_point", "x": 0.73, "y": 0.887, "vision": False},   # 纯坐标，非锚点
+        {"type": "think"},
+        {"type": "click_point", "x": 0.828, "y": 0.578, "vision": False},  # 纯坐标，非锚点
+        {"type": "click_point", "x": 0.819, "y": 0.349,
+         "images": ["images/红果免费短剧/btn_lingqu_tighter.png"],
+         "template_threshold": 0.9},                                        # 带图 = 锚点
+    ]
+    idx, act = first_anchor_action(actions)
+    assert act is not None, "带图 click_point 应被识别为锚点"
+    assert idx == 3, f"应命中第 4 步（idx=3），实际 idx={idx}"
+    assert act.get("images") and act.get("template_threshold") == 0.9, act
+    print("OK  带图 click_point 被 first_anchor_action 识别为锚点（idx=3）")
+
+
+def t_first_anchor_ignores_pure_coordinate():
+    """纯比例坐标 click_point（无图）不算锚点，first_anchor_action 不返回它。"""
+    from verify_live import first_anchor_action
+    actions = [
+        {"type": "click_point", "x": 0.9, "y": 0.915, "vision": False},  # 导航前置步
+        {"type": "think"},
+        {"type": "click_point", "x": 0.5, "y": 0.5, "vision": False},    # 纯坐标兜底
+    ]
+    idx, act = first_anchor_action(actions)
+    assert act is None, f"纯比例坐标不应算锚点，实际 {act}"
+    print("OK  纯比例坐标 click_point 不算锚点")
+
+
 def t_nav_point_is_not_treated_as_anchor():
     """导航 click_point 不是锚点，不能靠它"命中"。"""
     act = {"type": "any_of", "optional": True, "choices": [[dict(NAV)]]}

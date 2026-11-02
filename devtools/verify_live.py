@@ -103,9 +103,17 @@ def first_anchor_action(actions):
     """返回 (索引, 动作)；行为可能是 [[..],[..]] 变体结构。
 
     `any_of` 也算锚点动作（真正的锚点在其 choices 里），由 check_anchor 展开。
+    `click_point` 带参考图（images/template）的算锚点（与 is_anchor_action 同口径）；
+    不带图的纯比例坐标兜底不算。修复：早期漏了 POINT_TYPE，导致「唯一锚点是图像
+    click_point」的行为（如红果 sign）被误判为无锚点动作。
     """
     for i, act in enumerate(_variant_of(actions)):
-        if isinstance(act, dict) and act.get("type") in ANCHOR_TYPES + ("any_of",):
+        if not isinstance(act, dict):
+            continue
+        t = act.get("type")
+        if t in ANCHOR_TYPES + ("any_of",):
+            return i, act
+        if t == POINT_TYPE and (act.get("images") or act.get("template")):
             return i, act
     return None, None
 

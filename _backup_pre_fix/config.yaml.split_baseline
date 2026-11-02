@@ -3280,35 +3280,26 @@ apps:
       desc: 底部「福利」tab（真机中心 (788,2075)）
       expect:
         phash: images/红果免费短剧/landing/ref_welfare.png
-        phash_max_dist: 12
+        phash_max_dist: 15
         settle: 3.0
         retry: 1
     - type: think
     - type: click_point
-      x: 0.8
-      y: 0.585
-      images:
-      - images/红果免费短剧/btn_qiandao.png
+      x: 0.828
+      y: 0.578
       timeout: 8
       optional: false
-      desc: 福利页「签到领金币」[去签到]（真机中心 (864,1370)）
-      expect:
-        phash: images/红果免费短剧/landing/ref_dialog.png
-        phash_region:
-        - 0.0
-        - 0.3
-        - 1.0
-        - 0.55
-        phash_max_dist: 10
-        settle: 3.0
-        retry: 1
-    - type: click_point
-      x: 0.25
-      y: 0.613
-      timeout: 8
-      optional: true
       vision: false
-      desc: 签到弹窗[重新签到]（真机中心 (270,1434)）
+      desc: 福利页「天天领金币」[去领取]（11-02 实测 (894,1352)）
+    - type: click_point
+      x: 0.819
+      y: 0.349
+      images:
+      - images/红果免费短剧/btn_lingqu_tighter.png
+      template_threshold: 0.9
+      timeout: 8
+      optional: false
+      desc: 天天领金币「今日可领」领取（签到）
     watch:
     - type: any_of
       optional: true

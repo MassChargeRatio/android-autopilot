@@ -329,7 +329,8 @@ class Locator:
         hit = self.vision.locate_on_screen(
             templates=templates or None,
             prompt=prompt or None,
-            screen_img=img, app=app_name, tag=desc)
+            screen_img=img, app=app_name, tag=desc,
+            threshold=act.get("template_threshold"))
         if hit is None:
             self.recorder.log(f"视觉兜底全部未命中，放弃该步: {desc}", app_name, "WARN")
             return False

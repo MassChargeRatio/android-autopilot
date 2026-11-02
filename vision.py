@@ -165,11 +165,12 @@ class VisionLocator:
         self._gray_cache[apath] = gray
         return gray, w, h
 
-    def match_template(self, screen_gray, template_path: str) -> TemplateMatch:
+    def match_template(self, screen_gray, template_path: str, threshold=None) -> TemplateMatch:
         """在屏幕灰度图上做多尺度模板匹配，返回最佳命中（None 表示未达到阈值）。
 
         screen_gray : 全屏截图灰度图（numpy uint8 2D）
         template_path: 模板图片路径（按钮局部截图）
+        threshold   : 可选，本次调用覆盖全局 template_threshold（按步骤精调判别用）
         """
         if not self.template_available:
             return None
@@ -203,7 +204,7 @@ class VisionLocator:
                     maxloc[0] + tws / 2.0,
                     maxloc[1] + ths / 2.0,
                     maxv, s)
-        if best is None or best.score < self.threshold:
+        if best is None or best.score < (self.threshold if threshold is None else threshold):
             return None
         return best
 
@@ -410,7 +411,7 @@ class VisionLocator:
     # 统一入口（供 executor 调用）
     # ------------------------------------------------------------------
     def locate_on_screen(self, templates=(), prompt="", screen_img=None,
-                         app="", tag=""):
+                         app="", tag="", threshold=None):
         """对当前全屏截图依次执行：OpenCV 模板匹配 -> VLM 定位。
 
         返回第一个有效的 TemplateMatch；全部失败返回 None。
@@ -418,6 +419,7 @@ class VisionLocator:
         prompt    : VLM 自然语言目标（在模板全部失败后尝试）
         screen_img: PIL.Image（当前设备截图）
         tag       : 日志标识，如 "click_text[每日签到]"
+        threshold : 可选，覆盖全局 template_threshold（按步骤精调判别用）
         """
         if not self.enabled:
             return None
@@ -439,7 +441,7 @@ class VisionLocator:
         # 1) OpenCV 模板匹配
         if self.template_available:
             for tpl in (templates or []):
-                hit = self.match_template(gray, tpl)
+                hit = self.match_template(gray, tpl, threshold)
                 if hit is not None:
                     self._log(
                         f"视觉兜底[模板] 命中 {os.path.basename(str(tpl))} "
