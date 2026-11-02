@@ -77,18 +77,29 @@ class _D:
 
 
 def _mk(present=None, xml="", ws=(1080, 2340)):
-    """present: {(kind, value): label} _locate 命中表；xml: dump 内容。"""
+    """present: {(kind, value): label} _locate 命中表。
+
+    xml: dump 内容。可以给 str（每次相同），也可以给 list[str] —— 按次返回，
+    用尽后重复最后一个。A2 引入「屏幕指纹不变就提前结束」之后，
+    要断言"多轮"必须让 dump 每轮都在变，所以这里支持序列。
+    """
     br = BehaviorRunner.__new__(BehaviorRunner)
     br.recorder = _Rec()
     br.human = _Human()
     br.d = _D(ws)
     br.dry_run = False
     present = present or {}
+    seq = list(xml) if isinstance(xml, list) else [xml]
 
     def _dump_safe():
-        return xml
+        if len(seq) > 1:
+            return seq.pop(0)
+        return seq[0] if seq else ""
+
+    br._locate_calls = 0
 
     def _locate(kind, value, timeout=6.0):
+        br._locate_calls += 1
         if (kind, value) in present:
             return type("R", (), {"hit": True, "obj": _Obj(present[(kind, value)])})()
         return type("R", (), {"hit": False, "obj": None})()
@@ -142,9 +153,13 @@ def t_blacklist_extra_merge():
 
 
 def t_watch_protects_ad():
-    """watch 流程 protect_ad：正在看的广告文案不关，落到右上角坐标。"""
+    """watch 流程 protect_ad：正在看的广告文案不关，落到右上角坐标。
+
+    A2 之后 dump 必须"变了"才继续下一轮，所以这里给两次不同的 xml。
+    """
     # 屏上有「跳过」按钮（正在看的广告）与广告特征
-    br = _mk(present={("text", "跳过"): "ad-skip"}, xml="<node text='广告'/>")
+    br = _mk(present={("text", "跳过"): "ad-skip"},
+             xml=["<node text='广告'/>", "<node text='广告'/><node text='x'/>"])
     act = {"max_rounds": 1, "protect_ad": True}
     ret = br._step_dismiss_popups(act, "X")
     assert ret is True
@@ -157,7 +172,10 @@ def t_watch_protects_ad():
 
 def t_watch_protect_off():
     """非 watch（protect_ad=False）：「跳过」应正常关。"""
-    br = _mk(present={("text", "跳过"): "ad-skip"})
+    # xml 必须与 present 一致（屏幕上有「跳过」文案）：_popup_close_one 的粗筛
+    # 快速通道只信任已 dump 的 xml，「确定不在屏上」的文案不再逐项 _locate。
+    br = _mk(present={("text", "跳过"): "ad-skip"},
+             xml=["<node text='跳过'/>", "<node text='after'/>"])
     ret = br._step_dismiss_popups({"max_rounds": 1, "protect_ad": False}, "X")
     assert ret is True
     assert br._clicked_labels == ["ad-skip"]
@@ -166,14 +184,30 @@ def t_watch_protect_off():
 
 
 def t_back_fallback_order():
-    """顺序最后一级：有广告特征 + corner_fallback=False -> 系统返回键。"""
-    br = _mk(xml="<node text='跳过广告 5'/>")
-    act = {"max_rounds": 1, "corner_fallback": False, "back_key": True}
+    """顺序最后一级：corner 启用但取不到窗口尺寸 -> 系统返回键。
+
+    2026-10-30 起 back 受 corner 这个「盲操作总开关」约束：
+    corner 关掉时不再单独按 BACK（视频流首页带「广告/下载」字样，
+    一按 BACK 就退出 App）。所以这条用例改成 ws=(0,0) 模拟拿不到尺寸。
+    """
+    br = _mk(xml=["<node text='跳过广告 5'/>", "<node text='跳过广告 4'/>"])
+    br.d.window_size = lambda: None      # 模拟取不到窗口尺寸
+    act = {"max_rounds": 1, "corner_fallback": True, "back_key": True}
     ret = br._step_dismiss_popups(act, "X")
     assert ret is True
     assert br.d.pressed == ["back"], br.d.pressed
     assert br.d.clicked == []
     print("t_back_fallback_order OK")
+
+
+def t_corner_off_never_presses_back():
+    """corner_fallback=False + 广告特征 -> 既不点坐标也不按 BACK。"""
+    br = _mk(xml="<node text='广告'/><node text='下载'/>")
+    ret = br._step_dismiss_popups(
+        {"max_rounds": 3, "corner_fallback": False, "back_key": True}, "X")
+    assert ret is False, ret
+    assert br.d.clicked == [] and br.d.pressed == [], (br.d.clicked, br.d.pressed)
+    print("t_corner_off_never_presses_back OK")
 
 
 def t_clean_screen_no_action():
@@ -186,9 +220,13 @@ def t_clean_screen_no_action():
 
 
 def t_multi_rounds():
-    """多轮：每轮关一个，最多 max_rounds 轮后返回 True。"""
+    """多轮：每轮关一个，屏幕每轮都在变，max_rounds 轮后返回 True。
+
+    A2 之后必须"每轮屏幕都变"才会继续；这里给 6 段 xml（每轮 before/after 各一次）。
+    """
     present = {("text", "取消"): "btn-cancel"}
-    br = _mk(present=present)
+    xmls = [f"<node text='取消'/><node text='{i}'/>" for i in range(6)]
+    br = _mk(present=present, xml=xmls)
     ret = br._step_dismiss_popups({"max_rounds": 3}, "X")
     assert ret is True
     assert br._clicked_labels == ["btn-cancel"] * 3, br._clicked_labels
@@ -265,6 +303,34 @@ def t_win_wh_tuple():
     print("t_win_wh_tuple OK")
 
 
+def t_absent_texts_skip_locate():
+    """粗筛快速通道（2026-11-01 抖音火山版「复位→watch 挂起 300s」回归）：
+
+    屏幕带广告特征（火山版视频流首页）但没有任何 popup 文案时，
+    _popup_close_one 必须**不**为缺省文案逐个发起 _locate —— 否则干净屏
+    一轮 13 次全量 UI dump（重页面 3-8s/次），25-110s，正是火山版 reserve
+    前扫掉 110s、复位后扫掉 47-73s、整单超 300s 的根因。
+    反向：屏上真有 popup 文案时仍要精确 _locate 并点击（粗筛不误杀）。
+    """
+    # 广告特征 + 干净屏（无 popup 文案）：零 _locate，零交互
+    br = _mk(xml="<node text='广告'/><node text='下载'/>")
+    ret = br._step_dismiss_popups(
+        {"max_rounds": 3, "corner_fallback": False, "back_key": True}, "X")
+    assert ret is False, ret
+    assert br._locate_calls == 0, f"干净屏不应逐项 _locate，实际 {br._locate_calls} 次"
+    assert br.d.clicked == [] and br.d.pressed == []
+
+    # 反向：屏上真有「我知道了」文案 -> 粗筛放行 -> 精确 _locate 命中并点击
+    br2 = _mk(present={("text", "我知道了"): "btn-know"},
+              xml="<node text='我知道了'/>")
+    ok = br2._popup_close_one(DEFAULT_POPUP_TEXTS, [], corner=True,
+                              back_key=True, app_name="X", rnd=1)
+    assert ok is True
+    assert br2._clicked_labels == ["btn-know"]
+    assert br2._locate_calls == 1, f"应恰好 1 次 _locate，实际 {br2._locate_calls}"
+    print("t_absent_texts_skip_locate OK")
+
+
 if __name__ == "__main__":
     t_text_priority()
     t_blacklist_blocks_back()
@@ -279,4 +345,5 @@ if __name__ == "__main__":
     t_sweep_watch_flag()
     t_dry_run_no_device()
     t_win_wh_tuple()
+    t_absent_texts_skip_locate()
     print("ALL dismiss_popups TESTS PASSED")

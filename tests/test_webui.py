@@ -799,12 +799,12 @@ def t_job_title_distinguishes_apps():
     port, httpd, console = _start_test_server()
     try:
         job = console.create_app_job({
-            "plan": [{"name": "趣头条", "behaviors": ["sign"]},
+            "plan": [{"name": "京东", "behaviors": ["sign"]},
                      {"name": "河马剧场", "behaviors": ["watch"]}],
             "dry_run": True,
         })
         title = job.title
-        assert "趣头条" in title and "河马剧场" in title, title
+        assert "京东" in title and "河马剧场" in title, title
         assert "2 个 App" not in title, f"标题退回成「N 个 App」了：{title}"
         print(f"OK  任务标题含 App 名（历史条目可区分）：{title}")
     finally:

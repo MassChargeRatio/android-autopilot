@@ -30,6 +30,7 @@
 方法体内通过 `self._xxx` 同名可覆盖入口互相调用：本类被 executor.py 门面
 多继承后，self 是 Executor 实例，tests 对 Executor 实例打桩仍然生效。
 """
+import hashlib
 import json
 import os
 import random
@@ -40,6 +41,9 @@ from reward_pick import rank_reward_candidates, _TEXT_ATTR_RE, _BALANCE_HINTS  #
 from locator import _parse_sel  # noqa: E402
 from device_session import win_wh  # noqa: E402
 from candidates import candidates_for, category_for_intent  # noqa: E402
+# v6 S1：统一编译层。只用于**编译期校验**（把配置错误提前暴露成日志），
+# 执行仍走原始 dict —— 这是"老配置一行不改、行为零变化"的实现方式。
+from step_model import Step, compile_step  # noqa: E402
 
 
 class StepError(Exception):
@@ -53,6 +57,61 @@ class StepError(Exception):
 # 2026-10-25：新增统一点击原语 "click"（by=text/id/desc），旧三个名字是它的别名。
 _VISION_GATED_STEPS = {"click", "click_text", "click_id", "click_desc",
                        "click_first", "any_of", "random"}
+
+# ---------- 动作分类与返回值契约（2026-10-29） ----------
+# 19 个平铺的 type，问题不是"没分类"，而是**同一类的返回值语义不一致**：
+# `_run_kind` 只能统一 `None -> True` 兜底，于是"没做任何判断"和"判断通过"
+# 在调用方看来完全一样。三个真实后果（本次一并修）：
+#   ① _step_click_point 丢掉 _verify_landing 的返回值 -> 落地失败也算成功；
+#   ② _step_any_of 的 optional 全 miss 分支日志写"放行"、却 return False；
+#   ③ _step_random 不汇总子步骤 -> 子步骤全失败，整步仍算成功。
+#
+# 分类口径：**它需要什么能力 + 返回值是什么**，不是名字好不好看。
+# 规范名与别名分离：click_text/click_id/click_desc 是 click 的别名，
+# swipe_natural 是 swipe 的别名，方法名与 dispatch 表一律不动。
+ACTION_CATEGORY = {
+    # 元素点击：True=点中元素，False=未找到
+    "click": "click",
+    "click_first": "click",
+    "click_text": "click",      # 别名 -> click(by=text)
+    "click_id": "click",        # 别名 -> click(by=id)
+    "click_desc": "click",      # 别名 -> click(by=desc)
+    # 坐标点击：True=落地通过，False=落地失败，None=无可判信号（盲点无法验证）
+    "click_point": "point",
+    # 手势：True=已执行，缺坐标抛 StepError
+    "swipe": "gesture",
+    "swipe_natural": "gesture",  # 别名 -> swipe(natural=true)
+    # 系统键：True/False
+    "back": "key",
+    "home": "key",
+    # 时序：永远成功，None 是合法返回值
+    "wait": "timing",
+    "think": "timing",
+    # 分支编排：True=某分支命中 / False=全 miss
+    "any_of": "flow",
+    "random": "flow",
+    # 复合动作（内部含多次尝试，对外仍是单个 bool）
+    "scroll_to": "compound",
+    "dismiss_popups": "compound",
+    "captcha": "compound",
+    # 断言/读取
+    "ensure": "assert",          # True / StepError
+    "reward": "read",            # 只记录，None 是合法返回值
+}
+
+# 每类允许的返回值。"none" = 允许返回 None（且视为成功），
+# 不在允许集里的 None 一律记 WARN 并按失败处理 —— 这就是"不再统一兜底"。
+_RETURN_CONTRACT = {
+    "click": {"bool"},
+    "point": {"bool", "none"},
+    "gesture": {"bool"},
+    "key": {"bool"},
+    "timing": {"none"},
+    "flow": {"bool"},
+    "compound": {"bool"},
+    "assert": {"bool"},
+    "read": {"none"},
+}
 
 # ---------- F1 全局弹窗清扫（AUTOP-FEAT-2026-10-20） ----------
 # 用户原话：「遇到各种不是程序自身引起的弹窗，都可以看到就关闭」+
@@ -92,12 +151,19 @@ class BehaviorRunner:
         # dry-run：只打印执行计划，不触碰设备
         if self.dry_run:
             self.recorder.log(f"[dry-run] 预览计划：{app_name} ({pkg})", app_name)
+            last_bid = None
             for intent, kw in intents:
                 bid = self._resolve(app_cfg, intent)
                 if bid is None:
                     self.recorder.log(
                         f"  意图[{intent}]({kw}) 未配置行为，跳过", app_name, "WARN")
                     continue
+                if bid == last_bid:
+                    self.recorder.log(
+                        f"  意图[{intent}]({kw}) -> 行为[{bid}] 与上一条意图相同，"
+                        f"跳过重复执行", app_name, "INFO")
+                    continue
+                last_bid = bid
                 bid_cfg = app_cfg["behaviors"][bid]
                 if not self._window_open(bid_cfg, app_name, intent, kw, dry=True):
                     continue
@@ -111,9 +177,37 @@ class BehaviorRunner:
 
         # 1) 启动 app（即使已有 open 步骤也确保一次）
         #    launch_reset: true → 冷启动，避免恢复上次停留的子页面（tab 类入口必需）
-        self._open_app(pkg, app_name, reset=bool(app_cfg.get("launch_reset")))
+        #    返回 False = 包未安装，必须整单跳过：否则盲点坐标会落到前台别的 App 上
+        #    （2026-10-30 趣头条未安装，坐标点进了微信）。注意用 `is False` 判定，
+        #    因为测试里 `_open_app` 被 stub 成返回 None 的 lambda。
+        if self._open_app(pkg, app_name,
+                          reset=bool(app_cfg.get("launch_reset"))) is False:
+            # 具体原因（未安装 / 前台跑偏）已由 _open_app 记过 ERROR，
+            # 这里不再猜原因 —— 2026-10-31 微博实测：前台跳到支付宝被拦，
+            # 这行却写成「未安装」，误导排查。
+            self.recorder.log(f"{app_name} 启动失败，跳过本次全部行为",
+                              app_name, "ERROR")
+            return
+
+        # 1b) launch_back：启动后按 BACK 退掉**脏落地页**（无底部导航的全屏内容页/
+        #     开屏广告），使首行为从带导航的顶层页起步。不依赖 _at_top_level 确认
+        #     （WebView 重页面 dump 不可靠，实测「BACK 未回到顶层页 -> 重启」后仍
+        #     落回同一脏页）；已在顶层页则不按（保护正常落地的 App）。
+        #     2026-11-01 未找到文本按钮/候选未出现族：悟空浏览器首行为 click_text[赚钱]
+        #     因启动落全屏短剧播放页（无底部导航）连败 3 天，launch_back=1 实测
+        #     BACK 后「赚钱」tab 进树（bounds [492,2113][588,2170]）。
+        launch_back = app_cfg.get("launch_back")
+        if launch_back:
+            self._back_to_landing_after_launch(pkg, app_name, int(launch_back))
 
         # 2) 逐意图执行
+        # 去重（AUTOP-火山版-2026-11-01）：连续两个意图解析到同一行为时跳过第二个。
+        # 起因：抖音火山版 intent_map{sign:reserve} + reserve 同名兜底，任务串同时含
+        # 「签到,预约」→ reserve 行为被跑两遍（每遍 ~150-200s），叠加冷启动间隔与
+        # watch 后单 app 超 300s 上限 → 三连超时。同行为重复执行在本项目语义下必冗余
+        # （每日签到/预约只一次），故收敛为跑一遍。仅影响「同行为连续映射」的 app，
+        # 常规 app（sign→sign、reserve→reserve 各不同）行为零变化。
+        last_bid = None
         for i, (intent, kw) in enumerate(intents):
             bid = self._resolve(app_cfg, intent)
             if bid is None:
@@ -121,6 +215,12 @@ class BehaviorRunner:
                     f"意图[{intent}](触发词:{kw}) 在 {app_name} 未定义对应行为，跳过",
                     app_name, "WARN")
                 continue
+            if bid == last_bid:
+                self.recorder.log(
+                    f"意图[{intent}](触发词:{kw}) -> 行为[{bid}] 与上一条意图相同，"
+                    f"跳过重复执行（同行为只跑一次）", app_name, "INFO")
+                continue
+            last_bid = bid
             bid_cfg = app_cfg["behaviors"][bid]
             if not self._window_open(bid_cfg, app_name, intent, kw):
                 continue
@@ -131,7 +231,7 @@ class BehaviorRunner:
             actions = self._pick_variant(self._behavior_actions(bid_cfg),
                                          app_name, bid)
             # F1：行为执行前全局弹窗清扫（"看到就关"；黑名单熔断仅告警不拦截行为）
-            self._maybe_sweep_popups(intent, bid, app_name)
+            self._maybe_sweep_popups(intent, bid, app_name, app_cfg=app_cfg)
             self.recorder.log(
                 f"开始执行行为[{bid}] 动作数={len(actions)}", app_name)
             ok = self._run_actions(actions, app_name, bid)
@@ -278,6 +378,12 @@ class BehaviorRunner:
         self._current_bid = bid
         all_ok = True
         for act in actions:
+            # v6 S1：编译层只做**校验**，不接管执行。
+            # 为什么编译失败也必须继续跑：如果这里 `continue`，一个"新加了但没登记
+            # 映射"的 type 会让整条链静默失效，而日志只留一句 WARN —— 那是最难查的
+            # 故障形态。所以失败只记 WARN，随后照旧用原 dict 执行，由分派表决定命运
+            # （未知 type 仍会被 _run_kind 记「未知动作类型」并返回 False）。
+            self._validate_step(act, app_name)
             try:
                 ok = self._exec_step(act, app_name)
             except StepError as e:
@@ -301,6 +407,28 @@ class BehaviorRunner:
                 self.human.think()
         return all_ok
 
+    def _validate_step(self, act, app_name: str) -> None:
+        """编译期校验（v6 S1）。**只记日志，不影响执行**。
+
+        能抓到的都是"配置写错、跑起来必然静默失败"的形态：未知 type、
+        action 与 type 冲突、click 缺定位字段、flow 既无 branches 也无 candidates_from。
+        每条只在**该 step 首次**出现时记一次，避免一次运行刷满日志。
+        """
+        if not isinstance(act, dict):
+            return
+        key = id(act)
+        seen = getattr(self, "_validated_ids", None)
+        if seen is None:
+            seen = self._validated_ids = set()
+        if key in seen:
+            return
+        seen.add(key)
+        try:
+            compile_step(act)
+        except ValueError as exc:
+            self.recorder.log(f"步骤编译校验失败（仍按原样执行）: {exc}",
+                              app_name, "WARN")
+
     def _exec_step(self, act: dict, app_name: str) -> bool:
         return self._dispatch_step(act, app_name)
 
@@ -320,9 +448,16 @@ class BehaviorRunner:
         """探测路径：any_of/random 分支内动作，无 ritual，视觉门控显式参数。"""
         return self._run_kind(act, app_name, allow_vision=allow_vision)
 
-    def _run_kind(self, act: dict, app_name: str, allow_vision: bool = True) -> bool:
-        """按 type 分派到对应 step 原语，返回 True=成功/命中，False=未命中。"""
-        t = act.get("type")
+    def _run_kind(self, act, app_name: str, allow_vision: bool = True) -> bool:
+        """按 type 分派到对应 step 原语，返回 True=成功/命中，False=未命中。
+
+        入参可以是 dict（现有全部调用路径），也可以是 v6 的 Step 对象；
+        **执行永远用 `step.raw`** —— 编译层不参与执行，所以行为零变化。
+        不做"从 Step 反推 legacy type"这种转换：反推是双向映射，一旦某条
+        映射漏了，就会点错坐标或漏点一步，而且很难在测试里被发现。
+        """
+        raw = act.raw if isinstance(act, Step) else act
+        t = raw.get("type")
         fn = {
             "wait": self._step_wait,
             "think": self._step_think,
@@ -347,11 +482,37 @@ class BehaviorRunner:
         if fn is None:
             self.recorder.log(f"未知动作类型: {t}，已忽略", app_name, "WARN")
             return False
+        cat = ACTION_CATEGORY.get(t)
+        if cat is None:
+            # 分派表有、分类表没有：新增 type 忘了登记分类，属维护错误。
+            self.recorder.log(f"动作类型未登记分类: {t}，已按失败处理", app_name, "WARN")
+            return False
         if t in _VISION_GATED_STEPS:
-            res = fn(act, app_name, allow_vision=allow_vision)
+            res = fn(raw, app_name, allow_vision=allow_vision)
         else:
-            res = fn(act, app_name)
-        return True if res is None else bool(res)
+            res = fn(raw, app_name)
+        return self._check_return(t, cat, res, app_name)
+
+    def _check_return(self, t: str, cat: str, res, app_name: str) -> bool:
+        """按类别校验返回值契约。None 只在允许它的类别里算成功。
+
+        为什么不再统一 `None -> True`：那会让"根本没判断"与"判断通过"同义。
+        例如 `_step_click_point` 丢了 `_verify_landing` 的返回值时，
+        落地失败（False）在调用方看来和成功一样，报告因此长期失真。
+        """
+        allowed = _RETURN_CONTRACT.get(cat) or {"bool"}
+        if res is None:
+            if "none" in allowed:
+                return True
+            self.recorder.log(
+                f"返回值契约违反: {t}({cat}) 返回 None，按失败处理", app_name, "WARN")
+            return False
+        if isinstance(res, bool):
+            return res
+        self.recorder.log(
+            f"返回值契约违反: {t}({cat}) 返回 {type(res).__name__}，已按真值折算",
+            app_name, "WARN")
+        return bool(res)
 
     def _dispatch(self, act: dict, app_name: str, ritual: bool) -> bool:
         """兼容薄包装（test_diversify_sensor.py:105 直调；B7 后内部走 step/probe）。"""
@@ -392,7 +553,24 @@ class BehaviorRunner:
             self.recorder.log("any_of 动作缺少 choices，已忽略", app_name, "WARN")
             return False
         n = len(choices)
+        # B1（2026-10-30）：整次 any_of 的总预算。act 显式 total_timeout 优先，
+        # 否则用实例默认（_any_of_total，来自 config.timeouts.any_of_total，默认 30 = 现行为）。
+        # 注意：预算只在**分支边界**检查，单个分支内部仍可能超预算（不打断进行中的分支，
+        # 否则会在点击到一半时中断，留下不确定状态）。
+        budget = act.get("total_timeout")
+        if budget is None:
+            budget = getattr(self, "_any_of_total", 30.0)
+        try:
+            budget = float(budget)
+        except (TypeError, ValueError):
+            budget = 30.0
+        deadline = (time.time() + budget) if budget > 0 else None
         for i, chosen in enumerate(choices):
+            if deadline is not None and time.time() >= deadline:
+                self.recorder.log(
+                    f"any_of 总预算 {budget:g}s 用尽，跳过剩余 {n - i} 个分支",
+                    app_name, "WARN")
+                break
             steps = chosen if isinstance(chosen, list) else [chosen]
             branch_vision = (i == n - 1) and allow_vision
             ok = True
@@ -413,25 +591,39 @@ class BehaviorRunner:
                 return True
             self.recorder.log(f"any_of 分支#{i + 1}/{n} 未命中", app_name, "DEBUG")
         if act.get("optional", False):
+            # 2026-10-29 契约修正：日志一直写"放行"，代码却 return False，
+            # 于是 optional 的 any_of 全 miss 仍被外层记成"步骤失败"，
+            # 体检报告的红黄绿因此失真。放行就是成功，返回值必须与日志同义。
             self.recorder.log("any_of 全部分支未命中，optional 放行", app_name, "WARN")
-            return False
+            return True
         # B6：全 miss 非 optional 不再抛 StepError，记 WARN 返回 False
         self.recorder.log("any_of 全部分支均未命中", app_name, "WARN")
         return False
 
     def _step_random(self, act, app_name, allow_vision=True):
         """行为分支随机化：choices 中随机择一执行。
-        每个 choice 可以是单个动作 dict，或一串动作 list。"""
+        每个 choice 可以是单个动作 dict，或一串动作 list。
+
+        2026-10-29 契约修正：原实现不返回任何值（None），子步骤失败被静默吞掉，
+        整步在 `_run_kind` 里因 None->True 一律算成功。现在汇总子步骤：
+        任一子步骤失败即 False；子步骤抛 StepError 也记 False（不向上抛，
+        与 any_of 分支内的处理保持一致）。
+        """
         choices = act.get("choices") or []
         if not choices:
             self.recorder.log("random 动作缺少 choices，已忽略", app_name, "WARN")
-            return
+            return False
         chosen = random.choice(choices)
-        if isinstance(chosen, list):
-            for a in chosen:
-                self._dispatch_probe(a, app_name, allow_vision=allow_vision)
-        elif isinstance(chosen, dict):
-            self._dispatch_probe(chosen, app_name, allow_vision=allow_vision)
+        steps = chosen if isinstance(chosen, list) else [chosen]
+        ok = True
+        for a in steps:
+            try:
+                if not self._dispatch_probe(a, app_name, allow_vision=allow_vision):
+                    ok = False
+            except StepError as e:
+                self.recorder.log(f"random 分支步骤失败: {e}", app_name, "DEBUG")
+                ok = False
+        return ok
 
     # ---------- 原语实现 ----------
     def _step_wait(self, act, app_name):
@@ -467,15 +659,53 @@ class BehaviorRunner:
         field, verb, fail_word, tag = spec
         value = act.get(field, "")
         primary = f"{by}={value}"
-        obj, has_entry, attempted = self._locate_with_kb(
-            app_name, primary, act.get("timeout", 6))
-        if obj is not None:
-            self._click_tracked(
-                obj, app_name, primary, has_entry,
-                f"{verb}: {value}",
-                # StaleObject 自救：点击前元素失效时按同 selector 重定位
-                relocate=lambda: self._locate_with_kb(app_name, primary, 2.0)[0])
-            return True
+        # back_retry（AUTOP-FAMILY-2026-11-01）：目标文本不在树上时，按 BACK
+        # 重新露出底层导航后重试，最多 back_retry 次。应对「全屏内容页盖住底部
+        # 导航」的 App（悟空浏览器实测：全屏短剧播放页盖住 tab，「赚钱」不在树上，
+        # 按 BACK 后退到带导航页，导航仅短暂可见 ~2s，需在可见窗口内点击）。
+        # 只在「未命中」时触发；每次按 BACK 后校验前台，离开目标 App 即冷重启
+        # （避免 BACK 把 App 退到桌面后继续盲找）。
+        back_retry = int(act.get("back_retry") or 0)
+        try:
+            _pkg = (self.d.info.get("currentPackageName") or "") if self.d else ""
+        except Exception:
+            _pkg = ""
+        for attempt in range(back_retry + 1):
+            obj, has_entry, attempted = self._locate_with_kb(
+                app_name, primary, act.get("timeout", 6))
+            if obj is not None:
+                self._click_tracked(
+                    obj, app_name, primary, has_entry,
+                    f"{verb}: {value}",
+                    # StaleObject 自救：点击前元素失效时按同 selector 重定位
+                    relocate=lambda: self._locate_with_kb(app_name, primary, 2.0)[0])
+                return True
+            if attempt >= back_retry:
+                break
+            self.recorder.log(
+                f"click[{by}={value}] 第{attempt + 1}次未命中，按 BACK 后重试",
+                app_name, "DEBUG")
+            try:
+                if self.d is not None:
+                    self.d.press("back")
+            except Exception as e:
+                self.recorder.log(
+                    f"click[{by}={value}] BACK 重试异常: {type(e).__name__}: {e}",
+                    app_name, "DEBUG")
+                break
+            time.sleep(1.5)
+            try:
+                fg = (self.d.info.get("currentPackageName") or "") if self.d else ""
+            except Exception:
+                fg = ""
+            if _pkg and fg and fg != _pkg:
+                self.recorder.log(
+                    f"click[{by}={value}] BACK 后前台={fg}（非目标 {_pkg}）"
+                    f"-> 冷重启再试", app_name, "WARN")
+                try:
+                    self._open_app(_pkg, app_name, reset=True)
+                except Exception:
+                    break
         if self._vision_or_miss(act, app_name, f"{tag}[{value}]",
                                 allow_vision=allow_vision):
             return True
@@ -511,25 +741,64 @@ class BehaviorRunner:
                      else "click_point[visual]")
             if self._vision_click(act, app_name, vdesc):
                 # 2026-10-24：视觉兜底命中后同样要校验落地（原先直接 return 跳过了 expect）。
+                # 2026-10-29：校验结果必须**返回**，不能只调用 —— 落地失败要能传上去。
                 if act.get("expect"):
-                    self._verify_landing(act, app_name)
-                return
+                    return self._verify_landing(act, app_name)
+                return True
         wh = win_wh(self.d)
+        # 2026-10-30 全量跑实测：`click_point` 只配 images（纯图像锚点、无坐标兜底）时，
+        # 视觉一旦 miss 就会掉到这里，float(None) 抛 TypeError **中断整个 App**。
+        # 快手 bonus / 飞猪旅行 都是这么崩的。没有坐标就没有可点的地方，
+        # 按「未命中」返回，交给 optional / 步骤失败逻辑处理，不要崩。
+        if act.get("x") is None or act.get("y") is None:
+            self._last_fail = "图像锚点未命中且无坐标兜底"
+            return False
         x, y = float(act.get("x")), float(act.get("y"))
         if wh and x <= 1.0 and y <= 1.0:
             x, y = int(wh[0] * x), int(wh[1] * y)
         x, y = self.human.jitter_point(int(x), int(y))
         if self.dry_run:
-            return
+            return True
+        # 2026-10-30：phash 基准是「点击前」那一态，点击后页面必然变样 -> 必然失配。
+        # 开启 accept_structure_change 的步骤，点击前先存一份节点集合，
+        # 校验失败时用「结构变化」兜底（默认关闭，老配置零影响）。
+        nodes_before = None
+        if (act.get("expect") or {}).get("accept_structure_change"):
+            nodes_before = self._screen_nodes(self._dump_safe())
         # F2：统一点击入口（误触-回退/限流长停），替代裸 d.click
         self.human.tap(self.d, x, y)
         self.recorder.log(f"点击坐标: ({x},{y})", app_name)
         # 2026-10-23 落地校验：坐标是盲点（拼多多圆形入口偏 80px 就静默走错页），
         # 点完必须验证「落到了预期页面」。多信号投票见 landing.py。
+        # 2026-10-29：返回值契约 —— True=落地通过，False=落地失败，None=无可判信号。
         if act.get("expect"):
-            self._verify_landing(act, app_name, x, y)
+            # 开关没开时保持原来的调用形态（不传 nodes_before）——老配置与既有
+            # 测试桩的签名都零影响；只有显式开启的步骤才多传一个参数。
+            if nodes_before is None:
+                return self._verify_landing(act, app_name, x, y)
+            return self._verify_landing(act, app_name, x, y,
+                                        nodes_before=nodes_before)
+        return True
 
-    def _verify_landing(self, act, app_name, x=None, y=None, no_retry=False):
+    @staticmethod
+    def _is_target_page_from_dump(xml, expect):
+        """B3：用 expect.text_any 判断当前是否已经是目标页。
+
+        只认 text_any —— 它是最稳的语义信号。没有配 text_any 的步骤
+        （目前 34 份配置里只有 3 处配了）一律返回 False，即保持原重试行为。
+        """
+        if not xml:
+            return False
+        want = [str(w) for w in (expect.get("text_any") or []) if str(w).strip()]
+        if not want:
+            return False
+        joined = " ".join(
+            m.group(2) for m in
+            re.finditer(r"""(?:text|content-desc)=(["'])(.{1,40}?)\1""", xml))
+        return any(w in joined for w in want)
+
+    def _verify_landing(self, act, app_name, x=None, y=None, no_retry=False,
+                        nodes_before=None):
         """按 act['expect'] 做多信号落地校验；失败可重试（expect.retry）。
 
         2026-10-23 真机修正：校验截图必须等页面落定。拼多多实测——点击圆形入口后
@@ -572,6 +841,30 @@ class BehaviorRunner:
                 return True
             self.recorder.log(f"落地校验失败（第{attempt + 1}次）: {res['reason']} | {tag}",
                               app_name, "WARN")
+            # 结构变化兜底（2026-10-30，默认关闭，按步骤显式开启）：
+            # 只救 **phash 失配** 这一种，且要求页面节点结构确实变了。
+            # 不救 text_nodes 失配 —— 文案没出现是有效信号，不能靠「页面变了」放行。
+            if (nodes_before is not None
+                    and expect.get("accept_structure_change")
+                    and res["signals"].get("phash") is False):
+                diff = self._structure_diff(nodes_before,
+                                            self._screen_nodes(xml))
+                if diff >= float(expect.get("structure_change_min", 0.15)):
+                    self.recorder.log(
+                        f"落地校验: phash 失配但页面结构已变化 {diff:.0%}，"
+                        f"判为已落地（accept_structure_change，证据等级=结构变化）",
+                        app_name)
+                    return True
+                self.recorder.log(
+                    f"落地校验: phash 失配且结构仅变 {diff:.0%}"
+                    f"（阈值 {float(expect.get('structure_change_min', 0.15)):.0%}）",
+                    app_name, "DEBUG")
+            # B3（2026-10-30）：重试前先看同一次 dump 是不是已经是目标页。
+            # phash 会因为「签到前/签到后弹窗内容变化」而失配，但终态文案稳定出现；
+            # 这种情况再点一次纯属浪费（快手实测一次无效重试 13s）。
+            if attempt < retries and self._is_target_page_from_dump(xml, expect):
+                self.recorder.log("落地校验失败但已是目标页，跳过重试", app_name)
+                return True
             if attempt < retries and x is not None and y is not None and not self.dry_run:
                 self.human.tap(self.d, x, y)
                 self.recorder.log(f"落地校验重试点击: ({x},{y})", app_name)
@@ -627,6 +920,15 @@ class BehaviorRunner:
                     continue
         zone = act.get("zone")
         scroll_left = int(act.get("scroll_retry", 0))
+        # back_retry（AUTOP-FAMILY-2026-11-01）：候选全部未出现且 scroll_retry 用尽时，
+        # 按 BACK 重新露出底层导航后重扫一遍候选池。与 _step_click 的 back_retry 同理，
+        # 应对「全屏内容页盖住底部导航」的 App（悟空浏览器 watch：看剧/任务中心等在
+        # 底部导航上，播放页盖住后候选全不可见）。缺省 0 = 行为不变。
+        back_left = int(act.get("back_retry") or 0)
+        try:
+            _pkg = (self.d.info.get("currentPackageName") or "") if self.d else ""
+        except Exception:
+            _pkg = ""
         # 2026-10-23 真机实测修正（性能回归）：
         # 第 3 项把全局词表并进 pool 后，候选数从 ~12 涨到 ~45，
         # 而每个候选原本各给 2s 定位超时 → 单跳最坏 45×2=90s，
@@ -664,14 +966,45 @@ class BehaviorRunner:
                     self.recorder.log(f"多候选命中并点击: ({k}){v}", app_name)
                     # 2026-10-24：click_first 点中后同样做落地校验（与 click_point 一致），
                     # 否则「点中了 A 却落在 B」仍然无声无息。
+                    # 2026-10-29：校验结果必须**返回**，不能只调用 —— 与 _step_click_point
+                    # 的同类修复对齐。此前丢了返回值，「点中了 A 却落在 B」仍记成功。
                     if act.get("expect"):
-                        self._verify_landing(act, app_name)
+                        return self._verify_landing(act, app_name)
                     return True
             # 本轮全未命中：按 scroll_retry 次数翻页重试（自搜寻拓展）
             if scroll_left > 0:
                 scroll_left -= 1
                 self.human.natural_swipe(self.d)
                 self.human.think()
+                continue
+            # scroll_retry 用尽仍全未命中：按 back_retry 次数 BACK 重露导航再扫。
+            if back_left > 0:
+                back_left -= 1
+                self.recorder.log(
+                    f"click_first 候选全未命中，按 BACK 后重扫（剩 {back_left} 次）",
+                    app_name, "DEBUG")
+                try:
+                    if self.d is not None:
+                        self.d.press("back")
+                except Exception as e:
+                    self.recorder.log(
+                        f"click_first BACK 重试异常: {type(e).__name__}: {e}",
+                        app_name, "DEBUG")
+                    break
+                time.sleep(1.5)
+                try:
+                    fg = (self.d.info.get("currentPackageName") or "") if self.d else ""
+                except Exception:
+                    fg = ""
+                if _pkg and fg and fg != _pkg:
+                    self.recorder.log(
+                        f"click_first BACK 后前台={fg}（非目标 {_pkg}）-> 冷重启再试",
+                        app_name, "WARN")
+                    try:
+                        self._open_app(_pkg, app_name, reset=True)
+                    except Exception:
+                        break
+                t_start = time.time()   # 重扫给全新预算
                 continue
             break
         # 全失败：回写本次尝试过（有知识库记录）的主 selector 失败计数
@@ -680,8 +1013,17 @@ class BehaviorRunner:
                                 allow_vision=allow_vision):
             return True
         if act.get("optional", False):
-            # optional：候选全部未出现视为"本次无需执行"，记 WARN 放行。
-            self.recorder.log(f"候选全部未出现，optional 放行: {act.get('candidates')}", app_name, "WARN")
+            # optional：候选全部未出现 —— 这里**必须返回 False**，不能"放行"。
+            # 原因：click_first 最常见的用法是当 any_of 的**分支**，而 any_of 判
+            # 「分支是否命中」的依据就是这个返回值（见 _step_any_of docstring：
+            # 「分支内的定位动作应写 optional: false，否则"没找到"会被当成成功，
+            # 分支立刻终止」）。若这里返回 True，any_of 会在第 1 个分支就收工，
+            # 后续"跳到我的再试一次"的兜底分支永远不执行 —— any_of 形同虚设。
+            # 2026-10-29：原日志写"optional 放行"，与返回值相反，读日志的人会以为
+            # 这步没算失败。改成如实描述，避免再次误导体检结论。
+            self.recorder.log(
+                f"候选全部未出现，optional 仅抑制告警（返回值仍为 False，"
+                f"any_of 分支依赖此语义）: {act.get('candidates')}", app_name, "WARN")
             return False
         # B6：非 optional 未命中不再抛 StepError，detail 写入 _last_fail 返回 False
         self._last_fail = f"所有候选均未出现: {act.get('candidates')}"
@@ -698,7 +1040,7 @@ class BehaviorRunner:
         if act.get("natural", False) and self.d and not (f and t):
             self.human.natural_swipe(self.d)
             self.recorder.log("自然滑动(随机)", app_name)
-            return
+            return True
         wh = win_wh(self.d)
         f, t = act.get("from"), act.get("to")
         if not (f and t and wh):
@@ -719,9 +1061,10 @@ class BehaviorRunner:
                 if ok:
                     self.recorder.log(
                         f"滑动(轨迹) ({sx},{sy})->({ex},{ey})", app_name)
-                    return
+                    return True
             self.d.swipe(sx, sy, ex, ey, duration=dur)
         self.recorder.log(f"滑动 ({sx},{sy})->({ex},{ey})", app_name)
+        return True
 
     def _step_swipe_natural(self, act, app_name):
         """兼容别名（2026-10-25 合并）：等价于 swipe + natural:true。
@@ -777,43 +1120,56 @@ class BehaviorRunner:
             return None
 
     def _step_scroll_to(self, act, app_name):
-        """向下翻页直到出现目标文本后点击（或仅查找）
+        """向下翻页直到出现目标文本/描述后点击（或仅查找）
 
         坑位（2026-10-21 回归实崩）：B6 起 `_locate` 返回 LocateResult
         （不再返回元素/None），此处旧代码把 LocateResult 当元素传给
         `_click_obj` -> `'LocateResult' object has no attribute 'rect'`。
          scroll_to 一被走到就崩，4 个 App 的回归即死于此。已修为
         res.hit/res.obj 口径。
+
+        2026-11-01 抖音火山版 UI 变更：「预约」行文案从 text 挪到
+        content-desc（'今日预约，明日领火苗' / 已预约态 '已预约，…'），
+        scroll_to 只搜 text 永远找不到 → 5 页失败。故支持 `desc` 字段
+        （与 text 二选一），走 descriptionContains 匹配。
         """
-        text = act.get("text", "")
-        res = self._locate("text", text, timeout=2.0)
+        if "desc" in act:
+            kind, value = "desc", act.get("desc", "")
+        else:
+            kind, value = "text", act.get("text", "")
+        res = self._locate(kind, value, timeout=2.0)
         max_pages = int(act.get("max_pages", 6))
         page = 0
         while not res.hit and page < max_pages:
             self.human.natural_swipe(self.d)
             page += 1
             self.human.think()
-            res = self._locate("text", text, timeout=1.5)
+            res = self._locate(kind, value, timeout=1.5)
         if not res.hit:
-            raise StepError(f"滚动 {max_pages} 页仍未找到: {text}")
+            raise StepError(f"滚动 {max_pages} 页仍未找到: {value}")
         if not self.dry_run:
             # StaleObject 自救：翻页后元素引用易失效，按同文本重定位再点
             self._click_obj(res.obj,
-                            relocate=lambda: self._relocate_candidate("text", text))
-        self.recorder.log(f"滚动找到并点击: {text}（翻页{page}）", app_name)
+                            relocate=lambda: self._relocate_candidate(kind, value))
+        self.recorder.log(f"滚动找到并点击: {value}（翻页{page}）", app_name)
+        return True
 
     def _step_back(self, act, app_name):
         if not self.dry_run:
             self.d.press("back")
         self.recorder.log("返回", app_name)
+        return True
 
     # ---------- F1 全局弹窗清扫 ----------
 
-    def _maybe_sweep_popups(self, intent, bid, app_name):
+    def _maybe_sweep_popups(self, intent, bid, app_name, app_cfg=None):
         """run_app_flow 行为执行前自动清扫（全局 popups.enabled 才动）。
 
         默认关闭（老配置零影响）；config.yaml `popups.enabled: true` 后，
         34 份 App 配置无需任何改动即生效。
+
+        A4（2026-10-30）：支持 per-app `popups.close_points` —— 自绘弹窗
+        （dump 里没有可点文案/id）的关闭坐标，归一化 0-1，追加语义。
         """
         if not getattr(self, "_popups_enabled", False):
             return
@@ -835,12 +1191,19 @@ class BehaviorRunner:
         for b in (cfg.get("extra_blacklist") or []):
             if b not in blacklist:
                 blacklist.append(b)
+        # A4：全局 close_points + App 级追加（dict 整体去重）
+        close_points = list(cfg.get("close_points") or [])
+        if app_cfg:
+            for cp in ((app_cfg.get("popups") or {}).get("close_points") or []):
+                if isinstance(cp, dict) and cp not in close_points:
+                    close_points.append(cp)
         act = {
             "type": "dismiss_popups",
             "max_rounds": int(cfg.get("max_rounds", 3)),
             "texts": texts,
             "ids": ids,
             "blacklist": blacklist,
+            "close_points": close_points,
             "back_key": bool(cfg.get("back_key", True)),
             "corner_fallback": bool(cfg.get("corner_fallback", True)),
             # 用户：「不是主动观看的广告，也可以跳过」→ watch 流程保护在看广告
@@ -858,6 +1221,7 @@ class BehaviorRunner:
         texts = list(act.get("texts") or DEFAULT_POPUP_TEXTS)
         ids = list(act.get("ids") or POPUP_CLOSE_IDS)
         blacklist = list(act.get("blacklist") or POPUP_BLACKLIST_TEXTS)
+        close_points = list(act.get("close_points") or [])
         back_key = bool(act.get("back_key", True))
         corner = bool(act.get("corner_fallback", True))
         protect_ad = bool(act.get("protect_ad", False))
@@ -871,6 +1235,7 @@ class BehaviorRunner:
             return False
 
         for rnd in range(1, max_rounds + 1):
+            # A1：本轮只 dump 这一次（原来 _popup_close_one 内部还会再 dump 一次）
             xml = self._dump_safe()
             bad = next((b for b in blacklist if b in xml), None)
             if bad:
@@ -879,47 +1244,146 @@ class BehaviorRunner:
                     f"弹窗清扫熔断: 出现资金类文案[{bad}]，停扫且禁用BACK",
                     app_name, "WARN")
                 return "blocked"
+            fp_before = self._screen_fingerprint(xml)
             if not self._popup_close_one(texts, ids, corner, back_key,
-                                         app_name, rnd):
+                                         app_name, rnd, xml=xml,
+                                         close_points=close_points):
                 return False  # 本屏无弹窗特征
+            # A2：给页面一点响应时间，再比一次指纹。
+            # 没变 = 点了没反应，立刻退出，不再空转到 max_rounds。
+            # （2026-10-30 快手实测：连打 3 轮同一坐标 37s，什么都没关掉）
             self.human.think()
+            if self._screen_fingerprint(self._dump_safe()) == fp_before:
+                self.recorder.log(
+                    f"弹窗清扫: 屏幕无变化，提前结束（第{rnd}轮）", app_name, "WARN")
+                return False
             time.sleep(1.0)
         return True
 
-    def _popup_close_one(self, texts, ids, corner, back_key, app_name, rnd):
-        """单轮清扫：返回 True=执行了一个关闭动作；False=屏幕干净。"""
-        for t in texts:
+    @staticmethod
+    def _screen_nodes(xml: str) -> frozenset:
+        """把 dump 压成「可点或带文案的节点」集合，供指纹与结构差异比较。
+
+        引号无关：真机 dump 用双引号，测试桩常用单引号，两种都要认
+        （2026-10-30 踩过：只认双引号会让指纹恒等，A2 永远判「没变化」）。
+        """
+        if not xml:
+            return frozenset()
+        items = []
+        for tag in re.findall(r"<node[^>]*>", xml):
+            m_t = re.search(r"""\btext=(["'])(.*?)\1""", tag)
+            m_d = re.search(r"""\bcontent-desc=(["'])(.*?)\1""", tag)
+            t = m_t.group(2) if m_t else ""
+            dc = m_d.group(2) if m_d else ""
+            if not t and not dc and 'clickable="true"' not in tag:
+                continue
+            m_b = re.search(r"""\bbounds=(["'])(.*?)\1""", tag)
+            items.append((t, dc, m_b.group(2) if m_b else ""))
+        return frozenset(items)
+
+    @staticmethod
+    def _structure_diff(a: frozenset, b: frozenset) -> float:
+        """两个屏幕节点集合的差异度：1 - |A∩B| / |A∪B|（0=完全相同，1=毫无交集）。"""
+        if not a or not b:
+            return 0.0
+        inter = len(a & b)
+        union = len(a | b)
+        return 0.0 if union == 0 else 1.0 - inter / union
+
+    @staticmethod
+    def _screen_fingerprint(xml: str) -> int:
+        """dump 指纹：可点/带文案节点的 (text, desc, bounds) 排序后取确定性哈希。
+
+        A2 用它判断「关闭动作之后屏幕到底变没变」——点了没反应就不该继续下一轮。
+
+        为什么不用 dhash：视频流页面的 dhash 每帧都在抖，会制造假「变化」，让 A2
+        失效；而弹窗是**节点结构**变化，dump 指纹对它更敏感。
+
+        为什么不用内置 hash()：每进程随机（PYTHONHASHSEED），跨进程不可复现。
+        这里用 md5 前 8 字节，同一屏在任何进程里都得到同一个值，便于日志对拍。
+        """
+        nodes = BehaviorRunner._screen_nodes(xml)
+        if not nodes:
+            return 0
+        raw = "\x1f".join("\x1e".join(x) for x in sorted(nodes)).encode("utf-8")
+        return int.from_bytes(hashlib.md5(raw).digest()[:8], "big")
+
+    def _popup_close_one(self, texts, ids, corner, back_key, app_name, rnd,
+                         xml=None, close_points=None):
+        """单轮清扫：返回 True=执行了一个关闭动作；False=屏幕干净。
+
+        A1：xml 由调用方传入，本函数不再自己 dump。
+        A4：close_points（归一化坐标）在文案/id 之后、corner 之前按序尝试。
+        corner 只在第 1 轮允许（整次清扫最多一次）：它是盲点，反复打同一个位置
+        在 2026-10-30 快手实测里连打 3 轮 37s 且 0 效果；而且 corner 被禁的那一轮
+        绝不能再落到 back —— 在干净屏上按 BACK 会直接退出 App。
+        """
+        if xml is None:
+            xml = self._dump_safe()
+        # 粗筛快速通道（2026-11-01 抖音火山版「复位→watch 挂起 300s」定位）：
+        # 火山版首页是视频流，天然带「广告/下载/打开」等 AD markers，本函数因此
+        # 永不提前返回；而逐个 _locate 会对**每个** popup 文案做一次全量 UI dump
+        # （13 文案 × 重页面 3-8s/次），干净屏一轮 25-110s —— 正是 11-01 火山版
+        # reserve 前扫掉 110s、复位后扫掉 47-73s、整单超 300s 的主因。
+        # 先对已 dump 的 xml 做子串粗筛：**确定不在屏上**的文案/id 直接跳过，
+        # 不发起 _locate。粗筛保守：t in xml 为 True 仍走精确 _locate
+        # （子串可能横跨属性或只出现在 content-desc 里，多一次查询无害，绝不漏关）。
+        # xml 为空（dump 失败/未知屏幕）时不粗筛，退回逐项 _locate —— 宁可慢不可漏。
+        xml_s = xml or ""
+        scan_texts = texts if not xml_s else [t for t in texts if t in xml_s]
+        scan_ids = ids if not xml_s else [rid for rid in ids if rid in xml_s]
+        for t in scan_texts:
             res = self._locate("text", t, timeout=0.8)
             if res.hit:
                 self._click_obj(res.obj)
                 self.recorder.log(f"弹窗清扫: 点文案[{t}]（第{rnd}轮）", app_name)
                 return True
-        for rid in ids:
+        for rid in scan_ids:
             res = self._locate("id", rid, timeout=0.5)
             if res.hit:
                 self._click_obj(res.obj)
                 self.recorder.log(f"弹窗清扫: 点id[{rid}]（第{rnd}轮）", app_name)
                 return True
-        xml = self._dump_safe()
-        if not any(m in xml for m in POPUP_AD_MARKERS):
+        if not any(m in xml_s for m in POPUP_AD_MARKERS):
             return False  # 无广告特征：干净屏，不动坐标/返回键
         wh = win_wh(self.d)
-        if corner and wh:
+        # A4：per-app 关闭坐标优先于盲点 corner
+        if close_points and wh:
+            for cp in close_points:
+                if not isinstance(cp, dict):
+                    continue
+                try:
+                    cx, cy = float(cp["x"]), float(cp["y"])
+                except (KeyError, TypeError, ValueError):
+                    continue
+                px, py = int(wh[0] * cx), int(wh[1] * cy)
+                self.d.click(px, py)
+                self.recorder.log(
+                    f"弹窗清扫: close_points 点击({px},{py})"
+                    f"[{cp.get('desc') or f'({cx},{cy})'}]（第{rnd}轮）", app_name)
+                return True
+        if corner and wh and rnd == 1:
             x, y = int(wh[0] * 0.93), int(wh[1] * 0.11)
             self.d.click(x, y)
             self.recorder.log(
                 f"弹窗清扫: 右上角坐标兜底({x},{y})（第{rnd}轮）", app_name)
             return True
-        if back_key:
+        if corner and not wh and back_key:
+            # 取不到窗口尺寸 -> corner 打不了，退回系统返回键（用户原始需求②）
             self.d.press("back")
             self.recorder.log(f"弹窗清扫: 系统返回键（第{rnd}轮）", app_name)
             return True
+        # corner 未启用（或第 2 轮起已禁用）-> 不做任何盲操作。
+        # 2026-10-30：back 必须受 corner 这个「盲操作总开关」约束。否则把
+        # corner_fallback 关掉之后，back 会变成 AD_MARKERS 命中就按 BACK ——
+        # 而视频流首页天然带「广告/下载」字样，一按 BACK 直接退出 App。
         return False
 
     def _step_home(self, act, app_name):
         if not self.dry_run:
             self.d.press("home")
         self.recorder.log("回到桌面", app_name)
+        return True
 
     # ---------- 收益识别 ----------
     def _step_reward(self, act, app_name):

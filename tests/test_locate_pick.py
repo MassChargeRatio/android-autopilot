@@ -87,11 +87,16 @@ def t_exact_beats_clickable():
 
 
 def t_reject_long_text():
+    """FAQ 问句是超长唯一候选 -> 仍判误命中（打分改造后此行为必须保持）。
+
+    2026-10-28：文案从「过长文案」改为「噪声文案」——旧版按长度阈值拒，
+    新版按句式甄别拒；判定结果不变，日志措辞更新。
+    """
     ex = _mk()
     obj = _Objs([{"text": "什么是签到领钱，如何参加？", "clickable": False}])
     best = ex._pick_best(obj, "签到", "text")
     assert best is None, f"应判为误命中，实际返回 {best.info if best else None}"
-    assert any("过长文案" in l for l in ex.recorder.lines), ex.recorder.lines
+    assert any("噪声" in l for l in ex.recorder.lines), ex.recorder.lines
     print("OK  长文案误命中被拒配（返回 None）")
 
 

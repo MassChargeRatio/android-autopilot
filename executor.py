@@ -106,3 +106,31 @@ class Executor(DeviceSession, Locator, BehaviorRunner):
         popups_cfg = (config or {}).get("popups") or {}
         self._popups_cfg = popups_cfg
         self._popups_enabled = bool(popups_cfg.get("enabled", False))
+
+        # B1（2026-10-30）：any_of 整次总预算。默认 30 = 现行为（老配置零影响）；
+        # 要收窄的 App 在那一步的 act 里写 total_timeout，或改这里全局默认。
+        timeouts_cfg = (config or {}).get("timeouts") or {}
+        try:
+            self._any_of_total = float(timeouts_cfg.get("any_of_total", 30.0))
+        except (TypeError, ValueError):
+            self._any_of_total = 30.0
+
+        # RPC 超时（2026-10-31）：u2 库默认 300s，实测两个 App 各卡死 300 秒无日志。
+        # 默认 20s —— dump/click 正常在 1.5s 内，20s 足够，异常时能及时抛错重试。
+        dev_cfg = (config or {}).get("device") or {}
+        try:
+            self.rpc_timeout = float(dev_cfg.get("rpc_timeout", 20.0))
+        except (TypeError, ValueError):
+            self.rpc_timeout = 20.0
+
+        # RPC 栈溢出重试（2026-11-01 微博实崩）：RPCStackOverflowError 对应 Android 侧
+        # java.lang.StackOverflowError，瞬态（动态层级过深时 dump 失败，unwind 后即恢复）。
+        # 重试上限内退避重来；超限记「步骤失败」继续跑，不让单次溢出崩掉整条 App 流程。
+        try:
+            self.rpc_retries = int(dev_cfg.get("rpc_retries", 2))
+        except (TypeError, ValueError):
+            self.rpc_retries = 2
+        try:
+            self.rpc_backoff = float(dev_cfg.get("rpc_backoff", 0.8))
+        except (TypeError, ValueError):
+            self.rpc_backoff = 0.8

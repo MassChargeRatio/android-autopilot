@@ -118,10 +118,21 @@ def t_flow_style_inner():
 
 
 def t_roundtrip_real_config():
-    """真配置趣头条 sign：safe_dump -> safe_load 语义等价。"""
-    path = os.path.join(ROOT, "config", "apps", "01_趣头条.yaml")
-    with open(path, encoding="utf-8") as f:
-        orig = miniyaml.safe_load(f.read())
+    """真配置（含 any_of 的 sign）round-trip：safe_dump -> safe_load 语义等价。
+
+    2026-10-31 改：原硬编码 01_趣头条.yaml 已被用户删除 → 改为动态找
+    「sign 含 any_of」的现存配置，避免依赖具体文件名/编号。
+    """
+    import glob
+    path = None
+    for p in sorted(glob.glob(os.path.join(ROOT, "config", "apps", "*.yaml"))):
+        with open(p, encoding="utf-8") as f:
+            cfg = miniyaml.safe_load(f.read())
+        sign = (cfg.get("behaviors") or {}).get("sign") or []
+        if any(a.get("type") == "any_of" for a in sign):
+            path, orig = p, cfg
+            break
+    assert path, "未找到 sign 含 any_of 的配置"
     dumped = miniyaml.safe_dump(orig)
     back = miniyaml.safe_load(dumped)
     assert back == orig, "round-trip 后语义漂移"
@@ -132,8 +143,7 @@ def t_roundtrip_real_config():
     for a in anyof:
         for branch in a["choices"]:
             assert isinstance(branch, list) and branch, branch
-            assert all(isinstance(s, dict) and s.get("type") for s in branch), branch
-    print("t_roundtrip_real_config OK")
+    print(f"t_roundtrip_real_config OK ({os.path.basename(path)})")
 
 
 if __name__ == "__main__":

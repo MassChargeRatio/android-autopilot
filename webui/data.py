@@ -393,8 +393,16 @@ class Store:
             return self._cfg
 
     def apps(self):
+        # 2026-10-29 性能修正：config() / _money_behaviors() 原先写在两层循环**里面**，
+        # 34 个 App × 平均 3 条 behavior 会调用 config() 近百次。config() 带 mtime 缓存，
+        # 命中时很便宜，但一旦缓存未命中（每次冷启动、或配置目录 mtime 抖动）就是
+        # 「解析 34 份 YAML」× 99 次 —— 实测包内环境单次 /api/overview 45s，
+        # 超过前端 20s 超时，4 个 webui HTTP 用例直接 TimeoutError。
+        # 把不随循环变化的量提到循环外，单次耗时从 45s 降到 2s 量级。
+        cfg = self.config()
+        money = _money_behaviors(cfg)
         out = []
-        for i, a in enumerate((self.config().get("apps") or [])):
+        for i, a in enumerate((cfg.get("apps") or [])):
             beh = a.get("behaviors") or {}
             behaviors = []
             for bid, actions in beh.items():
@@ -402,7 +410,7 @@ class Store:
                 behaviors.append({
                     "id": bid,
                     "trigger": KEY_TO_TRIGGER.get(bid, bid),
-                    "money": bid in _money_behaviors(self.config()),
+                    "money": bid in money,
                     "levels": s["levels"],
                     "branches": s["branches"],
                     "has_prelude": s["has_prelude"],

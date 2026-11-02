@@ -68,9 +68,13 @@ class _Human:
 class _Dev:
     def __init__(self):
         self.swipes = []
+        self.presses = []
 
     def swipe(self, sx, sy, ex, ey, duration=0.5):
         self.swipes.append((sx, sy, ex, ey))
+
+    def press(self, key):
+        self.presses.append(key)
 
 
 def _mk():
@@ -193,6 +197,50 @@ def t_swipe_plain_still_uses_trajectory():
     print("OK  普通 swipe 仍走人类轨迹（行为未变）")
 
 
+def t_swipe_returns_true_contract_satisfied():
+    """契约回归钉：swipe 成功路径必须返回 True（gesture 契约只认 bool）。
+
+    2026-10-31 全量 35 app 实测：`_step_swipe` 所有成功路径都是裸 return（返回 None），
+    `_check_return` 见 None ∉ {bool} → 记「返回值契约违反: swipe(gesture) 返回 None」
+    并把已真实执行的滑动判成失败。全量 17 处 / 16 app 因此误报（拼多多/一淘/抖音…）。
+    本钉：改后 swipe 成功必须返回 True，且经 `_run_kind` 契约检查不违反。
+    """
+    # 有 from/to → 人类轨迹路径
+    ex = _mk()
+    ex.d = _Dev()
+    ex.dry_run = False
+    br.win_wh = lambda d: (1080, 2340)
+    act = {"type": "swipe", "from": [0.5, 0.7], "to": [0.5, 0.3]}
+    assert ex._step_swipe(act, "T") is True
+    assert ex._run_kind(act, "T") is True
+    # 无 from/to + natural → 随机自然滑动路径
+    ex2 = _mk()
+    ex2.d = _Dev()
+    ex2.dry_run = False
+    act2 = {"type": "swipe", "natural": True}
+    assert ex2._step_swipe(act2, "T") is True
+    assert     ex2._run_kind(act2, "T") is True
+    print("OK  swipe 成功路径返回 True，契约不违反（修复 返回值契约违反 误报）")
+
+
+def t_key_back_home_return_true_contract_satisfied():
+    """契约回归钉：back/home（key 类别）成功路径必须返回 True。
+
+    2026-10-31 全量实测：`_step_back`/`_step_home` 成功路径无 return（返回 None），
+    key 契约只认 bool → 记「返回值契约违反: back(key) 返回 None」并判失败
+    （今晚 飞猪旅行 1 处）。本钉：改后 back/home 成功必须返回 True 且 `_run_kind` 不违反。
+    """
+    ex = _mk()
+    ex.d = _Dev()
+    ex.dry_run = False
+    assert ex._step_back({"type": "back"}, "T") is True
+    assert ex._run_kind({"type": "back"}, "T") is True
+    assert ex._step_home({"type": "home"}, "T") is True
+    assert ex._run_kind({"type": "home"}, "T") is True
+    assert "back" in ex.d.presses and "home" in ex.d.presses, ex.d.presses
+    print("OK  back/home 成功路径返回 True，契约不违反（修复 back 返回值契约违反 误报）")
+
+
 # ---------- ③ behavior 名规范化 ----------
 
 def t_nlu_sign_not_hijacked_by_growth():
@@ -235,6 +283,53 @@ def t_config_kuaishou_gift_behavior():
     app = next(a for a in cfg["apps"] if a["name"] == "快手")
     assert "gift" in app["behaviors"], list(app["behaviors"])
     print("OK  快手：白拿礼物 → gift（标准意图名）")
+
+
+def t_dedup_consecutive_same_behavior_dry():
+    """2026-11-01 抖音火山版三连超时根因：sign→reserve + reserve→reserve 使
+    reserve 行为跑两遍（每遍 ~150-200s），叠加冷启动间隔与 watch 后单 app 超
+    300s 上限。去重后 dry-run 预览只显示一遍 reserve，并提示跳过重复。"""
+    app_cfg = {
+        "name": "T", "package": "com.t",
+        "intent_map": {"sign": "reserve", "watch": "watch"},
+        "behaviors": {"reserve": [{"type": "wait", "seconds": 1}],
+                      "watch": [{"type": "wait", "seconds": 1}]},
+    }
+    rec = _Rec()
+    ex = Executor("fake-serial", _Human(), rec, dry_run=True, config={})
+    ex.run_app_flow(app_cfg, [("sign", "签到"), ("reserve", "预约"),
+                              ("bonus", "领红包"), ("watch", "看视频")])
+    joined = "\n".join(rec.lines)
+    assert joined.count("行为[reserve]:") == 1, joined
+    assert joined.count("行为[watch]:") == 1, joined
+    assert "未配置行为，跳过" in joined, joined   # bonus 无行为
+    assert "跳过重复执行" in joined, joined      # reserve→reserve 去重
+    print("OK  去重：dry-run 连续同行为只显示一遍（sign→reserve + reserve→reserve 收敛为一次）")
+
+
+def t_dedup_consecutive_same_behavior_real():
+    """真实执行路径：连续同行为只跑一次，不重复执行。"""
+    app_cfg = {
+        "name": "T", "package": "com.t",
+        "intent_map": {"sign": "reserve", "watch": "watch"},
+        "behaviors": {"reserve": [{"type": "wait", "seconds": 1}],
+                      "watch": [{"type": "wait", "seconds": 1}]},
+    }
+    ran = []
+    rec = _Rec()
+    ex = Executor("fake-serial", _Human(), rec, dry_run=False, config={})
+    ex._open_app = lambda pkg, name, reset=False: None
+    ex._run_actions = lambda actions, name, bid: ran.append(bid) or True
+    ex._reset_to_landing = lambda pkg, name, max_back=3: None
+    ex._maybe_sweep_popups = lambda *a, **k: None
+    ex._close_app = lambda name: None
+    ex.human.think = lambda *a, **k: None
+    ex.run_app_flow(app_cfg, [("sign", "签到"), ("reserve", "预约"),
+                              ("bonus", "领红包"), ("watch", "看视频")])
+    assert ran == ["reserve", "watch"], ran
+    joined = "\n".join(rec.lines)
+    assert "跳过重复执行" in joined, joined
+    print("OK  去重：真实路径 reserve 只跑一次，bonus 跳过，watch 跑一次")
 
 
 if __name__ == "__main__":

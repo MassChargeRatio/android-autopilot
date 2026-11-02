@@ -5,7 +5,8 @@
   1. nav 带边界：top == NAV_BAND_Y * screen_h 恰好算带内（>= 判据）；
   2. 平局取先：完全同分时返回先出现的下标；
   3. screen_h=0 时跳过 nav 带内加分（未知屏高不猜）；
-  4. 拒配 limit 边界：len == limit 接受、len == limit+1 且不可点击拒绝。
+  4. ~~拒配 limit 边界~~ 2026-10-28 改造：limit+1 且不可点击不再一票否决，
+     非噪声句式打分兜底放行、FAQ/通知句式维持拒绝。
 
 运行：
     python -m pytest tests/test_pick_best_pure.py -q
@@ -59,18 +60,37 @@ def test_screen_h_zero_skips_nav():
     print("OK  screen_h=0 跳过 nav 加分")
 
 
-def test_limit_boundary_accept_and_reject():
-    """拒配 limit 边界：len==limit 接受，len==limit+1 且不可点击拒绝。"""
+def test_limit_boundary_accept_and_noise_reject():
+    """长度阈值边界语义（2026-10-28 版）：
+
+    - len<=limit 照常接受；
+    - len==limit+1 且不可点击：**非噪声**句式打分兜底放行（旧版此处拒配），
+      **噪声**句式（FAQ/通知/疑问）维持拒绝 —— 后者由
+      test_overlong_faq_still_rejected 与 salvage 系列用例锁定。
+    本用例用纯数字长串（无目标词、无标点收尾、无噪声标记）验证「放行」侧。
+    """
     # target='签到' len=2 -> limit=max(8,6)=8
     accept = pick_best([{"label": "12345678", "clickable": False, "top": 0}],
                        "签到", "text", 0)
     assert accept == 0, "len==limit 应被接受"
     lines = []
-    reject = pick_best([{"label": "123456789", "clickable": False, "top": 0}],
-                       "签到", "text", 0, _log(lines))
-    assert reject is None, "len==limit+1 且不可点击应被拒配"
-    assert any("过长文案" in m for _l, m in lines), lines
-    print("OK  limit 边界：len==limit 接受 / +1 拒")
+    salvage = pick_best([{"label": "123456789", "clickable": False, "top": 0}],
+                        "签到", "text", 0, _log(lines))
+    assert salvage == 0, "len==limit+1 且非噪声 -> 兜底放行（新语义）"
+    assert any("兜底" in m for _l, m in lines), \
+        f"放行必须留 WARN 痕迹，实际 {lines}"
+    print("OK  limit 边界：<=limit 接受 / +1 非噪声兜底放行+WARN")
+
+
+def test_overlong_faq_still_rejected():
+    """经典冤案反例：FAQ 问句是超长唯一候选时仍判误命中（行为不回退）。"""
+    lines = []
+    entries = [{"label": "什么是签到领钱，如何参加？什么是签到领钱，如何参加？",
+                "clickable": False, "top": 900}]
+    idx = pick_best(entries, "签到", "text", 2340, _log(lines))
+    assert idx is None, f"FAQ 长句应维持拒绝，实际 {idx}"
+    assert any("噪声" in m for _l, m in lines), lines
+    print("OK  FAQ 超长句维持拒配")
 
 
 if __name__ == "__main__":

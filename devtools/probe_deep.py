@@ -129,11 +129,24 @@ def find_first(nodes, keywords, require_clickable=False):
 
 
 def _ok_len(node, target, kind):
+    """长度闸门 —— 与执行器 pick_locate.pick_best 同口径（度量与执行同口径纪律）。
+
+    2026-10-28 改造：旧版「超长且不可点 = 一律滤掉」会连营销后缀按钮一起扔
+    （'立即签到 +1000火龙币'、'京东金融通知：签到即将中断' 旁的真入口）。
+    现改为复用 pick_locate 的句式甄别：噪声句式（FAQ/通知/说明句）照旧滤除，
+    其余超长文案放行给排序层（可点击优先 + 短文本优先，超长非可点自然沉底）。
+    """
     if kind not in ("text", "desc"):
         return True
     label = node["text"] if kind == "text" else node["desc"]
     limit = max(len(str(target)) + 6, len(str(target)) * 3)
-    return not (len(label) > limit and not node["clickable"])
+    if len(label) <= limit or node["clickable"]:
+        return True
+    try:
+        from pick_locate import is_noise_label
+        return not is_noise_label(label, target)
+    except ImportError:  # pragma: no cover - 探针单独拷走时退回旧硬滤
+        return False
 
 
 def probe_one(d, app_cfg, behavior, log, max_l2=3):

@@ -12,12 +12,21 @@ _click_tracked（L657-666）、_vision_or_miss（L668-675）、_vision_click
 方法体内通过 `self._xxx` 同名可覆盖入口互相调用：本类被 executor.py 门面
 多继承后，self 是 Executor 实例，tests 对 Executor 实例打桩仍然生效。
 """
+import time
 from dataclasses import dataclass
 
 try:
     from pick_locate import pick_best
 except ImportError:  # pragma: no cover - 未拷贝 pick_locate.py 时退化为本地兜底
     pick_best = None
+
+# RPC 栈溢出（2026-11-01 微博实崩定位）：RPCError 族继承 BaseException 而非 Exception，
+# 所以现有 `except Exception` 全部漏接，溢出会直接穿出崩掉整条流程。这里惰性导入异常类。
+# 无 uiautomator2 的环境（tests）退回空元组 —— `except ()` 合法且永不匹配，行为零变化。
+try:
+    from uiautomator2.exceptions import RPCStackOverflowError as _RPCStackOverflowError
+except Exception:  # pragma: no cover - 测试环境无 uiautomator2 依赖
+    _RPCStackOverflowError = ()
 
 
 def _parse_sel(sel):
@@ -46,7 +55,7 @@ class LocateResult:
 class Locator:
     """元素定位层：_locate/_pick_best、元素知识库辅助、视觉兜底回退链。"""
 
-    def _locate(self, kind, value, timeout=6.0, zone=None, screen_w=0):
+    def _locate(self, kind, value, timeout=6.0, zone=None, screen_w=0, poll=0.25):
         """定位元素，返回 LocateResult(hit, obj, detail)。
 
         坑位记录：`textContains` 会命中"长文案里恰好包含关键词"的节点。
@@ -57,27 +66,52 @@ class Locator:
 
         B6：定位失败不再抛异常，统一返回 hit=False 的 LocateResult。
         第3步：zone/screen_w 位置先验透传 _pick_best（多匹配时按区加分）。
+
+        B2（2026-10-30）：把「一次 wait(timeout=6.0) 阻塞 6 秒」拆成 poll 粒度轮询。
+        命中即返回（语义不变）；差别在**未命中**时——原来必须睡满 timeout 才返回，
+        现在每 poll 秒重查一次，元素中途出现就立刻返回。
+        这条直接影响弹窗清扫：它要顺序试 13 个关闭文案，每次 timeout=0.8，
+        原实现干净屏一轮就是 13×0.8=10.4s（快手实测 3 轮 37s 的主因之一）。
         """
         # dry-run / 未连接设备：不 import uiautomator2，直接返回未命中
         if self.d is None or self.dry_run:
             return LocateResult(False, None, "dry-run 或未连接设备，跳过定位")
-        import uiautomator2 as u2  # noqa
         d = self.d
         value = str(value)
-        if kind == "text":
-            obj = d(textContains=value)
-        elif kind == "id":
-            obj = d(resourceId=value)
-        elif kind == "desc":
-            obj = d(descriptionContains=value)
-        else:
-            return LocateResult(False, None, f"未知定位类型: {kind}")
-        if not obj.wait(timeout=timeout):
-            return LocateResult(False, None, "等待超时，元素未出现")
-        best = self._pick_best(obj, value, kind, zone=zone, screen_w=screen_w)
-        if best is None:
-            return LocateResult(False, None, "候选拒配（长文案误命中，视为未命中）")
-        return LocateResult(True, best, "")
+        deadline = time.time() + max(0.0, float(timeout))
+        poll = max(0.02, float(poll))
+        rpc_failures = 0
+        while True:
+            try:
+                if kind == "text":
+                    obj = d(textContains=value)
+                elif kind == "id":
+                    obj = d(resourceId=value)
+                elif kind == "desc":
+                    obj = d(descriptionContains=value)
+                else:
+                    return LocateResult(False, None, f"未知定位类型: {kind}")
+                remain = deadline - time.time()
+                if obj.wait(timeout=min(poll, max(0.0, remain))):
+                    best = self._pick_best(obj, value, kind,
+                                           zone=zone, screen_w=screen_w)
+                    if best is not None:
+                        return LocateResult(True, best, "")
+                    # 命中但被拒配（长文案误命中）：不提前返回，继续找
+            except _RPCStackOverflowError:
+                # 微博实崩（2026-11-01）：Android 侧 java.lang.StackOverflowError 发生在
+                # 层级 dump 瞬间（动态树过深）。瞬态 —— Java 栈 unwind 后下一次 dump
+                # 往往就恢复。重试上限内退避重来；超限返回未命中（B6 契约：定位永不因
+                # 未命中抛异常，上层记「步骤失败」继续跑，不崩整条流程）。
+                rpc_failures += 1
+                if rpc_failures > self.rpc_retries or time.time() >= deadline:
+                    return LocateResult(
+                        False, None,
+                        f"RPC 栈溢出持续 {rpc_failures} 次，定位放弃")
+                time.sleep(self.rpc_backoff)
+                continue
+            if time.time() >= deadline:
+                return LocateResult(False, None, "等待超时，元素未出现")
 
     @staticmethod
     def _label_of(info, kind):
@@ -154,10 +188,20 @@ class Locator:
         relocate 回调重定位一次再点；仍失效抛 StepError（上层记
         「步骤失败」继续跑，不崩）。
 
+        坑位3（2026-11-01 微博实崩）：点击瞬间的第二次 dump 遇 Android 侧
+        java.lang.StackOverflowError（RPCStackOverflowError）。元素本身仍有效
+        （_locate 刚命中），只是 dump 递归过深 —— 瞬态，Java 栈 unwind 后即恢复。
+        与「元素失效」不同，这里**不 relocate**，而是退避重试 rpc_retries 次；
+        超限抛 StepError（上层记「步骤失败」继续跑，不崩流程）。
+
         兼容分支：测试/探针里的假元素带 `.rect` 属性对象。
         """
         lx = ly = rx = ry = None
-        for attempt in (0, 1):
+        rpc_attempts = 0
+        stale_attempts = 0
+        rpc_retries = getattr(self, "rpc_retries", 2)
+        rpc_backoff = getattr(self, "rpc_backoff", 0.8)
+        while True:
             try:
                 rect = getattr(obj, "rect", None)
                 if rect is not None and hasattr(rect, "left"):
@@ -165,11 +209,21 @@ class Locator:
                 else:
                     lx, ly, rx, ry = obj.bounds()
                 break
+            except _RPCStackOverflowError:
+                # 微博实崩：点击瞬间 dump 又溢出，瞬态。退避重试（Java 栈 unwind
+                # 需要时间），不 relocate（元素仍有效）；超限抛 StepError 继续跑。
+                rpc_attempts += 1
+                if rpc_attempts <= rpc_retries:
+                    time.sleep(rpc_backoff)
+                    continue
+                from behavior_runner import StepError
+                raise StepError("点击前 RPC 栈溢出（元素已失效）")
             except Exception as e:  # noqa: BLE001 - u2 RPC 错误族统一按失效处理
-                if attempt == 0 and relocate is not None:
+                if stale_attempts == 0 and relocate is not None:
                     fresh = relocate()
                     if fresh is not None and fresh is not obj:
                         obj = fresh
+                        stale_attempts += 1
                         continue
                 from behavior_runner import StepError
                 raise StepError(

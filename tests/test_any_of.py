@@ -128,14 +128,21 @@ def t_step_error_treated_as_miss():
 
 
 def t_all_miss_optional_pass():
-    """全部分支未命中 + optional → 返回 False，不抛异常。"""
+    """全部分支未命中 + optional → 返回 **True**（放行），不抛异常。
+
+    2026-10-29 契约修正：此前这里断言 False，理由是"没命中就是没命中"。
+    但日志一直写的是「optional 放行」，而放行在语义上等于"本步不算失败"。
+    日志说放行、返回值说失败，外层 `_run_kind` 只认返回值，于是 49 处
+    optional 的 any_of 全 miss 都被记成「步骤失败」，体检报告因此长期偏红。
+    现在返回值与日志同义：True。
+    """
     calls = []
     ex = _mk(_scripted({("a", 1): False}, calls))
     act = {"type": "any_of", "optional": True,
            "choices": [[{"type": "a", "tag": 1}]]}
-    assert ex._step_any_of(act, "T") is False
+    assert ex._step_any_of(act, "T") is True
     assert any("optional 放行" in l for l in ex.recorder.lines), ex.recorder.lines
-    print("OK  全部分支未命中 + optional 放行（返回 False）")
+    print("OK  全部分支未命中 + optional 放行（返回 True，与日志同义）")
 
 
 def t_all_miss_returns_false_warn():
@@ -240,7 +247,7 @@ def t_three_level_mid_miss_stops_branch():
         [{"type": "nav", "tag": 1}, {"type": "mid", "tag": 1},
          {"type": "anchor", "tag": 1}],
     ]}
-    assert ex._step_any_of(act, "T") is False     # 全分支未命中 + optional
+    assert ex._step_any_of(act, "T") is True      # 全分支未命中 + optional 放行
     assert ("anchor", 1) not in calls, "中间入口失败后不应继续点锚点"
     print("OK  三级分支中间入口失败即中断，不误点后续锚点")
 
