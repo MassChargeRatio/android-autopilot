@@ -41,15 +41,16 @@ behaviors:
       retry: 2
   - type: think
   - type: click_point
-    x: 0.814
-    y: 0.623
+    x: 0.819
+    y: 0.714
     images:
     - images/蛋花免费小说/btn_qiandao.png
     timeout: 8
     optional: true
-    desc: 福利页「签到领金币」[去签到]（真机中心 (879,1458)；模板自匹配 0.9999 / 首页误匹配 0.65）
+    desc: 福利页「签到领金币」[去签到]（2026-11-02 18:14 实机模板命中 (885,1671)=(0.819,0.714)；旧 (879,1458) 已失效——11.11 卡下移 ~213px）
     expect:
-      # 只比弹窗白卡区(0.30-0.55)：今日弹窗 vs ref 差 7，福利页 28、首页 22 -> 阈值 14
+      # 2026-11-02 待次日未签态刷新：ref_dialog.png 已过期（18:14 落地 phash FAIL 29/36）。
+      # 11.11 后「立即签到」弹窗布局已变，需在次日（未签态）重新截取新弹窗图并刷新本 ref。
       phash: images/蛋花免费小说/landing/ref_dialog.png
       phash_region: [0.0, 0.30, 1.0, 0.55]
       phash_max_dist: 14
