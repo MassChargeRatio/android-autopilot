@@ -8,6 +8,10 @@ intent_map:
   bonus: bonus
 behaviors:
   collect:
+  # 2026-11-03 实机复查：任务中心=WebView/H5，`领取/天天签到/任务` 文本**不在可及树**
+  # （dump 仅 76 节点；惊喜1K币「领取」点击→全屏广告京东保，看15s得奖励）。
+  # → 文本链第二步（领取）找不到，collect 失效。待专项：视觉/坐标定位或改手工。
+  # 入口仍可达：desc「任务中心」@[66,129][150,213]（clickable=false ImageView，u2 desc 点击可进）。
   - type: click_first
     candidates:
     - type: text
