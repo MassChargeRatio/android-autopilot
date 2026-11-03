@@ -280,6 +280,10 @@ def t_all_app_configs_compile():
     弹窗）——删掉一个带 optional 的 click_point（弹窗按钮）-> WARN 117 -> 116。
     2026-11-03 改：快手 bonus 重校（宝箱入口改右下浮动红盒，删旧 红包图标/点可领
     模板，保留关闭X）-> 步数 379 -> 378，WARN 116 -> 115。
+    2026-11-03 改：美团 sign 修正（派单卡 AUTOP-2026-11-03-族A续 任务1：11-02
+    「今日签到行已移除」系 WebView dump 漏抓误判，sign 尾部红包条步(1步)替换为
+    any_of[去签到文本/坐标兜底]+think+关弹窗X(3步)）+ watch 重校（模板 32c261fe 失效，
+    改 click_first 去浏览/看短剧/一键领取，仍 1 步）-> 步数 378 -> 380，WARN 115 -> 114。
     """
     from miniyaml import safe_load
     total = 0
@@ -306,8 +310,8 @@ def t_all_app_configs_compile():
                 elif i["level"] == "WARN":
                     warns += 1
     assert not errors, errors
-    assert total == 378, f"顶层步骤数应为 378，实际 {total}"
-    assert warns == 115, f"死 optional WARN 应为 115，实际 {warns}"
+    assert total == 380, f"顶层步骤数应为 380，实际 {total}"
+    assert warns == 114, f"死 optional WARN 应为 114，实际 {warns}"
     assert legacy == {"scroll_to": 1}, legacy
     print(f"OK  35 份配置 {total} 步全编译，0 ERROR，{warns} WARN")
 

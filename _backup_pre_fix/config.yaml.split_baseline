@@ -205,15 +205,32 @@ apps:
         settle: 3.5
         retry: 1
     - type: think
-    - type: click_point
-      x: 0.22
-      y: 0.397
-      images:
-      - images/美团/btn_qiandao.png
-      timeout: 8
+    - type: any_of
       optional: true
-      desc: 赚钱中心「看视频赚更多金币」红包条今日格（真机中心 (238,930)，2026-11-03 重校：点后 +2727金币；btn_qiandao.png
-        为旧[去签到]图像锚，已失效仅作锚点占位，命中失败走坐标兜底）
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去签到
+          - type: text
+            value: 今日签到
+          timeout: 8
+          optional: false
+      - - type: click_point
+          x: 0.188
+          y: 0.319
+          timeout: 6
+          optional: false
+          vision: false
+          desc: 「每日轻松赚」卡[去签到]坐标兜底（2026-11-03 晚 dump 实测 (203,746)；下午取证变体 (205,820)=(0.19,0.35)）
+    - type: think
+    - type: click_point
+      x: 0.499
+      y: 0.73
+      timeout: 6
+      optional: true
+      vision: false
+      desc: 签到奖励弹窗 X 关闭（变体A X=(539,1709) 2026-11-03 晚实测命中；变体B X=(540,1290) 不在此位但该点落其卡外遮罩无害；禁点「添加桌面组件」主按钮陷阱）
     withdraw:
     - type: click_point
       images:
@@ -247,12 +264,18 @@ apps:
       optional: true
       desc: 图像-美团-任务列表-关闭
     watch:
-    - type: click_point
-      images:
-      - images/美团/32c261fe-128b-4dd9-b15c-c56a71478108.png
-      timeout: 6
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去浏览
+      - type: text
+        value: 看短剧
+      - type: text
+        value: 一键领取
+      timeout: 8
       optional: true
-      desc: 图像-美团-任务界面-视频
+      desc: 赚钱中心 watch 类入口（去浏览=浏览60秒得金币任务 / 看短剧得金币 / 一键领取；2026-11-03 晚重校，旧模板 32c261fe
+        已随 11.11 改版失效）
 - name: 支付宝
   package: com.eg.android.AlipayGphone
   aliases:
