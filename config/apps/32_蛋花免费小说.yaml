@@ -50,9 +50,11 @@ behaviors:
     optional: true
     desc: 福利页「签到领金币」[去签到]（2026-11-03 实机：模板已加载视图命中 (885,1724)=(0.819,0.737) score 0.9974；灰占位符误匹配仅 0.92 → 步骤级 template_threshold 0.96 只认真按钮；旧 (879,1458) 已失效）
     expect:
-      # 2026-11-03 实测：ref_dialog.png 已损坏（libpng bad adaptive filter，Oct24 起即坏，
-      # Image.open().convert("RGB") 抛 OSError）→ 落地校验恒假阴性。engine 已加容错（损坏→跳过）。
-      # 待红包雨浮层可绕过时重拍「立即签到」弹窗并替换本 ref（现仍占位，勿用）。
+      # 2026-11-03 晚重拍成功（派单卡 AUTOP-2026-11-03-族A续 任务3）：点「签到领金币」行
+      # 触发真弹窗（今日未签态「今日签到领1088金币/已连续签到5天/立即签到+1088金币」，
+      # 无红包雨遮挡），ref_dialog.png 已替换为真身整屏截图（旧损坏图备份
+      # temp/recycle_20261103_eggref/）。复核：弹窗自比 dist=0，无弹窗福利页 dist=30
+      # （阈值 14，区分度充足）。红包雨未触发——若某日触发仍可能挡点击，届时再专项。
       phash: images/蛋花免费小说/landing/ref_dialog.png
       phash_region: [0.0, 0.30, 1.0, 0.55]
       phash_max_dist: 14
