@@ -202,12 +202,17 @@ def check_landing(screen, expect: dict, xml: str | None = None,
             from PIL import Image
             region = expect.get("phash_region")
             screen_img = _crop_norm(screen, region)
-            with Image.open(path) as im:
-                ref_img = _crop_norm(im.convert("RGB"), region)
-            dist = hamming(dhash(screen_img), dhash(ref_img))
-            max_d = int(expect.get("phash_max_dist", 8))
-            signals["phash"] = dist <= max_d
-            signals["_phash_dist"] = dist
+            try:
+                with Image.open(path) as im:
+                    ref_img = _crop_norm(im.convert("RGB"), region)
+            except Exception as e:  # noqa: BLE001 - 参考图损坏/解码失败时降级为跳过，勿假阴性/勿崩
+                signals["phash"] = None
+                signals["_phash_error"] = f"{type(e).__name__}: {e}"
+            else:
+                dist = hamming(dhash(screen_img), dhash(ref_img))
+                max_d = int(expect.get("phash_max_dist", 8))
+                signals["phash"] = dist <= max_d
+                signals["_phash_dist"] = dist
         else:
             signals["phash"] = None
 

@@ -3128,13 +3128,14 @@ apps:
     - type: think
     - type: click_point
       x: 0.819
-      y: 0.714
+      y: 0.737
       images:
       - images/蛋花免费小说/btn_qiandao.png
+      template_threshold: 0.96
       timeout: 8
       optional: true
-      desc: 福利页「签到领金币」[去签到]（2026-11-02 18:14 实机模板命中 (885,1671)=(0.819,0.714)；旧 (879,1458)
-        已失效——11.11 卡下移 ~213px）
+      desc: 福利页「签到领金币」[去签到]（2026-11-03 实机：模板已加载视图命中 (885,1724)=(0.819,0.737) score
+        0.9974；灰占位符误匹配仅 0.92 → 步骤级 template_threshold 0.96 只认真按钮；旧 (879,1458) 已失效）
       expect:
         phash: images/蛋花免费小说/landing/ref_dialog.png
         phash_region:

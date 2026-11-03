@@ -42,15 +42,17 @@ behaviors:
   - type: think
   - type: click_point
     x: 0.819
-    y: 0.714
+    y: 0.737
     images:
     - images/蛋花免费小说/btn_qiandao.png
+    template_threshold: 0.96
     timeout: 8
     optional: true
-    desc: 福利页「签到领金币」[去签到]（2026-11-02 18:14 实机模板命中 (885,1671)=(0.819,0.714)；旧 (879,1458) 已失效——11.11 卡下移 ~213px）
+    desc: 福利页「签到领金币」[去签到]（2026-11-03 实机：模板已加载视图命中 (885,1724)=(0.819,0.737) score 0.9974；灰占位符误匹配仅 0.92 → 步骤级 template_threshold 0.96 只认真按钮；旧 (879,1458) 已失效）
     expect:
-      # 2026-11-02 待次日未签态刷新：ref_dialog.png 已过期（18:14 落地 phash FAIL 29/36）。
-      # 11.11 后「立即签到」弹窗布局已变，需在次日（未签态）重新截取新弹窗图并刷新本 ref。
+      # 2026-11-03 实测：ref_dialog.png 已损坏（libpng bad adaptive filter，Oct24 起即坏，
+      # Image.open().convert("RGB") 抛 OSError）→ 落地校验恒假阴性。engine 已加容错（损坏→跳过）。
+      # 待红包雨浮层可绕过时重拍「立即签到」弹窗并替换本 ref（现仍占位，勿用）。
       phash: images/蛋花免费小说/landing/ref_dialog.png
       phash_region: [0.0, 0.30, 1.0, 0.55]
       phash_max_dist: 14

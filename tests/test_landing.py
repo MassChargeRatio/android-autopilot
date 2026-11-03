@@ -111,6 +111,22 @@ def test_check_phash_ref():
     print("OK  phash：与参考截图一致通过，不一致失败")
 
 
+def test_check_phash_corrupt_ref_degrades():
+    """参考图损坏（解码抛 OSError）时应降级为跳过（ok=None + _phash_error），不假阴性也不崩。
+    回归钉：2026-11-03 蛋花 ref_dialog.png 实测损坏（libpng bad adaptive filter），
+    旧代码 Image.open().convert("RGB") 抛 OSError 未捕获 → 落地校验恒假阴性。"""
+    with tempfile.TemporaryDirectory() as tmp:
+        ref = os.path.join(tmp, "corrupt.png")
+        with open(ref, "wb") as f:
+            # 合法 PNG 头 + 非法 IDAT（bad adaptive filter），可触发解码失败
+            f.write(b"\x89PNG\r\n\x1a\n" + b"\x00" * 400)
+        r = landing.check_landing(_img(), {"phash": ref})
+        assert r["ok"] is None, f"损坏参考图应降级为 ok=None，实际 {r['ok']}"
+        assert "_phash_error" in r["signals"], "应记录 _phash_error"
+        assert r["signals"].get("phash") is None
+    print("OK  phash：损坏参考图降级为跳过（ok=None），不崩不假阴性")
+
+
 def test_min_pass_allows_partial():
     xml = '<h><node text="别的页面"/></h>'
     expect = {"text_any": ["金币"], "min_nodes": 1, "min_pass": 1}
