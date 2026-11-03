@@ -268,14 +268,16 @@ def t_compile_actions_keeps_variant_levels():
 # ---------- ④ 真配置全量编译（最强的一条） ----------
 
 def t_all_app_configs_compile():
-    """35 份 App 配置的 **382 个顶层步骤**全部编译通过，且 lint 无 ERROR。
+    """35 份 App 配置的 **379 个顶层步骤**全部编译通过，且 lint 无 ERROR。
 
     合成用例测不出"某个 type 忘了登记 LEGACY_TO_V2"这类漏项 ——
-    只有拿真配置全量跑一遍才行。实测基线：382 步 / 0 失败 / 116 WARN。
+    只有拿真配置全量跑一遍才行。实测基线：379 步 / 0 失败 / 116 WARN。
     2026-10-31 改：35-app 重排（删趣头条/加快手极速版/河马畅听）后
     基线由 389 步/112 WARN/legacy{ensure,scroll_to} 变为 383/116/{scroll_to}。
     2026-11-02 改：悟空浏览器删掉已失效的冷启动 `wait 3s`（全屏播放页盖住导航，
     固定 wait 会把 ~2s 导航窗口睡过去）-> 383 -> 382。
+    2026-11-03 改：快手极速版 sign 重校（去赚钱入口直达任务中心、直接签到无中间
+    弹窗）——删掉一个带 optional 的 click_point（弹窗按钮）-> WARN 117 -> 116。
     """
     from miniyaml import safe_load
     total = 0
@@ -303,7 +305,7 @@ def t_all_app_configs_compile():
                     warns += 1
     assert not errors, errors
     assert total == 379, f"顶层步骤数应为 379，实际 {total}"
-    assert warns == 117, f"死 optional WARN 应为 117，实际 {warns}"
+    assert warns == 116, f"死 optional WARN 应为 116，实际 {warns}"
     assert legacy == {"scroll_to": 1}, legacy
     print(f"OK  35 份配置 {total} 步全编译，0 ERROR，{warns} WARN")
 

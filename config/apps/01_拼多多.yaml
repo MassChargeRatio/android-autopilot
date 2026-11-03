@@ -55,12 +55,12 @@ behaviors:
   # 该页无「签到」二字、可点节点仅 22 个（纯自绘），文案/节点信号全部失效，
   # 靠 dHash 落地校验兜底（同页距离 0，跨页 12~33，阈值 8 有干净间隔）。
   - type: click_point
-    x: 0.856
-    y: 0.167
+    x: 0.902
+    y: 0.16
     timeout: 6
     optional: false
     vision: false
-    desc: 多多视频页右上缘圆形金币入口（2026-10-23 真机校准）
+    desc: 多多视频页右上缘圆形金币入口（2026-11-03 重校：11.11 版为浮动 HUD 徽标，实测命中点 (1043,424)/(961,330)/(918,370)，取中心 (974,374)；旧值 (924,390) 打不中）
     expect:
       phash: images/拼多多/landing/ref_coin.png
       phash_max_dist: 8
@@ -82,23 +82,23 @@ behaviors:
     to: [0.5, 0.35]
     duration: 0.4
   - type: click_point
-    x: 0.144
-    y: 0.505
+    x: 0.176
+    y: 0.557
     timeout: 6
     optional: false
     vision: false
-    desc: 金币中心7天连签条「今日可领」卡片（2026-10-23 真机校准）
+    desc: 金币中心7天连签条「今日可领」卡片（2026-11-03 重校：2 次上滑后连签条第 1 天格中心 (190,1303)，旧值 (155,1182) 落在补贴金卡片上；今日已签时该格为✓）
     expect:
       phash: images/拼多多/landing/ref_sign.png
       phash_max_dist: 8
       retry: 1
   - type: click_point
     x: 0.5
-    y: 0.628
+    y: 0.639
     timeout: 6
     optional: false
     vision: false
-    desc: 每日签到弹窗「领取今日现金」按钮（2026-10-23 真机校准）
+    desc: 每日签到弹窗「领取今日现金」按钮（2026-11-03 重校：真机中心 (540,1496)，旧值 (540,1469) 偏上 27px）
     expect:
       phash: images/拼多多/landing/ref_done.png
       phash_max_dist: 8

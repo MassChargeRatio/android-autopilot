@@ -33,27 +33,31 @@ behaviors:
   - type: think
   # 视频页右上角圆形金币徽标（内容会变：金币/现金）
   - type: click_point
-    x: 0.92
-    y: 0.204
+    x: 0.91
+    y: 0.203
     timeout: 8
     optional: false
     vision: false
-    desc: 视频页右上角圆形金币徽标（真机中心 (994,477)）
+    desc: 视频页右上角圆形金币徽标（2026-11-03 重校：真机中心 (983,474) 打开赚钱中心；徽标为浮动元素，内容在金币/现金间切换但位置固定）
     expect:
       phash: images/美团/landing/ref_center.png
       phash_max_dist: 12
       settle: 3.5
       retry: 1
   - type: think
-  # 赚钱中心「今日签到」[去签到]
+  # 2026-11-03 实机重校：11.11 改版后赚钱中心**已无「今日签到」行**（全 dump 243 节点无
+  # 「签到」二字）。签到功能被「看视频赚更多金币」7天红包条取代——点今日红包(3360进行中)
+  # 弹「恭喜您获得奖励」+2727金币。该红包条是每日金币领取，非「签到」文案，
+  # 按 sign_evidence 规则不构成「确认点到签到按钮」，仅记录金币入账。
+  # 旧配置 [去签到](231,650)+btn_qiandao.png 已失效，改为红包条今日格 (238,930)。
   - type: click_point
-    x: 0.214
-    y: 0.278
+    x: 0.22
+    y: 0.397
     images:
     - images/美团/btn_qiandao.png
     timeout: 8
     optional: true
-    desc: 赚钱中心[去签到]（图像锚点+坐标兜底）；后续弹窗会推桌面组件，见上方阻塞说明
+    desc: 赚钱中心「看视频赚更多金币」红包条今日格（真机中心 (238,930)，2026-11-03 重校：点后 +2727金币；btn_qiandao.png 为旧[去签到]图像锚，已失效仅作锚点占位，命中失败走坐标兜底）
   withdraw:
   - type: click_point
     images:
