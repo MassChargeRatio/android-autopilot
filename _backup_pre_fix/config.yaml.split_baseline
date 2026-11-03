@@ -1021,23 +1021,17 @@ apps:
   behaviors:
     bonus:
     - type: click_point
-      images:
-      - images/快手/e65cea03-918e-4297-9f92-b5eef52e88f3.png
+      x: 0.87
+      y: 0.906
       timeout: 6
       optional: true
-      desc: 图像-快手-任务界面-红包图标
-    - type: click_point
-      images:
-      - images/快手/150f0fd5-b06e-4eaa-af57-0245d629ed0e.png
-      timeout: 6
-      optional: true
-      desc: 图像-快手-点宝箱-点可领
+      desc: 任务中心右下[宝箱]红盒（真机中心 (940,2120)，2026-11-03 重校：开箱弹窗实测 36金币）
     - type: click_point
       images:
       - images/快手/c00e3080-8b4c-46aa-8478-74abc3a5a73f.png
       timeout: 6
       optional: true
-      desc: 图像-快手-点宝箱-关闭
+      desc: 开宝箱弹窗[关闭X]（真机 (983,455)，c00e3080 模板 2026-11-03 实测 0.996 命中）
     sign:
     - type: click_point
       x: 0.072
