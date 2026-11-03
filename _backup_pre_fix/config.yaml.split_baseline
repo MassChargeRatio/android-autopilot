@@ -3131,16 +3131,24 @@ apps:
         settle: 3.0
         retry: 2
     - type: think
+    - type: swipe
+      from:
+      - 0.5
+      - 0.684
+      to:
+      - 0.5
+      - 0.385
+      timeout: 6
+      optional: true
+      desc: 上滑滚入「签到领金币」行（实测 (540,1600)->(540,900)，滚后按钮 (885,399)）
     - type: click_point
-      x: 0.819
-      y: 0.737
       images:
       - images/蛋花免费小说/btn_qiandao.png
       template_threshold: 0.96
       timeout: 8
       optional: true
-      desc: 福利页「签到领金币」[去签到]（2026-11-03 实机：模板已加载视图命中 (885,1724)=(0.819,0.737) score
-        0.9974；灰占位符误匹配仅 0.92 → 步骤级 template_threshold 0.96 只认真按钮；旧 (879,1458) 已失效）
+      desc: 福利页「签到领金币」[去签到]（2026-11-04 实机：滚入视口后模板命中 (885,399) score 0.9899；**纯图像锚点无坐标兜底**——旧静态
+        (0.819,0.737) 在未滚动态恰指向「金币红包雨」行[领红包]，误点会拉起红包雨浮层，已移除）
       expect:
         phash: images/蛋花免费小说/landing/ref_dialog.png
         phash_region:
