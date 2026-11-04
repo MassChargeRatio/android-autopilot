@@ -131,11 +131,34 @@ def center(b):
 
 
 # ---------------- 缺口 1：foreground() ----------------
+def parse_resumed(dumpsys_activity_output):
+    """从 dumpsys activity activities 输出取顶部 ResumedActivity 的 (pkg, activity)。
+
+    2026-11-04 京东签到页 A/B 实测：vivo 智慧多窗下 dumpsys window 的
+    mCurrentFocus/mFocusedApp 会残留**幽灵窗口**（抖音 SplashActivity，HOME/
+    强杀都不消失）且排在首位，解析它会把前台误判成抖音（启动校验误判跳全量
+    行为的根因之一）。真值源是 dumpsys activity activities 的 ResumedActivity
+    —— 实测与 u2 app_current() 完全一致（都报 com.jingdong.app.mall）。
+    """
+    m = re.search(
+        r"(?:mResumedActivity|ResumedActivity):\s*ActivityRecord\{[^}]*?\s"
+        r"([\w.]+)/([\w.$]+)", dumpsys_activity_output or "")
+    if m:
+        return m.group(1), m.group(2)
+    return "", ""
+
+
 def foreground(timeout=15):
-    """当前前台包名。dumpsys window -> parse_foreground（mCurrentFocus 优先）。
+    """当前前台包名。优先 dumpsys activity activities 的 ResumedActivity
+    （抗多窗幽灵窗），失败回退 dumpsys window -> parse_foreground。
 
     返回包名字符串；取不到回 "" 不回 "?"（对齐 device_session 语义）。
     """
+    out = _run([ADB, "-s", SERIAL, "shell", "dumpsys", "activity", "activities"],
+               timeout=timeout)
+    pkg, _act = parse_resumed(out)
+    if pkg:
+        return pkg
     out = _run([ADB, "-s", SERIAL, "shell", "dumpsys", "window"], timeout=timeout)
     info = parse_foreground(out)
     return info["package"]
@@ -197,6 +220,12 @@ def dump(name, retry=None):
     p = os.path.join(OUT, name)
     dev = "/data/local/tmp/dy.xml"
     for i in range(retry + 1):
+        # 2026-11-04 修正（京东签到页 A/B 实测）：先 rm 设备端旧文件，再 dump。
+        # 否则「uiautomator dump 在动画页 could not get idle state 失败、不写
+        # 新文件」时，adb pull 仍会把上一 app 的旧树拉回来（实测拉到抖音残留
+        # 树 103999B），落地校验 text_nodes 拿错页文案 -> 签到误判失败（9 app
+        # 回归根因）。rm 后失败即无文件，pull 失败回 ""，交由上层 u2 兜底。
+        shell(f"rm -f {dev}")
         shell(f"uiautomator dump {dev}")
         _run([ADB, "-s", SERIAL, "pull", dev, p], timeout=30)
         if os.path.exists(p) and os.path.getsize(p) > MIN_DUMP_BYTES:
@@ -367,7 +396,20 @@ class AdbDeviceAdapter:
         return self._backend.window_size()
 
     def dump_hierarchy(self):
-        return self._backend.dump("proxy_dump.xml") or ""
+        # 2026-11-04 京东签到页 A/B 实测（两败俱伤）：uiautomator dump CLI 在
+        # 内容 dump 上**不可靠**，两种失败模式都已复现 ——
+        #   (1) 持续动画页（视频流/金币计数器/自动播下一条）=> 等 idle 超时
+        #       "could not get idle state"，设备端无新文件；
+        #   (2) vivo 智慧多窗下前台是京东但 uiautomator「活动窗口」指向残留的
+        #       抖音 Splash => dump 成功但写入**抖音树**（103999B 非当前屏）。
+        # 两种都让落地校验 text_nodes 拿不到当前页文案 -> 签到误判失败
+        # （9 app 回归根因）。u2 的 jsonrpc dump 实测 3 轮均可靠、无需 idle、
+        # 且抓对窗口。故 **内容 dump 恒走 u2**；adb 只替换真正脆弱的原语
+        # （window_size/press/shell/app_start/info）。这是阶段B结论修正点。
+        try:
+            return self._u2.dump_hierarchy() or ""
+        except Exception:  # noqa: BLE001 - 节点不可用不冒泡
+            return ""
 
     def press(self, key):
         if key == "back":
