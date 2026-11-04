@@ -1,5 +1,6 @@
 name: 蛋花免费小说
 package: com.eggflower.read
+launch_reset: true   # 2026-11-04：福利页滚动位置会被 App 记忆（热启动恢复深滚动态，签到行位置不可预测），冷启动归一化
 aliases:
 - 蛋花免费小说
 - 蛋花小说
@@ -26,6 +27,19 @@ behaviors:
     back_key: false
     corner_fallback: false
     desc: 启动后清扫弹窗（推送权限「取消」/ 版本更新「以后再说」）
+  # 2026-11-04 实测（dbg_shots/shot_01 取证）：冷启动有**续读竞态**——u2 app_start
+  # 间歇性直接恢复上次阅读的书籍详情页（主页≠福利页，福利tab点击全落阅读器底栏，
+  # 4 连跑 3 次中招；monkey 启动则稳定落主页）。模板锚点返回箭头（书籍详情页左上
+  # (62,160)）：详情页命中 1.0000 → 点击退回主页；主页搜索框不匹配 0.5444 → 诚实跳过。
+  - type: click_point
+    images:
+    - images/蛋花免费小说/btn_back_arrow.png
+    template_threshold: 0.96
+    timeout: 6
+    optional: true
+    desc: 书籍详情页返回箭头（续读竞态归一化；详情页 1.0/主页 0.54）
+  - type: wait
+    seconds: 1.5
   - type: click_point
     x: 0.5
     y: 0.918
@@ -39,17 +53,33 @@ behaviors:
       phash_max_dist: 12
       settle: 3.0
       retry: 2
+  # 2026-11-04 实测（AUTOP-2026-11-04-真机族 任务3）：进福利页会弹「恭喜获得预约礼包/
+  # 今日预约 明日领取/预约最高领4960金币」促销弹窗（**自绘不在可及树**，dismiss_popups
+  # 抓不到；盖住全页 → 福利tab落地 phash 失配、后续模板全废）。X 灰圈实测中心 (543,1710)
+  # （注意：首次换算 (542,1659) 偏高 50px 点在圆外——教训：displayed 图换算必须用精确 scale）。
+  # 模板锚关X：弹窗在 → 命中 0.9999 关闭；不在 → 0.39 诚实跳过（无坐标兜底，无误点）。
+  # 弹窗日 tab 落地校验仍会重试 3 次失败（弹窗盖页 phash 必失配），属已知 WARN 噪声，链路可继续。
+  - type: click_point
+    images:
+    - images/蛋花免费小说/btn_yuyue_x.png
+    template_threshold: 0.96
+    timeout: 6
+    optional: true
+    desc: 「预约礼包」促销弹窗关闭X（2026-11-04 实测 (543,1710)；弹窗页 0.9999/干净页 0.39）
   - type: think
   # 2026-11-04 实机重校（AUTOP-2026-11-04-真机族 任务3）：「签到领金币」行在日常福利第4行，
   # **折叠线以下**（首屏视口内该位置是「金币红包雨」行[领红包]）。11-03 21:57 全量跑模板未命中
   # 根因即此：按钮不在视口内。加一次上滑把它滚入视口（optional：若自动弹窗形态已弹签到弹窗，
   # swipe 被弹窗吞掉无害，后续模板未命中诚实跳过、立即签到坐标步照常工作）。
+  # straight:true 走原生 d.swipe（带惯性）；2026-11-04 实测人类轨迹注入拖拽仅滚 ~125px
+  # （无抬起速度无惯性），原生 swipe 同起止点滚 ~700px，滚后按钮 (885,399) 模板 0.9979。
   - type: swipe
     from: [0.5, 0.684]
     to: [0.5, 0.385]
+    straight: true
     timeout: 6
     optional: true
-    desc: 上滑滚入「签到领金币」行（实测 (540,1600)->(540,900)，滚后按钮 (885,399)）
+    desc: 上滑滚入「签到领金币」行（原生直线 (540,1600)->(540,900)，滚后按钮 (885,399)）
   - type: click_point
     images:
     - images/蛋花免费小说/btn_qiandao.png

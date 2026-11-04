@@ -3104,6 +3104,7 @@ apps:
       desc: 图像-百度极速版-打开APP-百度
 - name: 蛋花免费小说
   package: com.eggflower.read
+  launch_reset: true
   aliases:
   - 蛋花免费小说
   - 蛋花小说
@@ -3119,6 +3120,15 @@ apps:
       corner_fallback: false
       desc: 启动后清扫弹窗（推送权限「取消」/ 版本更新「以后再说」）
     - type: click_point
+      images:
+      - images/蛋花免费小说/btn_back_arrow.png
+      template_threshold: 0.96
+      timeout: 6
+      optional: true
+      desc: 书籍详情页返回箭头（续读竞态归一化；详情页 1.0/主页 0.54）
+    - type: wait
+      seconds: 1.5
+    - type: click_point
       x: 0.5
       y: 0.918
       timeout: 8
@@ -3130,6 +3140,13 @@ apps:
         phash_max_dist: 12
         settle: 3.0
         retry: 2
+    - type: click_point
+      images:
+      - images/蛋花免费小说/btn_yuyue_x.png
+      template_threshold: 0.96
+      timeout: 6
+      optional: true
+      desc: 「预约礼包」促销弹窗关闭X（2026-11-04 实测 (543,1710)；弹窗页 0.9999/干净页 0.39）
     - type: think
     - type: swipe
       from:
@@ -3138,9 +3155,10 @@ apps:
       to:
       - 0.5
       - 0.385
+      straight: true
       timeout: 6
       optional: true
-      desc: 上滑滚入「签到领金币」行（实测 (540,1600)->(540,900)，滚后按钮 (885,399)）
+      desc: 上滑滚入「签到领金币」行（原生直线 (540,1600)->(540,900)，滚后按钮 (885,399)）
     - type: click_point
       images:
       - images/蛋花免费小说/btn_qiandao.png
@@ -3300,21 +3318,21 @@ apps:
         retry: 1
     - type: think
     - type: click_point
-      x: 0.828
-      y: 0.578
-      timeout: 8
-      optional: false
+      x: 0.853
+      y: 0.562
+      timeout: 6
+      optional: true
       vision: false
-      desc: 福利页「天天领金币」[去领取]（11-02 实测 (894,1352)）
+      desc: 福利页「签到领金币」[去签到]手动入口（2026-11-04 实测 (921,1316)；兜底开签到弹窗）
+    - type: think
     - type: click_point
-      x: 0.819
-      y: 0.349
       images:
-      - images/红果免费短剧/btn_lingqu_tighter.png
+      - images/红果免费短剧/btn_liji_sign.png
       template_threshold: 0.9
-      timeout: 8
-      optional: false
-      desc: 天天领金币「今日可领」领取（签到）
+      timeout: 10
+      optional: true
+      desc: 签到弹窗[立即签到 +N金币]（2026-11-04 未签态真身 (548,1429)；离线校验：弹窗页 0.9933 / 无弹窗福利页 0.424，阈
+        0.9 区分度足）
     watch:
     - type: any_of
       optional: true

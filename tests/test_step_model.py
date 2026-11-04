@@ -284,6 +284,11 @@ def t_all_app_configs_compile():
     「今日签到行已移除」系 WebView dump 漏抓误判，sign 尾部红包条步(1步)替换为
     any_of[去签到文本/坐标兜底]+think+关弹窗X(3步)）+ watch 重校（模板 32c261fe 失效，
     改 click_first 去浏览/看短剧/一键领取，仍 1 步）-> 步数 378 -> 380，WARN 115 -> 114。
+    2026-11-04 改（派单卡 AUTOP-2026-11-04-真机族 任务1/3）：红果 sign 重构（11.11 二次
+    改版后真身=签到弹窗[立即签到]，替换失效 天天领金币[去领取]+[领取] 两步为
+    [去签到]兜底+think+模板点[立即签到]，4->5 步）；蛋花 sign 重校（签到行折叠线下加
+    straight swipe、去签到改纯模板锚删坐标兜底、新增 续读竞态返回箭头+wait+预约弹窗X
+    三步，8->11 步）-> 步数 380 -> 385，WARN 114 -> 116。
     """
     from miniyaml import safe_load
     total = 0
@@ -310,8 +315,8 @@ def t_all_app_configs_compile():
                 elif i["level"] == "WARN":
                     warns += 1
     assert not errors, errors
-    assert total == 381, f"顶层步骤数应为 381，实际 {total}"
-    assert warns == 114, f"死 optional WARN 应为 114，实际 {warns}"
+    assert total == 385, f"顶层步骤数应为 385，实际 {total}"
+    assert warns == 116, f"死 optional WARN 应为 116，实际 {warns}"
     assert legacy == {"scroll_to": 1}, legacy
     print(f"OK  35 份配置 {total} 步全编译，0 ERROR，{warns} WARN")
 
