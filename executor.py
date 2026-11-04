@@ -58,7 +58,9 @@ class Executor(DeviceSession, Locator, BehaviorRunner):
         self.human = human
         self.recorder = recorder
         self.dry_run = dry_run
-        self.d = None  # uiautomator2 Device
+        self.d = None  # uiautomator2 Device（Phase B 可为 AdbDeviceAdapter 代理）
+        # Phase B 后端开关：device.backend = adb | u2（缺省 u2，行为零变化）
+        self.backend = (config or {}).get("device", {}).get("backend", "u2") or "u2"
         # B6：最近一次定位动作未命中的 detail（复用原 raise 消息文本，零日志漂移）
         self._last_fail = ""
         # 视觉兜底定位层（元素定位失败时启用）

@@ -31,6 +31,14 @@ OUT = os.path.join(ROOT, "temp")
 # 关键：禁用 Git Bash 路径转换（/sdcard 会被改写成 Windows 路径）
 _ENV = dict(os.environ, MSYS_NO_PATHCONV="1")
 
+
+def set_serial(serial):
+    """设置当前设备序列号（从 config.yaml device.serial 读入，勿再硬编码）。"""
+    global SERIAL
+    if serial:
+        SERIAL = serial
+    return SERIAL
+
 # 对齐 u2 语义：rpc_retries=2 / rpc_backoff=0.8
 RETRIES = 2
 BACKOFF = 0.8
@@ -177,20 +185,25 @@ def reset_dump_state():
 def dump(name, retry=None):
     """uiautomator dump + pull 回本地，返回 XML 字符串。
 
-    stale 防护：记录连续 dump 字节数，3 连相同判 stale（旧 _p.xml 工件）
+    stale 防护：记录连续 dump 字节数，3 连相同判 stale（旧 XML 工件）
     -> 强制重试；最终仍失败回 ""。
+
+    2026-11-04 Q1 §7 族级规则：dump 落 **/data/local/tmp/dy.xml**（勿落
+    /sdcard —— 实测 /sdcard 上恒 0 字节，是历史 parity 0 字节 OPEN 根因）；
+    pull 走独立 `adb pull` 子进程（勿 shell 内嵌，否则本地拿不到文件）。
     """
     global _dump_sizes
     retry = RETRIES if retry is None else retry
     p = os.path.join(OUT, name)
+    dev = "/data/local/tmp/dy.xml"
     for i in range(retry + 1):
-        shell("uiautomator dump /sdcard/_p.xml")
-        _run([ADB, "-s", SERIAL, "pull", "/sdcard/_p.xml", p], timeout=30)
+        shell(f"uiautomator dump {dev}")
+        _run([ADB, "-s", SERIAL, "pull", dev, p], timeout=30)
         if os.path.exists(p) and os.path.getsize(p) > MIN_DUMP_BYTES:
             size = os.path.getsize(p)
             _dump_sizes.append(size)
             _dump_sizes = _dump_sizes[-10:]
-            # 3 连相同（含本次）=> 旧 _p.xml 工件，判 stale，不返回，重试
+            # 3 连相同（含本次）=> 旧 XML 工件，判 stale，不返回，重试
             if (len(_dump_sizes) >= STALE_LIMIT
                     and len(set(_dump_sizes[-STALE_LIMIT:])) == 1):
                 time.sleep(BACKOFF)
@@ -273,3 +286,80 @@ def back_retry(retries=RETRIES, backoff=BACKOFF):
         shell("input keyevent 4")
         return True
     return bool(_retry(_b, retries=retries, backoff=backoff, label="back"))
+
+
+# ---------------- Phase B：u2 d 对象形态适配器 ----------------
+class _AdbInfo:
+    """以 u2 `.info` 形态暴露前台信息（只实现引擎实际用到的键）。
+
+    键映射：
+      currentPackageName -> foreground()（u2 的 currentPackageName 语义）
+      displayHeight / displayWidth -> window_size()（locator 兜底取屏幕尺寸）
+    其余键回 default（引擎未用到）。
+    """
+    def __init__(self, backend):
+        self._backend = backend
+
+    def get(self, key, default=None):
+        if key == "currentPackageName":
+            return self._backend.foreground() or ""
+        if key in ("displayHeight", "displayWidth"):
+            w, h = self._backend.window_size()
+            v = h if key == "displayHeight" else w
+            return v if v is not None else default
+        return default
+
+
+class AdbDeviceAdapter:
+    """把 adb_backend 包装成 u2 `d` 对象形态，供 device_session 原语替换。
+
+    Phase B（docs/u2稳定性与adb引擎评估 §4 步骤5）：原语（window_size /
+    dump_hierarchy / press(back,home) / info.get / shell / app_start）走 adb；
+    **元素操作**（d(text=..)、click、swipe、screenshot、app_current…）经
+    __getattr__ 转发给真实 u2 `d` —— u2 保留为元素引擎 + fallback。
+
+    返回类型对齐 u2 语义：window_size 回 plain tuple、dump 回 str、
+    info.get("currentPackageName") 回 str（取不到回 "" 不回 "?"）。
+    """
+    def __init__(self, u2d, backend, serial=None):
+        self._u2 = u2d
+        self._backend = backend
+        self._serial = serial
+
+    def __getattr__(self, name):
+        # 元素操作/未接管方法 -> 转发真实 u2 d（如 d(text="x")、click、swipe）
+        return getattr(self._u2, name)
+
+    @property
+    def serial(self):
+        return self._serial
+
+    @property
+    def info(self):
+        return _AdbInfo(self._backend)
+
+    def window_size(self):
+        return self._backend.window_size()
+
+    def dump_hierarchy(self):
+        return self._backend.dump("proxy_dump.xml") or ""
+
+    def press(self, key):
+        if key == "back":
+            self._backend.back_retry()
+        elif key == "home":
+            self._backend.shell("input keyevent 3")
+        else:
+            getattr(self._u2, "press")(key)
+
+    def shell(self, cmd):
+        return self._backend.shell(cmd)
+
+    def app_start(self, pkg, stop=False):
+        if stop:
+            return self._backend.cold_start(pkg)
+        comp = self._backend.resolve_activity(pkg)
+        if comp:
+            self._backend.shell(f"am start -n {comp}")
+            return True
+        return getattr(self._u2, "app_start")(pkg)

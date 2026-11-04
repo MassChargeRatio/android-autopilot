@@ -266,3 +266,136 @@ def test_tap_retry(monkeypatch):
 def test_back_retry(monkeypatch):
     monkeypatch.setattr(adb_backend, "shell", lambda *a, **k: "")
     assert adb_backend.back_retry() is True
+
+
+# ---------------- Phase B：AdbDeviceAdapter 适配器 ----------------
+class FakeU2:
+    """模拟 u2 d 对象：元素操作走这里，验证转发。"""
+    def __init__(self):
+        self.clicked = []
+        self.pressed = []
+    def click(self, x, y):
+        self.clicked.append((x, y))
+        return None
+    def text(self, s):
+        return ("u2text", s)
+    def press(self, key):
+        self.pressed.append(key)
+        return None
+    def app_start(self, pkg, stop=False):
+        return ("u2start", pkg, stop)
+
+
+class FakeBackend:
+    """模拟 adb_backend 模块（只测适配器路由，不真连设备）。"""
+    def __init__(self):
+        self.calls = []
+        self._fg = "com.fake.app"
+        self._wh = (1080, 2340)
+    def foreground(self):
+        self.calls.append("foreground")
+        return self._fg
+    def window_size(self):
+        self.calls.append("window_size")
+        return self._wh
+    def dump(self, name):
+        self.calls.append(("dump", name))
+        return "<hierarchy><node/></hierarchy>"
+    def back_retry(self):
+        self.calls.append("back_retry")
+        return True
+    def shell(self, cmd):
+        self.calls.append(("shell", cmd))
+        return "shell-ok"
+    def cold_start(self, pkg):
+        self.calls.append(("cold_start", pkg))
+        return True
+    def resolve_activity(self, pkg):
+        self.calls.append(("resolve_activity", pkg))
+        return f"{pkg}/.MainActivity"
+
+
+def _adapter(backend="adb"):
+    u2 = FakeU2()
+    fb = FakeBackend()
+    a = adb_backend.AdbDeviceAdapter(u2, fb, "192.168.1.7:5555")
+    return u2, fb, a
+
+
+def test_adapter_serial():
+    _, _, a = _adapter()
+    assert a.serial == "192.168.1.7:5555"
+
+
+def test_adapter_window_size_routes_adb():
+    u2, fb, a = _adapter()
+    assert a.window_size() == (1080, 2340)
+    assert "window_size" in fb.calls
+
+
+def test_adapter_dump_hierarchy_routes_adb():
+    u2, fb, a = _adapter()
+    assert a.dump_hierarchy() == "<hierarchy><node/></hierarchy>"
+    assert ("dump", "proxy_dump.xml") in fb.calls
+
+
+def test_adapter_press_back_routes_adb():
+    u2, fb, a = _adapter()
+    a.press("back")
+    assert "back_retry" in fb.calls
+    assert u2.pressed == []          # 不走 u2
+
+
+def test_adapter_press_home_routes_adb():
+    u2, fb, a = _adapter()
+    a.press("home")
+    assert ("shell", "input keyevent 3") in fb.calls
+
+
+def test_adapter_press_other_forwards_u2():
+    u2, fb, a = _adapter()
+    a.press("menu")
+    assert u2.pressed == ["menu"]
+
+
+def test_adapter_info_current_package_routes_adb():
+    u2, fb, a = _adapter()
+    assert a.info.get("currentPackageName") == "com.fake.app"
+    assert "foreground" in fb.calls
+
+
+def test_adapter_info_display_size_routes_window_size():
+    u2, fb, a = _adapter()
+    assert a.info.get("displayHeight") == 2340
+    assert a.info.get("displayWidth") == 1080
+
+
+def test_adapter_info_unknown_key_default():
+    u2, fb, a = _adapter()
+    assert a.info.get("nonexistent", "dflt") == "dflt"
+
+
+def test_adapter_shell_routes_adb():
+    u2, fb, a = _adapter()
+    assert a.shell("pm list packages x") == "shell-ok"
+    assert ("shell", "pm list packages x") in fb.calls
+
+
+def test_adapter_app_start_cold_routes_adb():
+    u2, fb, a = _adapter()
+    assert a.app_start("com.fake.app", stop=True) is True
+    assert ("cold_start", "com.fake.app") in fb.calls
+
+
+def test_adapter_app_start_warm_routes_adb():
+    u2, fb, a = _adapter()
+    assert a.app_start("com.fake.app") is True
+    assert ("shell", "am start -n com.fake.app/.MainActivity") in fb.calls
+
+
+def test_adapter_element_ops_forward_u2():
+    """元素操作（click/text/app_start 之外的 u2 方法）必须转发给真实 u2。"""
+    u2, fb, a = _adapter()
+    a.click(100, 200)
+    assert u2.clicked == [(100, 200)]
+    assert a.text("赚钱") == ("u2text", "赚钱")

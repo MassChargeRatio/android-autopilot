@@ -64,6 +64,20 @@ class DeviceSession:
             ) from e
         self.d = u2.connect(self.serial) if self.serial else u2.connect()
         self._apply_rpc_timeout()
+        # Phase B（docs/u2稳定性与adb引擎评估 §4 步骤5）：device.backend=adb 时
+        # 原语走 adb_backend（window_size/dump/press/info/shell/app_start），
+        # 元素操作仍转发 u2；backend 缺省/未配 = u2（行为零变化，可一键回退）。
+        backend = getattr(self, "backend", "u2") or "u2"
+        if backend == "adb":
+            try:
+                import adb_backend as _AB
+                _AB.set_serial(self.serial)
+                self.d = _AB.AdbDeviceAdapter(self.d, _AB, self.serial)
+                self.recorder.log("后端=adb（u2 保留为元素引擎+fallback）", "sys")
+            except Exception as e:  # noqa: BLE001 - adb 后端初始化失败回退 u2
+                self.recorder.log(
+                    f"adb 后端初始化失败，回退 u2: {type(e).__name__}: {e}",
+                    "sys", "WARN")
         self.recorder.log(f"设备已连接: {self.d.serial if self.serial else 'auto'}",
                           "sys")
         return self.d
