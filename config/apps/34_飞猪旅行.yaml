@@ -15,6 +15,15 @@ behaviors:
     optional: true
     desc: 图像-飞猪旅行-任务列表-关闭
   bonus:
+  # 2026-11-04：版本更新插屏同样盖住 能量红包图标(532,1075)（11-03 bonus 失败根因，
+  # 模板本身 0.9988 无损）——先关X再点图标。
+  - type: click_point
+    images:
+    - images/飞猪旅行/btn_update_x.png
+    template_threshold: 0.96
+    timeout: 6
+    optional: true
+    desc: 版本更新插屏关闭X（同 sign 首步；弹窗页 1.0/干净页 0.33）
   - type: click_point
     images:
     - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
@@ -36,6 +45,17 @@ behaviors:
     images:
     - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
   sign:
+  # 2026-11-04 当日态复核（§5.18）：「飞猪旅行新版本更新啦/下载并安装」插屏**每次回首页
+  # 都会复现**（11-03 全量跑 sign/bonus 双失败根因：弹窗盖页吞掉首跳点击/盖住能量红包
+  # 图标 (532,1075)——该图标模板本身 0.9988 无损）。模板锚点关X（弹窗页 1.0000/干净
+  # 首页 0.3310），无坐标兜底、弹窗不在诚实跳过。
+  - type: click_point
+    images:
+    - images/飞猪旅行/btn_update_x.png
+    template_threshold: 0.96
+    timeout: 6
+    optional: true
+    desc: 版本更新插屏关闭X（2026-11-04 实测 (540,1732)；弹窗页 1.0/干净页 0.33）
   # 2026-11-02 实机重校准：sign 只做「里程签到」（首页中部「里程签到」@(964,1109)）。
   # 原配置把「能量红包→立即领取」也放进 sign，但能量红包页实际是「天天集能量」
   # （collect 动作），无 立即领取/领取/签到 文案 → 步骤失败 → 未完成。
@@ -60,7 +80,18 @@ behaviors:
         vision: false
         desc: 首页中部「里程签到」坐标兜底（真机中心 (964,1109)）
   - type: think
+  # 2026-11-04 当日态复核：落地页=里程福利中心，签到按钮真实文案「签到领1里程」
+  # (542,599)——旧候选「里程签到」是**首页入口**文案，落地页不存在 → 永不命中
+  # （11-03 WARN「所有候选均未出现」根因）。实测点击 → 「今日签到成功」弹窗 +
+  # 里程 118→119 + 连签 0→1 天（终态凭据，见 §5.18）。
   - type: click_first
+    candidates:
+    - type: text
+      value: 签到领1里程
+    - type: text
+      value: 今日签到
+    - type: desc
+      value: 签到领1里程
     candidates_from: sign
     timeout: 6
     optional: true

@@ -289,6 +289,9 @@ def t_all_app_configs_compile():
     [去签到]兜底+think+模板点[立即签到]，4->5 步）；蛋花 sign 重校（签到行折叠线下加
     straight swipe、去签到改纯模板锚删坐标兜底、新增 续读竞态返回箭头+wait+预约弹窗X
     三步，8->11 步）-> 步数 380 -> 385，WARN 114 -> 116。
+    2026-11-04 改（任务2）：飞猪 sign/bonus 头部各加 版本更新插屏X 模板步（11-03 双失败
+    根因=插屏盖页；弹窗页 1.0/干净页 0.33）+ sign 落地后候选 里程签到(首页入口文案，永不
+    命中)改 签到领1里程/今日签到 -> 步数 385 -> 387，WARN 116 -> 118。
     """
     from miniyaml import safe_load
     total = 0
@@ -315,8 +318,8 @@ def t_all_app_configs_compile():
                 elif i["level"] == "WARN":
                     warns += 1
     assert not errors, errors
-    assert total == 385, f"顶层步骤数应为 385，实际 {total}"
-    assert warns == 116, f"死 optional WARN 应为 116，实际 {warns}"
+    assert total == 387, f"顶层步骤数应为 387，实际 {total}"
+    assert warns == 118, f"死 optional WARN 应为 118，实际 {warns}"
     assert legacy == {"scroll_to": 1}, legacy
     print(f"OK  35 份配置 {total} 步全编译，0 ERROR，{warns} WARN")
 

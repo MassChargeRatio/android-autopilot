@@ -3471,6 +3471,13 @@ apps:
     bonus:
     - type: click_point
       images:
+      - images/飞猪旅行/btn_update_x.png
+      template_threshold: 0.96
+      timeout: 6
+      optional: true
+      desc: 版本更新插屏关闭X（同 sign 首步；弹窗页 1.0/干净页 0.33）
+    - type: click_point
+      images:
       - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
       timeout: 6
       optional: true
@@ -3490,6 +3497,13 @@ apps:
       images:
       - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
     sign:
+    - type: click_point
+      images:
+      - images/飞猪旅行/btn_update_x.png
+      template_threshold: 0.96
+      timeout: 6
+      optional: true
+      desc: 版本更新插屏关闭X（2026-11-04 实测 (540,1732)；弹窗页 1.0/干净页 0.33）
     - type: any_of
       optional: true
       choices:
@@ -3511,6 +3525,13 @@ apps:
           desc: 首页中部「里程签到」坐标兜底（真机中心 (964,1109)）
     - type: think
     - type: click_first
+      candidates:
+      - type: text
+        value: 签到领1里程
+      - type: text
+        value: 今日签到
+      - type: desc
+        value: 签到领1里程
       candidates_from: sign
       timeout: 6
       optional: true
