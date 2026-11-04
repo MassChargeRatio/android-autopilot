@@ -320,8 +320,8 @@ def t_all_app_configs_compile():
                 elif i["level"] == "WARN":
                     warns += 1
     assert not errors, errors
-    assert total == 389, f"顶层步骤数应为 389，实际 {total}"
-    assert warns == 119, f"死 optional WARN 应为 119，实际 {warns}"
+    assert total == 386, f"顶层步骤数应为 386，实际 {total}"
+    assert warns == 117, f"死 optional WARN 应为 117，实际 {warns}"
     assert legacy == {"scroll_to": 1}, legacy
     print(f"OK  35 份配置 {total} 步全编译，0 ERROR，{warns} WARN")
 

@@ -180,8 +180,10 @@ class BehaviorRunner:
         #    返回 False = 包未安装，必须整单跳过：否则盲点坐标会落到前台别的 App 上
         #    （2026-10-30 趣头条未安装，坐标点进了微信）。注意用 `is False` 判定，
         #    因为测试里 `_open_app` 被 stub 成返回 None 的 lambda。
-        if self._open_app(pkg, app_name,
-                          reset=bool(app_cfg.get("launch_reset"))) is False:
+        # 2026-11-04（AUTOP-火山版-P1 层1/层2）：启动时序可配化。
+        # app 配置写了 `launch:` 段 → 走 _open_app_timed（开屏广告等待+确认、
+        # 页面就绪预算放宽）；没写 → 原样走 self._open_app，34 份配置零变化。
+        if self._open_app_timed(pkg, app_name, app_cfg) is False:
             # 具体原因（未安装 / 前台跑偏）已由 _open_app 记过 ERROR，
             # 这里不再猜原因 —— 2026-10-31 微博实测：前台跳到支付宝被拦，
             # 这行却写成「未安装」，误导排查。
@@ -246,6 +248,104 @@ class BehaviorRunner:
 
         # 3) 自然退场（真人换台/锁屏前的随手操作）
         self._close_app(app_name)
+
+    # ---------- 启动时序参数化（AUTOP-火山版-2026-11-04 层1/层2） ----------
+    def _open_app_timed(self, pkg, app_name, app_cfg):
+        """按 app 配置 `launch:` 段启动 App；无该段时等价 device_session._open_app。
+
+        为什么另写一份而不是改 device_session._open_app：
+          本卡（AUTOP-2026-11-04-P1）红线只允许改 config/apps/抖音火山版.yaml
+          与 behavior_runner.py；而 Executor 的 MRO 是
+          `(DeviceSession, Locator, BehaviorRunner)`，DeviceSession 在前，
+          在本类重写 `_open_app` / `_wait_page_ready` **不生效**。所以只能在
+          本类显式复刻启动流程，并用 app 级参数关住风险面：没写 `launch:` 的
+          配置一律回落到 self._open_app，行为零变化。
+
+        参数（app yaml `launch:`，全部可选，缺省值 = device_session 现行为）：
+          page_ready_max_wait: 页面就绪等待预算秒数（默认 30）
+          page_ready_min_nodes: 判定稳定的最小节点数（默认 25）
+          splash_wait: 前台不是目标包（开屏广告 deeplink 漂移）时先等这么久
+                       再判，而不是立刻 stop+重启（M2 层2 实测重启再吃 30-58s）
+          splash_poll: 等待期间前台轮询间隔（默认 2.0）
+
+        返回 True=已启动；False=包未安装 / 两次启动仍漂移（与 _open_app 同口径）。
+        """
+        cfg = (app_cfg or {}).get("launch") if isinstance(app_cfg, dict) else None
+        reset = bool((app_cfg or {}).get("launch_reset"))
+        if not isinstance(cfg, dict) or not cfg:
+            return self._open_app(pkg, app_name, reset=reset)
+        if self.dry_run or self.d is None:
+            return self._open_app(pkg, app_name, reset=reset)
+        if not self._pkg_installed(pkg):
+            # 交给原实现统一记 ERROR「未安装 … 拒绝启动」
+            return self._open_app(pkg, app_name, reset=False)
+        max_wait = float(cfg.get("page_ready_max_wait") or 30.0)
+        min_nodes = int(cfg.get("page_ready_min_nodes") or 25)
+        splash_wait = float(cfg.get("splash_wait") or 0.0)
+        splash_poll = float(cfg.get("splash_poll") or 2.0)
+
+        if reset:
+            self.d.app_start(pkg, stop=True)
+            self.recorder.log("冷启动（launch_reset）", app_name, "DEBUG")
+        else:
+            self.d.app_start(pkg)
+        self.human.after_open()
+        if splash_wait > 0:
+            self._wait_splash_gone(pkg, app_name, splash_wait, splash_poll)
+        n, waited, stable, fg = self._wait_page_ready(
+            pkg, app_name, max_wait=max_wait, min_nodes=min_nodes)
+        self._log_page_ready(n, waited, stable, fg, app_name)
+        if pkg and pkg not in (fg or ""):
+            self.recorder.log(
+                f"开屏等待后前台仍是 {fg or '?'}（不是 {pkg}），"
+                f"确认漂移未恢复 -> 重启一次", app_name, "WARN")
+            self.d.app_start(pkg, stop=True)
+            self.human.after_open()
+            n, waited, stable, fg = self._wait_page_ready(
+                pkg, app_name, max_wait=max_wait, min_nodes=min_nodes)
+            self._log_page_ready(n, waited, stable, fg, app_name, restarted=True)
+            if pkg not in (fg or ""):
+                self.recorder.log(
+                    f"两次启动后前台仍是 {fg or '?'}，跳过本次全部行为"
+                    f"（否则盲点坐标会落到别的 App 上）", app_name, "ERROR")
+                return False
+        self.recorder.log(f"已启动 {app_name}", app_name)
+        return True
+
+    def _wait_splash_gone(self, pkg, app_name, splash_wait, splash_poll):
+        """开屏广告「等待+确认」（M2 层2 P0）。
+
+        原逻辑（device_session._open_app）：页面就绪判定后只要前台不是目标包
+        就立即 stop+重启，重启 = 又一次完整冷启动（M2 11-03 L320-L323 实测
+        启动累计 94s）。这里改为先在 splash_wait 秒内轮询前台：广告页自己
+        消失、前台回到目标包就直接往下走，不再重启。
+        """
+        t0 = time.time()
+        fg = ""
+        while time.time() - t0 < splash_wait:
+            try:
+                fg = (self.d.info.get("currentPackageName") or "") if self.d else ""
+            except Exception:
+                fg = ""
+            if pkg and pkg in fg:
+                self.recorder.log(
+                    f"开屏等待 {time.time() - t0:.1f}s 后前台已回到 {pkg}，无需重启",
+                    app_name, "DEBUG")
+                return True
+            time.sleep(splash_poll)
+        self.recorder.log(
+            f"开屏等待 {splash_wait:g}s 后前台={fg or '?'} 仍未回到 {pkg}",
+            app_name, "WARN")
+        return False
+
+    def _log_page_ready(self, n, waited, stable, fg, app_name, restarted=False):
+        """页面就绪判定日志（与 device_session._open_app 同格式，便于日志比对）。"""
+        self.recorder.log(
+            f"页面就绪判定{'（重启后）' if restarted else ''}: 节点={n} "
+            f"等待={waited:.1f}s "
+            f"{'已稳定' if stable else '未稳定（超时，按当前页继续）'}"
+            f" 前台={fg or '?'}",
+            app_name, "DEBUG" if stable else "WARN")
 
     # ---------- 第4步：behavior 时间窗（AUTOP-SELFSEARCH-2026-10-20） ----------
     # 用户原话：「常用步骤的共性」——签到/领现金类行为常有时效窗口（凌晨福利、
@@ -950,7 +1050,20 @@ class BehaviorRunner:
         # 整跳再加一个总预算上限，避免候选池膨胀拖垮整条链。
         explicit_n = explicit_count
         probe_fast = 0.35
-        budget = max(30.0, explicit_n * 2.0 + 10.0)   # 显式候选要够用，全局词只吃剩余预算
+        # AUTOP-火山版-2026-11-04（M2 层8 / P0-2）：**预算参数化**。
+        # 原先写死 max(30, 显式候选*2+10)：火山版 watch 首分支 4 个显式候选算出
+        # 30s，正好等于 any_of 默认总预算 30s —— 分支#1 一 miss 就把预算吃满，
+        # 分支#2（底部『我的』坐标兜底）被「any_of 总预算用尽，跳过剩余 1 个分支」
+        # 吞掉（M2 11-01 L1479）。现在支持 step 级 `budget:` 覆盖，配合 any_of 的
+        # `total_timeout:` 即「每分支独立预算」；不写 budget 时完全同旧行为。
+        cfg_budget = act.get("budget")
+        if cfg_budget is None:
+            budget = max(30.0, explicit_n * 2.0 + 10.0)   # 显式候选要够用，全局词只吃剩余预算
+        else:
+            try:
+                budget = float(cfg_budget)
+            except (TypeError, ValueError):
+                budget = max(30.0, explicit_n * 2.0 + 10.0)
         t_start = time.time()
         while True:
             for i, (k, v, prim) in enumerate(pool):

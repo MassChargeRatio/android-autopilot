@@ -10,6 +10,22 @@ intent_map:
   sign: reserve
   watch: watch
   withdraw: withdraw
+# ============ 启动时序（AUTOP-火山版-2026-11-04 P1 · 层1/层2，依据 M2 诊断）============
+# 层1 P0 冷启动 30-94s：device_session._wait_page_ready 默认预算 30s，而 M2 实测
+#   等待 31.3/31.5/30.9/34.5/35.9/38.4s 全部「未稳定（超时，按当前页继续）」
+#   —— 在几乎空树（节点=1/57）上放行，后面才会出现坐标盲点、滑动找已滚出屏元素。
+#   此处把页面就绪预算放宽到 45s（覆盖实测上限 38.4s + 抖动余量），min_nodes 保持 25。
+# 层2 P0 开屏广告 deeplink 漂移：原逻辑前台≠目标包就立即 stop+重启，重启=又一次
+#   完整冷启动（M2 11-03 L320-L323 启动累计 94s，watch 段只剩 12s）。现改为先等
+#   splash_wait=15s 轮询前台：广告页自己消失就直接继续；确认仍漂移才重启一次
+#   （M2 P0-1 建议的 10-20s 等待区间）。
+# 生效范围：只有写了 `launch:` 段的 app 走 behavior_runner._open_app_timed，
+#   其余 34 份配置仍走 device_session._open_app，行为零变化。
+launch:
+  page_ready_max_wait: 45
+  page_ready_min_nodes: 25
+  splash_wait: 15
+  splash_poll: 2
 behaviors:
   # 2026-10-25 整理：behavior 名 sign → reserve（原名会误导判定，见下方注释）
   reserve:
@@ -123,10 +139,17 @@ behaviors:
     optional: true
     desc: 关掉预约成功弹窗；关不掉也不影响预约已成
   watch:
+  # AUTOP-火山版-2026-11-04（M2 层8 P0-2）：预算拆账。
+  # 原默认总预算 30s 被分支#1 的 click_first 内部预算（4 个显式候选 → max(30, 4*2+10)=30s）
+  # 一把吃满，分支#2（点底部『我的』再找）被「any_of 总预算用尽，跳过剩余 1 个分支」
+  # 吞掉（M2 11-01 L1479），watch 只剩「首屏无入口」一条路。现在：
+  #   总预算 45s / 分支#1 budget 10s（只做首屏探测）/ 分支#2 budget 12s（兜底主力）。
   - type: any_of
     optional: true
+    total_timeout: 45
     choices:
     - - type: click_first
+        budget: 10
         candidates:
         - type: text
           value: 点击赚钱
@@ -146,6 +169,8 @@ behaviors:
         vision: false
       - type: think
       - type: click_first
+        # 分支#2 兜底预算（M2 层8 P0-2：分支#2 原先永远轮不到，见上方注释）
+        budget: 12
         candidates:
         - type: text
           value: 点击赚钱
@@ -159,6 +184,10 @@ behaviors:
         optional: false
   - type: think
   - type: click_first
+    # 入口已进任务页后的『去完成/看视频』：M2 实测这一段吃 42s（显式候选 2 个
+    # → 内部预算 max(30, 2*2+10)=30s 起）。收紧到 12s，把预算留给 any_of 兜底分支
+    # 与后续滑动（M2 层8 P1-4：各层 timeout 参数化，整段 watch 留足 ~94s）。
+    budget: 12
     candidates:
     - type: text
       value: 去完成
