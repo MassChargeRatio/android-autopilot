@@ -309,6 +309,23 @@ class _AdbInfo:
             return v if v is not None else default
         return default
 
+    # u2 info 语义对齐：支持 d.info["displayWidth"] 与 d.info.displayWidth 两种
+    # 访问形态（devtools/probe_path_u2.py 用下标，历史代码用属性），
+    # 否则 Phase B 下会 AttributeError/KeyError，与 d(...) 同类 latent crash。
+    def __getitem__(self, key):
+        v = self.get(key)
+        if v is None:
+            raise KeyError(key)
+        return v
+
+    def __getattr__(self, name):
+        if name.startswith("_"):  # 防 _backend 等私有名递归
+            raise AttributeError(name)
+        v = self.get(name)
+        if v is None:
+            raise AttributeError(name)
+        return v
+
 
 class AdbDeviceAdapter:
     """把 adb_backend 包装成 u2 `d` 对象形态，供 device_session 原语替换。
@@ -329,6 +346,14 @@ class AdbDeviceAdapter:
     def __getattr__(self, name):
         # 元素操作/未接管方法 -> 转发真实 u2 d（如 d(text="x")、click、swipe）
         return getattr(self._u2, name)
+
+    def __call__(self, *args, **kwargs):
+        # u2 选择器惯用法 d(text=..)/d(className=..)/d(resourceId=..)... 是
+        # 「调用 d 本身」，__getattr__ 只拦属性访问、拦不到调用 —— 必须显式
+        # __call__ 转发到真实 u2 d。返回的是真实 u2 UiObject，其后
+        # .click()/.exists()/.info 等走 u2 元素引擎（2026-11-04 全量回归首
+        # 个 app 就爆 TypeError: 'AdbDeviceAdapter' object is not callable）。
+        return self._u2(*args, **kwargs)
 
     @property
     def serial(self):

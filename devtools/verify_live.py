@@ -675,6 +675,20 @@ def main():
 
     print(f"待验证 App: {len(apps)} -> {[a['name'] for a in apps]}")
     d = connect_device(serial)
+    # Phase B（docs/u2稳定性与adb引擎评估 §4 步骤5）：config.device.backend=adb 时
+    # 把原语路由到 adb_backend（window_size/dump/press/info/shell/app_start），
+    # 元素操作仍转发 u2；缺省/未配 = u2（行为零变化，可一键回退）。
+    # 注意：calibrate.connect_device() 返回的是裸 u2 设备，若不在此包装，
+    # 全量回归会静默跑在 u2 上，adapter 回归判定失效（2026-11-04 实测确认）。
+    _backend = (cfg.get("device") or {}).get("backend", "u2") or "u2"
+    if _backend == "adb":
+        try:
+            import adb_backend as _AB
+            _AB.set_serial(serial)
+            d = _AB.AdbDeviceAdapter(d, _AB, serial)
+            print("后端=adb（u2 保留为元素引擎+fallback）")
+        except Exception as e:  # noqa: BLE001 - adb 后端初始化失败回退 u2
+            print(f"adb 后端初始化失败，回退 u2: {type(e).__name__}: {e}")
 
     report = {}
     all_log = {}

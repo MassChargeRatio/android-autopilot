@@ -274,6 +274,10 @@ class FakeU2:
     def __init__(self):
         self.clicked = []
         self.pressed = []
+        self.called_selectors = []
+    def __call__(self, **kwargs):
+        self.called_selectors.append(kwargs)
+        return ("u2selector", kwargs)
     def click(self, x, y):
         self.clicked.append((x, y))
         return None
@@ -399,3 +403,33 @@ def test_adapter_element_ops_forward_u2():
     a.click(100, 200)
     assert u2.clicked == [(100, 200)]
     assert a.text("赚钱") == ("u2text", "赚钱")
+
+
+# ---------------- Phase B 补丁：d(...) 选择器调用 + info 下标/属性 ----------------
+def test_adapter_call_selector_forwards_u2():
+    """u2 惯用法 d(text=..)/d(textContains=..) 是「调用 d」，必须经 __call__
+    转发真实 u2 —— 否则 TypeError: 'AdbDeviceAdapter' object is not callable
+    （2026-11-04 全量回归首个 app 拼多多即爆，__getattr__ 拦不到调用）。"""
+    u2, fb, a = _adapter()
+    r = a(textContains="赚钱")
+    assert r == ("u2selector", {"textContains": "赚钱"})
+    assert u2.called_selectors == [{"textContains": "赚钱"}]
+
+
+def test_adapter_info_getitem_routes_adb():
+    """d.info["displayWidth"] 下标形态（devtools/probe_path_u2.py 用法）。"""
+    u2, fb, a = _adapter()
+    assert a.info["displayWidth"] == 1080
+    assert a.info["displayHeight"] == 2340
+
+
+def test_adapter_info_attr_routes_adb():
+    """d.info.currentPackageName 属性形态（webui/data.py 注释提及的旧用法）。"""
+    u2, fb, a = _adapter()
+    assert a.info.currentPackageName == "com.fake.app"
+
+
+def test_adapter_info_missing_getitem_raises():
+    u2, fb, a = _adapter()
+    with pytest.raises(KeyError):
+        _ = a.info["nonexistent"]
