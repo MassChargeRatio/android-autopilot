@@ -291,7 +291,9 @@ def t_all_app_configs_compile():
     三步，8->11 步）-> 步数 380 -> 385，WARN 114 -> 116。
     2026-11-04 改（任务2）：飞猪 sign/bonus 头部各加 版本更新插屏X 模板步（11-03 双失败
     根因=插屏盖页；弹窗页 1.0/干净页 0.33）+ sign 落地后候选 里程签到(首页入口文案，永不
-    命中)改 签到领1里程/今日签到 -> 步数 385 -> 387，WARN 116 -> 118。
+    命中)改 签到领1里程/今日签到 => 步数 385 -> 387，WARN 116 -> 118。
+    2026-11-04 改（任务5 族W）：全民K歌补 sign 行为（冷启动「天天签到300K币」弹窗
+    [立即签到](367,1673) 盲点步+think；实机 +288 K币入账）-> 步数 387 -> 389，WARN 118 -> 119。
     """
     from miniyaml import safe_load
     total = 0
@@ -318,8 +320,8 @@ def t_all_app_configs_compile():
                 elif i["level"] == "WARN":
                     warns += 1
     assert not errors, errors
-    assert total == 387, f"顶层步骤数应为 387，实际 {total}"
-    assert warns == 118, f"死 optional WARN 应为 118，实际 {warns}"
+    assert total == 389, f"顶层步骤数应为 389，实际 {total}"
+    assert warns == 119, f"死 optional WARN 应为 119，实际 {warns}"
     assert legacy == {"scroll_to": 1}, legacy
     print(f"OK  35 份配置 {total} 步全编译，0 ERROR，{warns} WARN")
 

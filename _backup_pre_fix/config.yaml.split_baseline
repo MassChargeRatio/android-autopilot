@@ -2153,9 +2153,24 @@ apps:
   - 全民K歌
   - K歌
   intent_map:
+    sign: sign
     collect: collect
     bonus: bonus
   behaviors:
+    sign:
+    - type: click_point
+      x: 0.34
+      y: 0.715
+      images:
+      - images/全民K歌/btn_liji_sign.png
+      timeout: 8
+      optional: true
+      desc: 天天签到弹窗[立即签到]（2026-11-04 实测 (367,1673)，冷启动自动弹出；模板自匹配 1.0）
+      expect:
+        text_any:
+        - 任务中心
+        settle: 3.0
+    - type: think
     collect:
     - type: click_first
       candidates:
