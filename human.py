@@ -136,10 +136,15 @@ class Human:
             return self._rng.uniform(lo, hi)
         # 对数正态（偏态/长尾）：大部分值贴近区间低端，偶尔一段偏长的停顿，
         # 更接近真人操作间隔的统计形态（多数快、偶尔慢）。
-        # mu 设在区间约 18% 高度处，sigma 控制长尾；结果 clamp 回 [lo, hi]。
+        # mean 设在区间约 18% 高度处，sigma 控制长尾；结果 clamp 回 [lo, hi]。
+        # 均值校正：log-normal 的期望是 exp(mu + sigma^2/2)，若直接把 mu 取
+        # ln(mean) 则实际均值会被抬高 mean*exp(sigma^2/2)（sigma 0.45~0.75 ->
+        # 偏高 10%~32%，叠加 clamp 后整体节奏系统性变慢）。故 mu 取
+        # ln(mean) - sigma^2/2，使 E[v] ≈ mean。
         mean = max(lo, lo + (hi - lo) * self.mu_ratio)
         sigma = self.sigma_lo + (self.sigma_hi - self.sigma_lo) * self._rng.random()
-        v = math.exp(self._rng.gauss(math.log(max(mean, 1e-6)), sigma))
+        mu = math.log(max(mean, 1e-6)) - 0.5 * sigma * sigma
+        v = math.exp(self._rng.gauss(mu, sigma))
         return min(hi, max(lo, v))
 
     def _sample(self, rng, use_ln):

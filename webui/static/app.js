@@ -231,7 +231,7 @@ function humanEvent(ev) {
   if (o.images) bits.push('图像×' + (o.images || []).length);
   if (o.seconds) bits.push(o.seconds + 's');
   if (o.x != null && o.y != null) bits.push(`(${o.x},${o.y})`);
-  if (t === 'any_of' && o.branches) bits.push((o.branches || []).length + ' 路');
+  if (t === 'any_of' && o.choices) bits.push((o.choices || []).length + ' 路');
   // reward 的 pattern 是提取余额用的正则，正是排查「读不到收益」要看的东西
   if (o.pattern) bits.push('匹配 ' + String(o.pattern).slice(0, 32));
   return lead + lab + (bits.length ? ' ' + bits.join(' ') : '');

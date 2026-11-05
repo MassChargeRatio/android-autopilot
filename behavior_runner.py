@@ -1291,7 +1291,9 @@ class BehaviorRunner:
         scroll_to 只搜 text 永远找不到 → 5 页失败。故支持 `desc` 字段
         （与 text 二选一），走 descriptionContains 匹配。
         """
-        if "desc" in act:
+        # 空 desc（desc:""）要让位给 text：`"desc" in act` 对空串也为 True，
+        # 曾把 value 定位成空串 -> descriptionContains("") 命中任意元素。
+        if act.get("desc"):
             kind, value = "desc", act.get("desc", "")
         else:
             kind, value = "text", act.get("text", "")

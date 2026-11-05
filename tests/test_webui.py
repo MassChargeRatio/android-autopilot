@@ -849,7 +849,11 @@ def t_ops_event_humanizer_translates_action_json():
         ('- {"type":"wait","seconds":3}', "等待 3s"),
         ('{"type":"think"}', "停顿"),
         ('- {"type":"click_id","res_id":"com.x:id/close"}', "点控件 com.x:id/close"),
-        ('{"type":"any_of","branches":[{},{}]}', "分支 2 路"),
+        # P1-1：分支数字段名以生产端为准 —— behavior_runner._step_any_of 读的
+        # 是 act["choices"]（缺失还会 WARN「any_of 动作缺少 choices」），全仓
+        # 无任何代码产出 action 级 `branches`。原用例喂 `branches`，恰好把
+        # app.js 的字段名错读（o.branches 恒 undefined -> 分支 0 路）掩盖住。
+        ('{"type":"any_of","choices":[{},{}]}', "分支 2 路"),
         ('- {"type":"click_first","candidates":[{"value":"福利"},{"value":"金币"}]}',
          "点首个命中 [福利/金币]"),
         ('- {"type":"reward","pattern":"\\\\|¥?([Pp]\\\\d+)"}', "读收益 匹配"),

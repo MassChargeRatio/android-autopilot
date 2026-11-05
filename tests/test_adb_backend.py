@@ -177,11 +177,24 @@ def test_cold_start_ok(monkeypatch):
     monkeypatch.setattr(
         adb_backend, "resolve_activity",
         lambda pkg: "com.tencent.mm/com.tencent.mm.ui.LauncherUI")
-    monkeypatch.setattr(adb_backend, "shell", lambda cmd: calls.append(cmd))
+    # mock 必须与真实契约一致：adb 成功但无输出时 shell 回 ""（**不是 None**）。
+    # 原 mock 回 None（list.append 的返回值），那是 P1-2 修掉之前的「None 也算
+    # 成功」旧契约，会让 cold_start 的可判定性失效（失败被当成功）。
+    monkeypatch.setattr(adb_backend, "shell", lambda cmd: calls.append(cmd) or "")
     monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
     assert adb_backend.cold_start("com.tencent.mm") is True
     assert calls[0] == "am force-stop com.tencent.mm"
     assert calls[1] == "am start -n com.tencent.mm/com.tencent.mm.ui.LauncherUI"
+
+
+def test_cold_start_shell_failure_returns_false(monkeypatch):
+    """am start 下发失败（shell 回 None）时 cold_start 必须回 False。"""
+    monkeypatch.setattr(
+        adb_backend, "resolve_activity",
+        lambda pkg: "com.tencent.mm/com.tencent.mm.ui.LauncherUI")
+    monkeypatch.setattr(adb_backend, "shell", lambda cmd: None)
+    monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
+    assert adb_backend.cold_start("com.tencent.mm") is False
 
 
 def test_cold_start_fail_no_resolve(monkeypatch):
@@ -478,3 +491,50 @@ def test_adapter_info_missing_getitem_raises():
     u2, fb, a = _adapter()
     with pytest.raises(KeyError):
         _ = a.info["nonexistent"]
+
+
+# ---------------- P1-2：失败必须可判定（不得把错误串当成功） ----------------
+def test_run_returns_none_on_exception(monkeypatch):
+    """subprocess 抛异常 -> _run 回 None。
+
+    历史实现 `except: return f"[adb err] {e}"` 回的是非空字符串，调用方
+    `if out:` 判真 -> 把失败当成功（还会把错误串当设备输出继续解析）。
+    """
+    def boom(*a, **k):
+        raise OSError("adb 不可用")
+
+    monkeypatch.setattr(adb_backend.subprocess, "run", boom)
+    out = adb_backend._run(["adb", "devices"])
+    assert out is None, out
+    assert adb_backend.shell("wm size") is None
+    assert "adb err" not in str(out)
+
+
+def test_retry_returns_none_not_error_string(monkeypatch):
+    """_retry 全失败回 None；异常详情只打日志，绝不进返回值。"""
+    monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
+
+    def boom():
+        raise RuntimeError("offline")
+
+    assert adb_backend._retry(boom, retries=1, backoff=0, label="tap") is None
+    assert adb_backend._retry(lambda: "", retries=1, backoff=0) is None
+
+
+def test_tap_swipe_back_report_failure(monkeypatch):
+    """动作为原子原语也必须能报失败：失败 False、成功 True。"""
+    monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
+    monkeypatch.setattr(adb_backend, "_run", lambda *a, **k: None)
+    assert adb_backend.tap(1, 2) is False
+    assert adb_backend.swipe(1, 2, 3, 4) is False
+    assert adb_backend.back() is False
+    # adb 成功但无输出时 _run 回 ""（假值，但**不是 None**）-> 判定为成功
+    monkeypatch.setattr(adb_backend, "_run", lambda *a, **k: "")
+    assert adb_backend.tap(1, 2) is True
+    assert adb_backend.back() is True
+
+
+def test_window_size_none_safe(monkeypatch):
+    """shell 回 None 时 window_size 不得抛异常，退化为 (None, None)。"""
+    monkeypatch.setattr(adb_backend, "_run", lambda *a, **k: None)
+    assert adb_backend.window_size() == (None, None)

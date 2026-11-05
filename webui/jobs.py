@@ -293,6 +293,15 @@ def _kill_tree(p):
             pass
 
 
+class JobBusy(RuntimeError):
+    """已有运行中任务（设备是独占资源）：调用方应转 409。"""
+
+    def __init__(self, active=None):
+        self.active = active
+        title = getattr(active, "title", "") or ""
+        super().__init__(f"已有任务在运行（{title}），请先停止")
+
+
 class JobManager:
     """任务注册表。同一时刻只允许一个**运行中**任务（设备是独占资源）。"""
 
@@ -302,19 +311,45 @@ class JobManager:
         self._history = history
         self._lock = threading.Lock()
 
-    def create(self, kind, title, steps, meta=None):
+    def _active_locked(self):
+        """取运行中任务（**调用方必须已持锁**）。"""
+        for i in reversed(self._order):
+            j = self._jobs.get(i)
+            if j is not None and not j.finished:
+                return j
+        return None
+
+    def _create_locked(self, kind, title, steps, meta=None):
+        """登记新任务（**调用方必须已持锁**）。"""
         job = Job(kind, title, steps, meta)
-        with self._lock:
-            self._jobs[job.id] = job
-            self._order.append(job.id)
-            while len(self._order) > self._history:
-                old = self._order.pop(0)
-                j = self._jobs.get(old)
-                if j is not None and j.alive:
-                    self._order.append(old)      # 还在跑，别丢
-                    break
-                self._jobs.pop(old, None)
+        self._jobs[job.id] = job
+        self._order.append(job.id)
+        while len(self._order) > self._history:
+            old = self._order.pop(0)
+            j = self._jobs.get(old)
+            if j is not None and j.alive:
+                self._order.append(old)      # 还在跑，别丢
+                break
+            self._jobs.pop(old, None)
         return job
+
+    def create(self, kind, title, steps, meta=None):
+        with self._lock:
+            return self._create_locked(kind, title, steps, meta)
+
+    def create_exclusive(self, kind, title, steps, meta=None):
+        """原子「判空闲 + 登记」：并发下最多只有一个任务能起来。
+
+        历史实现是上层先 `active()`、再 `create()`，两次取锁之间是空的：
+        两个并发 POST /api/jobs 都能看到「无运行中任务」并各自登记 -> 同时
+        跑两个任务抢同一台设备（设备独占不变式被破）。检查与登记必须在同
+        一把锁内完成，故收敛到本方法；已有运行中任务时抛 JobBusy。
+        """
+        with self._lock:
+            busy = self._active_locked()
+            if busy is not None:
+                raise JobBusy(busy)
+            return self._create_locked(kind, title, steps, meta)
 
     def get(self, job_id):
         with self._lock:
@@ -328,11 +363,7 @@ class JobManager:
 
     def active(self):
         with self._lock:
-            for i in reversed(self._order):
-                j = self._jobs.get(i)
-                if j is not None and not j.finished:
-                    return j
-        return None
+            return self._active_locked()
 
     def stop_all(self):
         j = self.active()

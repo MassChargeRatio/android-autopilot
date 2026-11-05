@@ -49,17 +49,30 @@ MIN_DUMP_BYTES = 500
 
 
 def _run(args, timeout=30):
-    """subprocess 包装。测试通过 mock adb_backend.subprocess.run 拦截。"""
+    """subprocess 包装。测试通过 mock adb_backend.subprocess.run 拦截。
+
+    失败回 **None**（绝不回错误串）：历史实现 `except: return f"[adb err] {e}"`
+    返回的是**非空字符串**，于是 `_retry` 的 `if last: return last` 把错误文本
+    当成功返回，调用方拿 "[adb err] ..." 当设备输出继续解析（典型症状：
+    `shell("wm size")` 的返回被当真值、`.strip()` 得到错误串）。
+    现约定：None = 调用失败（可判定），"" = 调用成功但无输出。
+    """
     try:
         r = subprocess.run(args, capture_output=True, text=True, timeout=timeout,
                            env=_ENV)
         return (r.stdout or "") + (r.stderr or "")
-    except Exception as e:
-        return f"[adb err] {e}"
+    except Exception:  # noqa: BLE001 - 统一兜底为 None（失败可判定）
+        return None
 
 
 def _retry(fn, retries=RETRIES, backoff=BACKOFF, label=""):
-    """通用重试/退避：失败（返回 falsy 或抛异常）按指数退避重试。"""
+    """通用重试/退避：失败（返回 falsy 或抛异常）按指数退避重试。
+
+    全失败回 **None**（绝不回异常字符串）：历史实现在 except 里把 `last`
+    设成 `f"[{label} err] ..."`，末尾 `return last` 就把错误串当成功返回，
+    调用方 `if out:` 判真 -> 把失败当成功。现约定 None = 失败、真值 = 成功；
+    异常详情只打日志（print），不进返回值。
+    """
     last = None
     for i in range(retries + 1):
         try:
@@ -67,10 +80,13 @@ def _retry(fn, retries=RETRIES, backoff=BACKOFF, label=""):
             if last:
                 return last
         except Exception as e:  # noqa: BLE001 - 统一兜底
-            last = f"[{label} err] {type(e).__name__}: {e}"
+            last = None
+            print(f"  [retry] {label or 'call'} 第 {i + 1} 次失败: "
+                  f"{type(e).__name__}: {e}")
         if i < retries:
             time.sleep(backoff * (2 ** i))
-    return last
+    # 归一化：空串等 falsy 也统一回 None，保证「None = 失败」这一条契约唯一
+    return last or None
 
 
 # ---- 轻量原语（复制自 temp/adb_core.py，依赖仅 subprocess/os/re/time） ----
@@ -79,20 +95,27 @@ def shell(cmd, timeout=30):
 
 
 def tap(x, y, label=""):
-    shell(f"input tap {int(x)} {int(y)}")
+    """点击。返回 True=已下发、False=adb 调用失败（失败可判定，不再静默）。"""
+    ok = shell(f"input tap {int(x)} {int(y)}") is not None
     if label:
         print(f"  点击 ({int(x)},{int(y)}) {label}")
     time.sleep(1.2)
+    return ok
 
 
 def swipe(x1, y1, x2, y2, dur=0.4):
-    shell(f"input swipe {int(x1)} {int(y1)} {int(x2)} {int(y2)} {int(dur*1000)}")
+    """滑动。返回 True=已下发、False=adb 调用失败。"""
+    ok = shell(f"input swipe {int(x1)} {int(y1)} {int(x2)} {int(y2)} "
+               f"{int(dur * 1000)}") is not None
     time.sleep(1.2)
+    return ok
 
 
 def back():
-    shell("input keyevent 4")
+    """返回键。返回 True=已下发、False=adb 调用失败。"""
+    ok = shell("input keyevent 4") is not None
     time.sleep(1.2)
+    return ok
 
 
 def texts(xml):
@@ -108,15 +131,22 @@ def texts(xml):
     return seen
 
 
-def find(xml, pat):
-    """按子串返回 [(text, bounds, tag), ...]。"""
+def find(xml, pat, exact=False):
+    """按子串返回 [(text, bounds, tag), ...]。
+
+    P2-7 结论（评审降级为设计权衡，**不改默认语义**）：子串是定位特性而非
+    缺陷 —— 节点文本常带后缀/前后缀（如文本「签到领100金币」必须能用
+    pat="签到" 命中），改成精确匹配会直接打断真实定位。故默认仍走子串，
+    仅新增 `exact=True` 供「必须全等」的场景使用（默认行为零变化）。
+    """
     out = []
     for m in re.finditer(r'<node[^>]*>', xml):
         tag = m.group(0)
         t = re.search(r'text="([^"]*)"', tag)
         cd = re.search(r'content-desc="([^"]*)"', tag)
         v = (t.group(1) if t and t.group(1) else "") or (cd.group(1) if cd else "")
-        if pat in v:
+        hit = (v == pat) if exact else (pat in v)
+        if hit:
             b = re.search(r'bounds="([^"]*)"', tag)
             out.append((v, b.group(1) if b else "?", tag))
     return out
@@ -257,15 +287,19 @@ def resolve_activity(pkg, timeout=15):
 
 
 def cold_start(pkg, wait=7):
-    """精确冷启动：resolve-activity 取组件 -> am start -n（弃 monkey）。"""
+    """精确冷启动：resolve-activity 取组件 -> am start -n（弃 monkey）。
+
+    返回 True=启动命令**已下发成功**、False=组件解析失败或 adb 调用失败
+    （_run 失败回 None -> 判 False，不再无条件 True 让上层以为已启动）。
+    """
     comp = resolve_activity(pkg)
     if not comp:
         return False
     shell(f"am force-stop {pkg}")
     time.sleep(1.5)
-    shell(f"am start -n {comp}")
+    ok = shell(f"am start -n {comp}") is not None
     time.sleep(wait)
-    return True
+    return ok
 
 
 # ---------------- 缺口 4：click_text() ----------------
@@ -427,6 +461,6 @@ class AdbDeviceAdapter:
             return self._backend.cold_start(pkg)
         comp = self._backend.resolve_activity(pkg)
         if comp:
-            self._backend.shell(f"am start -n {comp}")
-            return True
+            # adb 下发失败（_run 回 None）时回 False，可判定
+            return self._backend.shell(f"am start -n {comp}") is not None
         return getattr(self._u2, "app_start")(pkg)

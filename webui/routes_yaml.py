@@ -70,7 +70,7 @@ class YamlRoutes:
 
     @staticmethod
     def _app_file(name: str) -> str:
-        if not name or "/" in name or ".." in name or "\\" in name:
+        if not name or "/" in name or "\\" in name or ".." in name or "\x00" in name:
             raise ValueError(f"非法 app 名: {name!r}")
         for fn in sorted(os.listdir(APPS_DIR)):
             if not fn.endswith((".yaml", ".yml")):
@@ -203,7 +203,7 @@ class YamlRoutes:
         if not ok:
             import shutil
             shutil.copy2(bak, path)
-            return 200, {"ok": True, "action": "rolled_back", "backup": bak,
+            return 200, {"ok": False, "action": "rolled_back", "backup": bak,
                          "diff": "", "warnings": problems}
         diff = yaml_writer._unified_diff(lines, new_lines, path)
         return 200, {"ok": True, "action": "saved", "backup": bak, "diff": diff}
@@ -292,7 +292,7 @@ class YamlRoutes:
             import shutil
             if wr.backup and os.path.exists(wr.backup):
                 shutil.copy2(wr.backup, path)
-            return 200, {"ok": True, "action": "rolled_back", "backup": wr.backup,
+            return 200, {"ok": False, "action": "rolled_back", "backup": wr.backup,
                          "diff": wr.diff, "warnings": problems}
         return 200, {"ok": True, "action": wr.action, "backup": wr.backup,
                      "diff": wr.diff, "warnings": wr.warnings}

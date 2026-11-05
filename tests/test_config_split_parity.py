@@ -9,10 +9,12 @@
   * `_backup_pre_fix/config.yaml.split_baseline` 存在时以其为准；
     否则回退到最后一个 `config.yaml.pre_split_*` 历史快照。
   * 有意变更 App 配置（新增/修改 behavior）后，测试会如实报差异——
-    这是设计行为（防误改），确认变更无误后刷新基线：
+    这是设计行为（防误改），确认变更无误后刷新基线。
+    **只写 apps 段**：早期命令把整份 config.yaml 读出来再覆盖 apps，等于把
+    `vlm.api_key` 等密钥一起抄进基线（实测已被 pre-commit 拦截），故必须
+    从 load_config 结果里只取 apps 重新组一个 dict：
         python -c "import sys; sys.path.insert(0,'.'); import yaml; from config_loader import load_config; \
-cfg=yaml.safe_load(open('config.yaml',encoding='utf-8').read()) or {}; \
-cfg['apps']=load_config('config.yaml')['apps']; \
+cfg={'apps': load_config('config.yaml')['apps']}; \
 open('_backup_pre_fix/config.yaml.split_baseline','w',encoding='utf-8').write(yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False))"
 
 运行：
@@ -58,8 +60,11 @@ def _before_apps():
 def t_split_parity_deep_equal():
     before = _before_apps()
     if before is None:
-        print("SKIP 未找到 pre_split 备份，跳过（首次拆分场景）")
-        return
+        # 历史实现是 print("SKIP ...") + return：`__main__` 把「没抛异常」计为
+        # 通过，护栏于是静默失效（基线丢了也没人知道）。改为显式失败：
+        # 没基线 = 对拍没做 = 护栏不存在，必须炸出来。
+        raise AssertionError(
+            "SKIP 未找到 pre_split 备份——护栏失效，请先建立基线")
     after = load_config(CONFIG).get("apps") or []
     assert len(after) == len(before), \
         f"apps 数量不一致: before={len(before)} after={len(after)}"
