@@ -90,6 +90,22 @@ class Human:
         # 点击计数（限流长停用）；验证码冷却期间不再计数猛点
         self._tap_count = 0
 
+        # ---------- 可选引擎：touch-humanization（默认 legacy，零行为变化） ----------
+        # 启用：config.yaml 的 human.engine: touch_humanization
+        # 只切换「时序采样 + 轨迹生成」；点击抖动/误触/分心/退场仍走本文件实现。
+        self._cfg = cfg
+        self._engine = None
+        try:
+            import human_engine
+            if human_engine.is_enabled(cfg):
+                self._engine = human_engine.build_engine(cfg, seed=seed)
+                self.trajectory = human_engine.EngineTrajectory(
+                    self._engine, cfg.get("trajectory"))
+                print("  [human] engine=touch_humanization（时序/轨迹走新库）")
+        except Exception as _e:  # noqa: BLE001 - 任何异常都回退 legacy
+            print(f"  [human] touch-humanization 不可用，回退 legacy: {_e}")
+            self._engine = None
+
 
     # ---------- 工具 ----------
     @staticmethod
@@ -129,6 +145,8 @@ class Human:
         return default_flag
 
     def _rand(self, a, b, lognormal=False):
+        if getattr(self, "_engine", None) is not None:
+            return self._engine.sample(a, b, lognormal=lognormal)
         lo, hi = min(a, b), max(a, b)
         if hi <= lo:
             return lo
@@ -154,12 +172,22 @@ class Human:
         """重置随机源：同 seed 可复现整条动作序列。"""
         self._rng = random.Random(seed)
         self._tap_count = 0
+        if getattr(self, "_engine", None) is not None:
+            try:
+                import human_engine
+                self._engine = human_engine.build_engine(self._cfg, seed=seed)
+                self.trajectory = human_engine.EngineTrajectory(
+                    self._engine, (self._cfg or {}).get("trajectory"))
+            except Exception as _e:  # noqa: BLE001
+                print(f"  [human] engine reseed 失败，保留旧引擎: {_e}")
 
     # ---------- 对外行为 ----------
     def in_wake_window(self, now=None) -> bool:
         """当前时刻是否在作息的活跃窗口内"""
         if not self.enabled:
             return True
+        if getattr(self, "_engine", None) is not None:
+            return self._engine.in_wake_window(now)
         now = time.localtime(now if now else time.time())
         cur = now.tm_hour * 60 + now.tm_min
         if self.wake_start <= self.wake_end:
@@ -171,6 +199,8 @@ class Human:
         """返回启动前应等待的随机秒数（把动作时刻打散）"""
         if not self.enabled:
             return 0.0
+        if getattr(self, "_engine", None) is not None:
+            return self._engine.start_wait()
         return self._rng.uniform(*self._pair(self.start_jitter))
 
     def delay(self):
