@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""test_human_engine_bridge.py - touch-humanization 接入层（可选引擎）回归。
+"""test_human_engine_bridge.py - android-humanizer 接入层（可选引擎）回归。
 
 覆盖：
   * 默认 legacy：`_engine is None`，行为零变化；
-  * 启用开关：`human.engine: touch_humanization` 时挂载引擎；
+  * 启用开关：`human.engine: android_humanizer` 时挂载引擎；
   * 同 seed 可复现（时序 + 轨迹）；
   * 轨迹返回契约（intervals 首位 0.0、端点精确）；
   * 作息窗口与 legacy 一致。
-未安装 touch-humanization 时自动 skip（允许无库环境跑全量）。
+未安装 android-humanizer 时自动 skip（允许无库环境跑全量）。
 """
 import copy
 import time
@@ -36,12 +36,12 @@ CFG = {
 }
 
 needs_lib = pytest.mark.skipif(not human_engine.available(),
-                               reason="touch-humanization 未安装")
+                               reason="android-humanizer 未安装")
 
 
 def _cfg_engine():
     c = copy.deepcopy(CFG)
-    c["human"]["engine"] = "touch_humanization"
+    c["human"]["engine"] = "android_humanizer"
     return c
 
 
@@ -57,7 +57,7 @@ def h_engine_off(h):
 
 def test_is_enabled_flag_parsing():
     assert human_engine.is_enabled(CFG) is False
-    for v in ("touch_humanization", "touch-humanization", "V6", " TH "):
+    for v in ("android_humanizer", "android-humanizer", "V6", " TH "):
         assert human_engine.is_enabled({"human": {"engine": v}}) is True
     assert human_engine.is_enabled({"human": {"engine": "legacy"}}) is False
     assert human_engine.is_enabled({}) is False

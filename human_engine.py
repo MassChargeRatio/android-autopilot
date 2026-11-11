@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""human_engine.py - touch-humanization 适配层（可选引擎，默认关闭）
+"""human_engine.py - android-humanizer 适配层（可选引擎，默认关闭）
 
 背景
 ----
 本项目原 `human.py` / `human_trajectory.py` 的时序与轨迹算法已提炼为独立库
-`touch-humanization`（MIT），其 `Timing.sample` 与本项目 `Human._rand` 的
+`android-humanizer`（MIT），其 `Timing.sample` 与本项目 `Human._rand` 的
 均值校正公式完全一致；`Kinematics.generate` 与 `HumanTrajectory.generate_gesture`
 同为「三次贝塞尔 + Fitts 步数 + smoothstep 速度轮廓 + 末段微颤 + 过冲回拉」。
 
@@ -17,7 +17,7 @@
 启用方式（config.yaml）
 -----------------------
     human:
-      engine: touch_humanization     # legacy（默认） | touch_humanization
+      engine: android_humanizer     # legacy（默认） | android_humanizer
 
 接入范围（严格限定，避免影响点击语义）
 --------------------------------------
@@ -33,14 +33,14 @@ import sys
 __all__ = ["available", "is_enabled", "build_engine", "TouchEngine",
            "EngineTrajectory"]
 
-try:  # 允许未安装时优雅降级（pip install -e ../touch-humanization）
-    from touch_humanization import Humanizer
+try:  # 允许未安装时优雅降级（pip install -e ../android-humanizer）
+    from android_humanizer import Humanizer
     _IMPORT_ERR = None
 except Exception as _e:  # noqa: BLE001
     Humanizer = None
     _IMPORT_ERR = _e
 
-_ENGINE_ALIASES = {"touch_humanization", "touch-humanization", "v6", "th"}
+_ENGINE_ALIASES = {"android_humanizer", "android-humanizer", "v6", "th"}
 
 
 def available() -> bool:
@@ -64,7 +64,7 @@ def _as_range(v, default):
 
 
 def build_hcfg(cfg: dict | None) -> dict:
-    """把本项目 config 映射为 touch-humanization 的配置结构。"""
+    """把本项目 config 映射为 android-humanizer 的配置结构。"""
     cfg = cfg or {}
     h = cfg.get("human") or {}
     ad = cfg.get("anti_detection") or {}
@@ -99,7 +99,7 @@ class TouchEngine:
 
     def __init__(self, cfg: dict | None = None, seed=None):
         if Humanizer is None:
-            raise RuntimeError(f"touch_humanization 不可用: {_IMPORT_ERR}")
+            raise RuntimeError(f"android_humanizer 不可用: {_IMPORT_ERR}")
         self.cfg = cfg or {}
         self.h = Humanizer(build_hcfg(self.cfg), seed=seed)
 
