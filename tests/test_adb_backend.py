@@ -83,6 +83,36 @@ def test_foreground_missing_returns_empty(monkeypatch):
     assert adb_backend.foreground() == ""
 
 
+# ---------------- 缺口 1b：parse_resumed（抗多窗幽灵窗） ----------------
+RESUMED_SAMPLE = (
+    "  mResumedActivity: ActivityRecord{1bfa3c7 u0 "
+    "com.jingdong.app.mall/.MainFrameActivity d0 s1083 t1065}\n"
+    " ResumedActivity:ActivityRecord{1bfa3c7 u0 "
+    "com.jingdong.app.mall/.MainFrameActivity d0 s1083 t1065}\n"
+)
+
+
+def test_parse_resumed_ok():
+    assert adb_backend.parse_resumed(RESUMED_SAMPLE) == \
+        ("com.jingdong.app.mall", ".MainFrameActivity")
+
+
+def test_parse_resumed_empty():
+    assert adb_backend.parse_resumed("no resumed here") == ("", "")
+    assert adb_backend.parse_resumed("") == ("", "")
+
+
+def test_foreground_prefers_resumed_over_ghost(monkeypatch):
+    """dumpsys activity 的 ResumedActivity 优先于 window 的 mCurrentFocus。
+
+    2026-11-04：vivo 多窗幽灵窗（抖音 Splash）会占 dumpsys window 首个
+    mCurrentFocus，导致前台误判；ResumedActivity 与 u2 app_current 一致。
+    """
+    monkeypatch.setattr(adb_backend, "_run",
+                        lambda *a, **k: RESUMED_SAMPLE)
+    assert adb_backend.foreground() == "com.jingdong.app.mall"
+
+
 def test_run_uses_subprocess(monkeypatch):
     """_run 确实走 subprocess.run，命令构造正确（mock subprocess 层）。"""
     class FakeProc:
@@ -147,11 +177,24 @@ def test_cold_start_ok(monkeypatch):
     monkeypatch.setattr(
         adb_backend, "resolve_activity",
         lambda pkg: "com.tencent.mm/com.tencent.mm.ui.LauncherUI")
-    monkeypatch.setattr(adb_backend, "shell", lambda cmd: calls.append(cmd))
+    # mock 必须与真实契约一致：adb 成功但无输出时 shell 回 ""（**不是 None**）。
+    # 原 mock 回 None（list.append 的返回值），那是 P1-2 修掉之前的「None 也算
+    # 成功」旧契约，会让 cold_start 的可判定性失效（失败被当成功）。
+    monkeypatch.setattr(adb_backend, "shell", lambda cmd: calls.append(cmd) or "")
     monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
     assert adb_backend.cold_start("com.tencent.mm") is True
     assert calls[0] == "am force-stop com.tencent.mm"
     assert calls[1] == "am start -n com.tencent.mm/com.tencent.mm.ui.LauncherUI"
+
+
+def test_cold_start_shell_failure_returns_false(monkeypatch):
+    """am start 下发失败（shell 回 None）时 cold_start 必须回 False。"""
+    monkeypatch.setattr(
+        adb_backend, "resolve_activity",
+        lambda pkg: "com.tencent.mm/com.tencent.mm.ui.LauncherUI")
+    monkeypatch.setattr(adb_backend, "shell", lambda cmd: None)
+    monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
+    assert adb_backend.cold_start("com.tencent.mm") is False
 
 
 def test_cold_start_fail_no_resolve(monkeypatch):
@@ -288,6 +331,8 @@ class FakeU2:
         return None
     def app_start(self, pkg, stop=False):
         return ("u2start", pkg, stop)
+    def dump_hierarchy(self):
+        return "<u2-hierarchy><node/></u2-hierarchy>"
 
 
 class FakeBackend:
@@ -337,10 +382,23 @@ def test_adapter_window_size_routes_adb():
     assert "window_size" in fb.calls
 
 
-def test_adapter_dump_hierarchy_routes_adb():
+def test_adapter_dump_hierarchy_routes_u2():
+    """内容 dump 恒走 u2（adb CLI dump 已证实不可靠，2026-11-04 京东 A/B）。
+
+    两种失败模式：动画页 idle 超时「could not get idle state」不写文件；
+    vivo 多窗下前台是京东但 uiautomator 活动窗口指向抖音残留 -> dump 成功
+    却写错窗口树（103999B）。u2 jsonrpc dump 3 轮均可靠，故内容恒走 u2。
+    """
     u2, fb, a = _adapter()
-    assert a.dump_hierarchy() == "<hierarchy><node/></hierarchy>"
-    assert ("dump", "proxy_dump.xml") in fb.calls
+    assert a.dump_hierarchy() == "<u2-hierarchy><node/></u2-hierarchy>"
+    assert ("dump", "proxy_dump.xml") not in fb.calls  # adb dump 不再被用于内容
+
+
+def test_adapter_dump_hierarchy_u2_error_returns_empty():
+    """u2 dump 抛异常（极端）=> 回 ""，不冒泡。"""
+    u2, fb, a = _adapter()
+    u2.dump_hierarchy = lambda: (_ for _ in ()).throw(RuntimeError("boom"))
+    assert a.dump_hierarchy() == ""
 
 
 def test_adapter_press_back_routes_adb():
@@ -433,3 +491,50 @@ def test_adapter_info_missing_getitem_raises():
     u2, fb, a = _adapter()
     with pytest.raises(KeyError):
         _ = a.info["nonexistent"]
+
+
+# ---------------- P1-2：失败必须可判定（不得把错误串当成功） ----------------
+def test_run_returns_none_on_exception(monkeypatch):
+    """subprocess 抛异常 -> _run 回 None。
+
+    历史实现 `except: return f"[adb err] {e}"` 回的是非空字符串，调用方
+    `if out:` 判真 -> 把失败当成功（还会把错误串当设备输出继续解析）。
+    """
+    def boom(*a, **k):
+        raise OSError("adb 不可用")
+
+    monkeypatch.setattr(adb_backend.subprocess, "run", boom)
+    out = adb_backend._run(["adb", "devices"])
+    assert out is None, out
+    assert adb_backend.shell("wm size") is None
+    assert "adb err" not in str(out)
+
+
+def test_retry_returns_none_not_error_string(monkeypatch):
+    """_retry 全失败回 None；异常详情只打日志，绝不进返回值。"""
+    monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
+
+    def boom():
+        raise RuntimeError("offline")
+
+    assert adb_backend._retry(boom, retries=1, backoff=0, label="tap") is None
+    assert adb_backend._retry(lambda: "", retries=1, backoff=0) is None
+
+
+def test_tap_swipe_back_report_failure(monkeypatch):
+    """动作为原子原语也必须能报失败：失败 False、成功 True。"""
+    monkeypatch.setattr(adb_backend.time, "sleep", lambda *a, **k: None)
+    monkeypatch.setattr(adb_backend, "_run", lambda *a, **k: None)
+    assert adb_backend.tap(1, 2) is False
+    assert adb_backend.swipe(1, 2, 3, 4) is False
+    assert adb_backend.back() is False
+    # adb 成功但无输出时 _run 回 ""（假值，但**不是 None**）-> 判定为成功
+    monkeypatch.setattr(adb_backend, "_run", lambda *a, **k: "")
+    assert adb_backend.tap(1, 2) is True
+    assert adb_backend.back() is True
+
+
+def test_window_size_none_safe(monkeypatch):
+    """shell 回 None 时 window_size 不得抛异常，退化为 (None, None)。"""
+    monkeypatch.setattr(adb_backend, "_run", lambda *a, **k: None)
+    assert adb_backend.window_size() == (None, None)

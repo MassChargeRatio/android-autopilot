@@ -70,7 +70,7 @@ const S = {
 /* ============================================================
    路由
    ============================================================ */
-const VIEWS = ['overview', 'tasks', 'earnings', 'device', 'calib', 'tools', 'config'];
+const VIEWS = ['overview', 'tasks', 'earnings', 'device', 'calib', 'tools', 'config', 'yaml'];
 
 /* 任务/步骤状态 -> 中文。任务与步骤共用同一套状态取值。 */
 const STATE_LABEL = { pending: '等待', running: '运行中', done: '成功',
@@ -95,9 +95,20 @@ function route() {
   if (view === 'calib') loadCalib();
   if (view === 'tools') loadTools();
   if (view === 'config') loadConfig();
+  if (view === 'yaml') ensureYaml();
   if (view !== 'device') stopShot();
 }
 window.addEventListener('hashchange', route);
+
+/* YAML 编辑器懒加载：脚本已 IIFE 化并挂在 window.YamlEditor，首次进入该 tab 才初始化
+   （避免首屏就打 /api/yaml/apps）。init() 内部幂等，重复调用无副作用。 */
+function ensureYaml() {
+  if (!window.YamlEditor || typeof window.YamlEditor.init !== 'function') {
+    toast('YAML 编辑器脚本未加载（yaml_editor.js）', 'err');
+    return;
+  }
+  window.YamlEditor.init();
+}
 
 /* ============================================================
    总览
@@ -220,7 +231,7 @@ function humanEvent(ev) {
   if (o.images) bits.push('图像×' + (o.images || []).length);
   if (o.seconds) bits.push(o.seconds + 's');
   if (o.x != null && o.y != null) bits.push(`(${o.x},${o.y})`);
-  if (t === 'any_of' && o.branches) bits.push((o.branches || []).length + ' 路');
+  if (t === 'any_of' && o.choices) bits.push((o.choices || []).length + ' 路');
   // reward 的 pattern 是提取余额用的正则，正是排查「读不到收益」要看的东西
   if (o.pattern) bits.push('匹配 ' + String(o.pattern).slice(0, 32));
   return lead + lab + (bits.length ? ' ' + bits.join(' ') : '');

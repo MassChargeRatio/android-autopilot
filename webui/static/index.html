@@ -6,6 +6,7 @@
 <meta name="console-token" content="__CONSOLE_TOKEN__">
 <title>Android Autopilot · 控制台</title>
 <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/yaml_editor.css">
 </head>
 <body>
 <div class="shell">
@@ -27,7 +28,7 @@
       <a href="#/calib"    data-view="calib"><i>◎</i>校准</a>
       <a href="#/tools"    data-view="tools"><i>⚙</i>工具</a>
       <a href="#/config"   data-view="config"><i>≡</i>配置</a>
-      <a href="/yaml.html" data-view="yaml"><i>✎</i>YAML 编辑</a>
+      <a href="#/yaml"     data-view="yaml"><i>✎</i>YAML 编辑</a>
     </nav>
 
     <div class="side-foot">
@@ -282,6 +283,57 @@
       </div>
     </section>
 
+    <!-- ============ YAML 编辑 ============ -->
+    <section class="view" id="view-yaml">
+      <header class="vhead">
+        <h1>YAML 配置编辑</h1>
+        <span class="muted" id="yStatus">加载中…</span>
+      </header>
+
+      <div class="ymain">
+        <aside class="yside">
+          <input id="yAppFilter" class="yinput" placeholder="筛选 App…">
+          <ul id="yAppList" class="ylist"></ul>
+        </aside>
+
+        <section class="ybody">
+          <div class="ybar">
+            <select id="yBehavior" class="yinput"></select>
+            <button class="btn" id="ySave">保存</button>
+            <button class="btn ghost" id="yReload">重新载入</button>
+          </div>
+          <textarea id="yEditor" class="yeditor" spellcheck="false"></textarea>
+          <pre id="yMsg" class="ymsg"></pre>
+        </section>
+
+        <section class="ynl">
+          <h2>自然语言生成</h2>
+          <textarea id="yNlText" class="yinput" rows="3" placeholder="例如：点底部福利tab，点连续签到卡"></textarea>
+          <details class="yopts">
+            <summary>坐标与模板参数（真机校准后在此填写）</summary>
+            <div class="yopts-grid">
+              <label>tab 文案<input id="yOpt-tab_text" class="yinput" placeholder="我的 / 福利"></label>
+              <label>tab 坐标<input id="yOpt-tab_xy" class="yinput" placeholder="0.5,0.927"></label>
+              <label>hub 文案<input id="yOpt-hub_text" class="yinput" placeholder="福利中心"></label>
+              <label>hub 坐标<input id="yOpt-hub_xy" class="yinput" placeholder="0.158,0.562"></label>
+              <label>anchor 文案<input id="yOpt-anchor_text" class="yinput" placeholder="福利"></label>
+              <label>anchor 坐标<input id="yOpt-anchor_xy" class="yinput" placeholder="0.5,0.927"></label>
+              <label>浮球坐标<input id="yOpt-ball_xy" class="yinput" placeholder="0.93,0.12"></label>
+              <label>签到坐标<input id="yOpt-xy" class="yinput" placeholder="0.398,0.372"></label>
+              <label>H5 下移<input id="yOpt-h5_offset" class="yinput" placeholder="60"></label>
+              <label class="ychk"><input id="yOpt-h5" type="checkbox"> H5 页多点兜底</label>
+              <label class="ychk"><input id="yForce" type="checkbox"> 强制替换已有行为</label>
+            </div>
+          </details>
+          <div class="ybar">
+            <button class="btn" id="yGen">生成片段</button>
+            <button class="btn ghost" id="yApply" disabled>写入配置</button>
+          </div>
+          <pre id="yNlOut" class="ymsg"></pre>
+        </section>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -301,6 +353,7 @@
 
 <div id="toast" class="toast hidden"></div>
 
+<script src="/static/yaml_editor.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>

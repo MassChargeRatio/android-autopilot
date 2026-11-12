@@ -727,7 +727,7 @@ def device_status(serial=None, deep=True):
     if not deep:
         return info
     try:
-        info["model"] = adb.shell("getprop ro.product.model", timeout=15).strip()
+        info["model"] = (adb.shell("getprop ro.product.model", timeout=15) or "").strip()
     except Exception:
         pass
     try:

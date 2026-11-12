@@ -2,6 +2,32 @@
    marvis B 卡会话 failed 零产物，由 Host 接手实现。
    只引用 app.css 已有的 CSS 变量，不引入硬编码主色；三栏布局，窄屏堆叠。 */
 
+/* ---- 变量别名（AUTOP-WEBUI-YAML-2026-11-05-A 补）----
+   本文件写的是 --color-* 语义变量，而 app.css 只提供 --bg/--bg2/--fg/--line 等
+   暗色 token；两者不重名时会全部落回 var() 里的浅色兜底（#fff / #f5f6f7），
+   在深色 shell 里会变成刺眼的白块。这里把语义变量映射到暗色 token 上，
+   作用域限定在 .yaml-page（独立页）与 #view-yaml（shell tab），不影响其它视图。 */
+.yaml-page,
+#view-yaml {
+  --color-background-primary: var(--bg2, #141922);
+  --color-background-secondary: var(--bg3, #1a2130);
+  --color-background-tertiary: var(--bg, #0e1116);
+  --color-background-info: rgba(76, 141, 255, .16);
+  --color-text-primary: var(--fg, #e6ebf3);
+  --color-text-secondary: var(--fg2, #9aa7bd);
+  --color-text-info: var(--acc, #4c8dff);
+  --color-text-success: var(--ok, #2fbf71);
+  --color-text-danger: var(--err, #e5534b);
+  --color-border-tertiary: var(--line, #242c3a);
+  --color-border-secondary: var(--line, #242c3a);
+  --color-success: rgba(47, 191, 113, .16);
+  --color-danger: rgba(229, 83, 75, .16);
+  --font-sans: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: var(--mono, ui-monospace, monospace);
+  --border-radius-md: 8px;
+  --border-radius-lg: var(--r2, 14px);
+}
+
 .yaml-page {
   margin: 0;
   padding: 0;
@@ -88,6 +114,7 @@
 
 .yeditor {
   width: 100%;
+  box-sizing: border-box;
   min-height: 52vh;
   resize: vertical;
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -222,5 +249,67 @@ select.yinput {
 
   .yeditor {
     min-height: 40vh;
+  }
+}
+
+/* ============================================================
+   并入控制台 shell（AUTOP-WEBUI-YAML-2026-11-05-A，#/yaml 第 8 个 tab）
+   独立页是整页宽度语义（240 / 1fr / 380），塞进带 ~200px 侧栏的 .main 后
+   编辑器会被挤扁，这里按视口收紧列宽并提前降栏。
+   只作用于 #view-yaml 自身，不影响 .yaml-page 独立页与其它 7 个视图。
+   ============================================================ */
+
+#view-yaml .ymain {
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr) minmax(260px, 340px);
+  padding: 0;
+}
+
+#view-yaml .yside {
+  max-height: calc(100vh - 200px);
+}
+
+#view-yaml .yeditor {
+  min-height: 42vh;
+}
+
+#view-yaml .ybody .ymsg {
+  max-height: 20vh;
+}
+
+/* 中等宽度：自然语言区整行落下，避免中间编辑器被压到 < 360px */
+@media (max-width: 1440px) {
+  #view-yaml .ymain {
+    grid-template-columns: minmax(150px, 200px) minmax(0, 1fr);
+  }
+
+  #view-yaml .ynl {
+    grid-column: 1 / -1;
+  }
+
+  #view-yaml .ynl .yopts-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  #view-yaml .yside {
+    max-height: 260px;
+  }
+}
+
+/* 窄屏：全部单列堆叠，与 app.css 的 760px 断点保持一致 */
+@media (max-width: 1000px) {
+  #view-yaml .ymain {
+    grid-template-columns: 1fr;
+  }
+
+  #view-yaml .ynl {
+    grid-column: auto;
+  }
+
+  #view-yaml .yside {
+    max-height: 220px;
+  }
+
+  #view-yaml .yopts-grid {
+    grid-template-columns: 1fr;
   }
 }

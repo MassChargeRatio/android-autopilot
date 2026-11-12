@@ -502,6 +502,29 @@ class BehaviorRunner:
                 if act.get("type") == "dismiss_popups":
                     self.recorder.log("弹窗清扫: 屏幕干净，无需处理", app_name)
                     continue
+                # 2026-11-04：顶层 optional 步骤未命中 -> 放行，与 any_of 契约对齐。
+                # 但只放行"真未命中"的两种形态，避免掩盖坐标过时/点错：
+                #   ① click_point 仅 images 无坐标（飞猪更新弹窗关X / 红果「立即签到」）
+                #      —— 模板不命中是**常态**（无弹窗/已签日按钮变灰），不是失败；
+                #   ② click_first 候选全未出现（已签态/可选元素）—— 找不到就跳过。
+                # 不放行：有坐标的 click_point 落地校验失败 = 点了却没到目标页
+                # （坐标过时/点错，如全民K歌 scale 问题），应严格报告。
+                # any_of 已在内部放行（返回 True）；any_of/random 分支内走
+                # _dispatch_probe，不经这里，分支判定契约不受影响。
+                if act.get("optional"):
+                    t = act.get("type")
+                    no_coord = (act.get("x") is None and act.get("y") is None)
+                    miss_kind = self._last_fail or ""
+                    passthrough = (
+                        (t == "click_point" and no_coord)
+                        or (t == "click_first"
+                            and "所有候选均未出现" in miss_kind))
+                    if passthrough:
+                        self.recorder.log(
+                            f"步骤未命中（optional 放行）: "
+                            f"{miss_kind or '动作未命中'}",
+                            app_name, "WARN")
+                        continue
                 # B6：定位类动作未命中返回 False，按原消息文本记「步骤失败」
                 self.recorder.log(
                     f"步骤失败: {self._last_fail or '动作未命中'}",
@@ -1268,7 +1291,9 @@ class BehaviorRunner:
         scroll_to 只搜 text 永远找不到 → 5 页失败。故支持 `desc` 字段
         （与 text 二选一），走 descriptionContains 匹配。
         """
-        if "desc" in act:
+        # 空 desc（desc:""）要让位给 text：`"desc" in act` 对空串也为 True，
+        # 曾把 value 定位成空串 -> descriptionContains("") 命中任意元素。
+        if act.get("desc"):
             kind, value = "desc", act.get("desc", "")
         else:
             kind, value = "text", act.get("text", "")

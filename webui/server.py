@@ -25,6 +25,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+# 需要注入 token 的「顶层页面」白名单（唯一事实源）：
+# 新增页面只改这里，do_GET 与 _serve_page 都基于它判断，避免两处硬编码
+# 白名单漂移（历史症状：do_GET 里写了 path == "/xxx.html" 但 _serve_page
+# 的白名单元组没同步 -> 页面永远 404，或反过来白名单放宽成任意文件读取器）。
+PAGES = ("yaml.html",)
 
 sys.path.insert(0, BASE_DIR)
 
@@ -94,7 +99,7 @@ class Console:
         if len(clean) > 3:
             names += f" 等 {len(clean)} 个"
         title = f"{mode} {names}" + ("（含提现）" if money_apps else "")
-        job = self.jobs.create("apps", title, steps, meta={
+        job = self.jobs.create_exclusive("apps", title, steps, meta={
             "dry_run": dry_run, "force": force, "serial": serial,
             "money_apps": money_apps, "plan": clean,
         })
@@ -183,8 +188,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_get(path, q)
             if path in ("/", "/index.html"):
                 return self._serve_index()
-            if path == "/yaml.html":
-                return self._serve_page("yaml.html")
+            if path.lstrip("/") in PAGES:
+                return self._serve_page(path.lstrip("/"))
             return self._serve_static(path)
         except Exception as e:  # noqa: BLE001
             self._err(500, f"{type(e).__name__}: {e}")
@@ -295,10 +300,13 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/config/open":
             return self._open_config()
         if path == "/api/jobs":
-            active = c.jobs.active()
-            if active is not None:
-                return self._err(409, f"已有任务在运行（{active.title}），请先停止")
-            job = c.create_app_job(payload)
+            # 判空闲 + 登记收敛到 JobManager.create_exclusive（同一把锁内完成）：
+            # 历史写法「先 active() 检查、再 create()」中间有空窗，两个并发
+            # 请求可同时通过检查 -> 同时起两个任务抢独占设备。
+            try:
+                job = c.create_app_job(payload)
+            except J.JobBusy as e:
+                return self._err(409, str(e))
             return self._json({"ok": True, "job": job.to_dict(with_steps=False)})
         if path == "/api/jobs/stop":
             ok = c.jobs.stop_all()
@@ -312,10 +320,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"ok": True})
         m = _match(path, "/api/tools/{id}/run")
         if m:
-            active = c.jobs.active()
-            if active is not None:
-                return self._err(409, f"已有任务在运行（{active.title}），请先停止")
-            job = c.create_tool_job(m["id"], payload)
+            try:
+                job = c.create_tool_job(m["id"], payload)
+            except J.JobBusy as e:
+                return self._err(409, str(e))
             return self._json({"ok": True, "job": job.to_dict(with_steps=False)})
         return self._err(404, f"未知接口 {path}")
 
@@ -350,7 +358,7 @@ class Handler(BaseHTTPRequestHandler):
     def _serve_page(self, name: str):
         """ serve 其它顶层页面（如 yaml.html），同样注入一次性 token。"""
         p = os.path.join(STATIC_DIR, name)
-        if name not in ("yaml.html",):        # 白名单，避免当任意文件读取器用
+        if name not in PAGES:                 # 白名单，避免当任意文件读取器用
             return self._err(404, "未知页面")
         try:
             with open(p, "r", encoding="utf-8") as f:

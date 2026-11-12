@@ -11,6 +11,17 @@ intent_map:
   withdraw: withdraw
 behaviors:
   sign:
+  # 2026-11-05 修复（root cause）：首页「签到·天天领现金」区块文案为「至高得10元现金」
+  # （无 ¥、含「得」），旧正则 至高\s*¥X 双坑：①YAML 双反斜杠 \s→正则字面\s 永不匹配空白；
+  # ②格式不符。新正则 至高\s*(?:得)?\s*(?:¥)?X 兼容「至高得10元」(→10)与「至高 ¥1 可提现」(→1)。
+  # 时序修复：reward 移至**点「签到」前**（读首页「签到·天天领现金」奖励预览），原在点「签到」后
+  # 执行但点「签到」进白条模块（骨架+升级弹窗），home 的「至高得10元现金」已不在屏上 → 永远读不到。
+  # 遗留（open）：签到入口仍不明确（点「签到」图标=白条模块；点「签到·天天领现金」区块=促销页），
+  # 真实签到弹窗待专项定位，届时 reward 应改回签到弹窗呈现后读取。
+  - type: reward
+    pattern: 至高\s*(?:得)?\s*(?:¥)?(?P<amount>[0-9]+(?:\.[0-9]+)?)
+    unit: 元
+    name: 签到现金
   - type: click_first
     candidates:
     - type: text
@@ -24,10 +35,6 @@ behaviors:
     timeout: 8
     optional: true
   - type: think
-  - type: reward
-    pattern: 至高\\s*¥(?P<amount>[0-9]+(?:\\.[0-9]+)?)
-    unit: 元
-    name: 签到现金
   - type: click_first
     candidates:
     - type: text

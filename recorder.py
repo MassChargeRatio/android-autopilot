@@ -81,12 +81,18 @@ class Recorder:
 
     # ---------- 批量提交 ----------
     def _flush_ops(self):
-        """把积压的 ops 事务落库（commit）。失败保持 except: pass 语义。"""
+        """把积压的 ops 事务落库（commit）。
+
+        失败**不吞数据**：只有 commit 成功才清零 `_pending`；commit 抛异常时
+        保留 pending，交由下一次 `_maybe_flush_ops` 重试。历史实现在 except
+        里无条件 `self._pending = 0`，一旦 commit 失败（锁超时/磁盘满），
+        积压的 ops 计数被清零却未落库 -> 这批数据永久丢失且无人知晓。
+        """
         try:
             self.conn.commit()
+            self._pending = 0
         except Exception:
-            pass
-        self._pending = 0
+            pass  # pending 保留，下轮重试，不丢数据
         self._last_flush = time.time()
 
     def _maybe_flush_ops(self):

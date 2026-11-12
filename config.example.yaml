@@ -13,6 +13,9 @@ device:
   screen_h: 2340
 human:
   enabled: true
+  # 时序/轨迹引擎：legacy（默认，零行为变化）| android_humanizer（外部库）
+  # 启用条件：pip install -e <android-humanizer 路径>；未安装时自动回退 legacy。
+  engine: legacy
   wake_window:
     start: 07:30
     end: '23:00'

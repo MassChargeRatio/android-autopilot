@@ -15,6 +15,8 @@ behaviors:
     - - type: click_first
         candidates:
         - type: text
+          value: 签到领钱
+        - type: text
           value: 签到
         - type: desc
           value: 签到
@@ -35,6 +37,8 @@ behaviors:
       - type: think
       - type: click_first
         candidates:
+        - type: text
+          value: 签到领钱
         - type: text
           value: 签到
         - type: desc

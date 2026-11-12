@@ -49,17 +49,30 @@ MIN_DUMP_BYTES = 500
 
 
 def _run(args, timeout=30):
-    """subprocess 包装。测试通过 mock adb_backend.subprocess.run 拦截。"""
+    """subprocess 包装。测试通过 mock adb_backend.subprocess.run 拦截。
+
+    失败回 **None**（绝不回错误串）：历史实现 `except: return f"[adb err] {e}"`
+    返回的是**非空字符串**，于是 `_retry` 的 `if last: return last` 把错误文本
+    当成功返回，调用方拿 "[adb err] ..." 当设备输出继续解析（典型症状：
+    `shell("wm size")` 的返回被当真值、`.strip()` 得到错误串）。
+    现约定：None = 调用失败（可判定），"" = 调用成功但无输出。
+    """
     try:
         r = subprocess.run(args, capture_output=True, text=True, timeout=timeout,
                            env=_ENV)
         return (r.stdout or "") + (r.stderr or "")
-    except Exception as e:
-        return f"[adb err] {e}"
+    except Exception:  # noqa: BLE001 - 统一兜底为 None（失败可判定）
+        return None
 
 
 def _retry(fn, retries=RETRIES, backoff=BACKOFF, label=""):
-    """通用重试/退避：失败（返回 falsy 或抛异常）按指数退避重试。"""
+    """通用重试/退避：失败（返回 falsy 或抛异常）按指数退避重试。
+
+    全失败回 **None**（绝不回异常字符串）：历史实现在 except 里把 `last`
+    设成 `f"[{label} err] ..."`，末尾 `return last` 就把错误串当成功返回，
+    调用方 `if out:` 判真 -> 把失败当成功。现约定 None = 失败、真值 = 成功；
+    异常详情只打日志（print），不进返回值。
+    """
     last = None
     for i in range(retries + 1):
         try:
@@ -67,10 +80,13 @@ def _retry(fn, retries=RETRIES, backoff=BACKOFF, label=""):
             if last:
                 return last
         except Exception as e:  # noqa: BLE001 - 统一兜底
-            last = f"[{label} err] {type(e).__name__}: {e}"
+            last = None
+            print(f"  [retry] {label or 'call'} 第 {i + 1} 次失败: "
+                  f"{type(e).__name__}: {e}")
         if i < retries:
             time.sleep(backoff * (2 ** i))
-    return last
+    # 归一化：空串等 falsy 也统一回 None，保证「None = 失败」这一条契约唯一
+    return last or None
 
 
 # ---- 轻量原语（复制自 temp/adb_core.py，依赖仅 subprocess/os/re/time） ----
@@ -79,20 +95,27 @@ def shell(cmd, timeout=30):
 
 
 def tap(x, y, label=""):
-    shell(f"input tap {int(x)} {int(y)}")
+    """点击。返回 True=已下发、False=adb 调用失败（失败可判定，不再静默）。"""
+    ok = shell(f"input tap {int(x)} {int(y)}") is not None
     if label:
         print(f"  点击 ({int(x)},{int(y)}) {label}")
     time.sleep(1.2)
+    return ok
 
 
 def swipe(x1, y1, x2, y2, dur=0.4):
-    shell(f"input swipe {int(x1)} {int(y1)} {int(x2)} {int(y2)} {int(dur*1000)}")
+    """滑动。返回 True=已下发、False=adb 调用失败。"""
+    ok = shell(f"input swipe {int(x1)} {int(y1)} {int(x2)} {int(y2)} "
+               f"{int(dur * 1000)}") is not None
     time.sleep(1.2)
+    return ok
 
 
 def back():
-    shell("input keyevent 4")
+    """返回键。返回 True=已下发、False=adb 调用失败。"""
+    ok = shell("input keyevent 4") is not None
     time.sleep(1.2)
+    return ok
 
 
 def texts(xml):
@@ -108,15 +131,22 @@ def texts(xml):
     return seen
 
 
-def find(xml, pat):
-    """按子串返回 [(text, bounds, tag), ...]。"""
+def find(xml, pat, exact=False):
+    """按子串返回 [(text, bounds, tag), ...]。
+
+    P2-7 结论（评审降级为设计权衡，**不改默认语义**）：子串是定位特性而非
+    缺陷 —— 节点文本常带后缀/前后缀（如文本「签到领100金币」必须能用
+    pat="签到" 命中），改成精确匹配会直接打断真实定位。故默认仍走子串，
+    仅新增 `exact=True` 供「必须全等」的场景使用（默认行为零变化）。
+    """
     out = []
     for m in re.finditer(r'<node[^>]*>', xml):
         tag = m.group(0)
         t = re.search(r'text="([^"]*)"', tag)
         cd = re.search(r'content-desc="([^"]*)"', tag)
         v = (t.group(1) if t and t.group(1) else "") or (cd.group(1) if cd else "")
-        if pat in v:
+        hit = (v == pat) if exact else (pat in v)
+        if hit:
             b = re.search(r'bounds="([^"]*)"', tag)
             out.append((v, b.group(1) if b else "?", tag))
     return out
@@ -131,11 +161,34 @@ def center(b):
 
 
 # ---------------- 缺口 1：foreground() ----------------
+def parse_resumed(dumpsys_activity_output):
+    """从 dumpsys activity activities 输出取顶部 ResumedActivity 的 (pkg, activity)。
+
+    2026-11-04 京东签到页 A/B 实测：vivo 智慧多窗下 dumpsys window 的
+    mCurrentFocus/mFocusedApp 会残留**幽灵窗口**（抖音 SplashActivity，HOME/
+    强杀都不消失）且排在首位，解析它会把前台误判成抖音（启动校验误判跳全量
+    行为的根因之一）。真值源是 dumpsys activity activities 的 ResumedActivity
+    —— 实测与 u2 app_current() 完全一致（都报 com.jingdong.app.mall）。
+    """
+    m = re.search(
+        r"(?:mResumedActivity|ResumedActivity):\s*ActivityRecord\{[^}]*?\s"
+        r"([\w.]+)/([\w.$]+)", dumpsys_activity_output or "")
+    if m:
+        return m.group(1), m.group(2)
+    return "", ""
+
+
 def foreground(timeout=15):
-    """当前前台包名。dumpsys window -> parse_foreground（mCurrentFocus 优先）。
+    """当前前台包名。优先 dumpsys activity activities 的 ResumedActivity
+    （抗多窗幽灵窗），失败回退 dumpsys window -> parse_foreground。
 
     返回包名字符串；取不到回 "" 不回 "?"（对齐 device_session 语义）。
     """
+    out = _run([ADB, "-s", SERIAL, "shell", "dumpsys", "activity", "activities"],
+               timeout=timeout)
+    pkg, _act = parse_resumed(out)
+    if pkg:
+        return pkg
     out = _run([ADB, "-s", SERIAL, "shell", "dumpsys", "window"], timeout=timeout)
     info = parse_foreground(out)
     return info["package"]
@@ -197,6 +250,12 @@ def dump(name, retry=None):
     p = os.path.join(OUT, name)
     dev = "/data/local/tmp/dy.xml"
     for i in range(retry + 1):
+        # 2026-11-04 修正（京东签到页 A/B 实测）：先 rm 设备端旧文件，再 dump。
+        # 否则「uiautomator dump 在动画页 could not get idle state 失败、不写
+        # 新文件」时，adb pull 仍会把上一 app 的旧树拉回来（实测拉到抖音残留
+        # 树 103999B），落地校验 text_nodes 拿错页文案 -> 签到误判失败（9 app
+        # 回归根因）。rm 后失败即无文件，pull 失败回 ""，交由上层 u2 兜底。
+        shell(f"rm -f {dev}")
         shell(f"uiautomator dump {dev}")
         _run([ADB, "-s", SERIAL, "pull", dev, p], timeout=30)
         if os.path.exists(p) and os.path.getsize(p) > MIN_DUMP_BYTES:
@@ -228,15 +287,19 @@ def resolve_activity(pkg, timeout=15):
 
 
 def cold_start(pkg, wait=7):
-    """精确冷启动：resolve-activity 取组件 -> am start -n（弃 monkey）。"""
+    """精确冷启动：resolve-activity 取组件 -> am start -n（弃 monkey）。
+
+    返回 True=启动命令**已下发成功**、False=组件解析失败或 adb 调用失败
+    （_run 失败回 None -> 判 False，不再无条件 True 让上层以为已启动）。
+    """
     comp = resolve_activity(pkg)
     if not comp:
         return False
     shell(f"am force-stop {pkg}")
     time.sleep(1.5)
-    shell(f"am start -n {comp}")
+    ok = shell(f"am start -n {comp}") is not None
     time.sleep(wait)
-    return True
+    return ok
 
 
 # ---------------- 缺口 4：click_text() ----------------
@@ -367,7 +430,20 @@ class AdbDeviceAdapter:
         return self._backend.window_size()
 
     def dump_hierarchy(self):
-        return self._backend.dump("proxy_dump.xml") or ""
+        # 2026-11-04 京东签到页 A/B 实测（两败俱伤）：uiautomator dump CLI 在
+        # 内容 dump 上**不可靠**，两种失败模式都已复现 ——
+        #   (1) 持续动画页（视频流/金币计数器/自动播下一条）=> 等 idle 超时
+        #       "could not get idle state"，设备端无新文件；
+        #   (2) vivo 智慧多窗下前台是京东但 uiautomator「活动窗口」指向残留的
+        #       抖音 Splash => dump 成功但写入**抖音树**（103999B 非当前屏）。
+        # 两种都让落地校验 text_nodes 拿不到当前页文案 -> 签到误判失败
+        # （9 app 回归根因）。u2 的 jsonrpc dump 实测 3 轮均可靠、无需 idle、
+        # 且抓对窗口。故 **内容 dump 恒走 u2**；adb 只替换真正脆弱的原语
+        # （window_size/press/shell/app_start/info）。这是阶段B结论修正点。
+        try:
+            return self._u2.dump_hierarchy() or ""
+        except Exception:  # noqa: BLE001 - 节点不可用不冒泡
+            return ""
 
     def press(self, key):
         if key == "back":
@@ -385,6 +461,6 @@ class AdbDeviceAdapter:
             return self._backend.cold_start(pkg)
         comp = self._backend.resolve_activity(pkg)
         if comp:
-            self._backend.shell(f"am start -n {comp}")
-            return True
+            # adb 下发失败（_run 回 None）时回 False，可判定
+            return self._backend.shell(f"am start -n {comp}") is not None
         return getattr(self._u2, "app_start")(pkg)

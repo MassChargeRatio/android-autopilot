@@ -60,7 +60,10 @@ class Executor(DeviceSession, Locator, BehaviorRunner):
         self.dry_run = dry_run
         self.d = None  # uiautomator2 Device（Phase B 可为 AdbDeviceAdapter 代理）
         # Phase B 后端开关：device.backend = adb | u2（缺省 u2，行为零变化）
-        self.backend = (config or {}).get("device", {}).get("backend", "u2") or "u2"
+        # 配置值可能带空格/大小写（" ADB "），此处统一规范化：str+strip+lower，
+        # 非字符串（如 None / 数字）也能安全落到 "u2" 兜底。
+        self.backend = str((config or {}).get("device", {}).get("backend", "u2")
+                           or "u2").strip().lower()
         # B6：最近一次定位动作未命中的 detail（复用原 raise 消息文本，零日志漂移）
         self._last_fail = ""
         # 视觉兜底定位层（元素定位失败时启用）

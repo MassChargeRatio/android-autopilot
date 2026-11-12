@@ -208,7 +208,70 @@ def t_unregistered_type_is_failure():
     print("OK  未登记分类的 type -> WARN + False")
 
 
-# ---------- ⑥ behavior 层：删 growth / 降级 open ----------
+# ---------- ⑦ 顶层 optional 未命中必须放行（2026-11-04） ----------
+
+def t_top_level_optional_click_point_miss_passes():
+    """顶层 click_point（仅 images 无坐标）optional miss -> 放行，行为不算未完成。
+
+    2026-11-04：飞猪更新弹窗关X / 红果「立即签到」都是「仅 images 无坐标 +
+    optional」，模板不命中是**常态**（无弹窗/已签日按钮变灰），却被记「步骤失败」
+    + all_ok=False -> 行为误判「执行未完成」。修复：_run_actions 消费 optional。
+    """
+    ex = _mk()
+    ex._vision_click = lambda act, app, desc: False
+    act = {"type": "click_point", "images": ["images/x.png"],
+           "template_threshold": 0.96, "timeout": 6, "optional": True,
+           "desc": "版本更新插屏关闭X"}
+    assert ex._run_actions([act], "T", "sign") is True
+    assert any("optional 放行" in l for l in ex.recorder.lines), ex.recorder.lines
+    print("OK  顶层 click_point optional miss -> 放行（行为不算未完成）")
+
+
+def t_top_level_non_optional_click_point_miss_is_failure():
+    """顶层 click_point 无坐标 miss、非 optional -> 记步骤失败 + all_ok False（B6 不变）。"""
+    ex = _mk()
+    ex._vision_click = lambda act, app, desc: False
+    act = {"type": "click_point", "images": ["images/x.png"], "desc": "无坐标非optional"}
+    assert ex._run_actions([act], "T", "sign") is False
+    assert any("步骤失败" in l for l in ex.recorder.lines), ex.recorder.lines
+    print("OK  顶层 click_point 非 optional miss -> 失败（B6 语义不变）")
+
+
+def t_top_level_optional_click_first_miss_passes():
+    """顶层 click_first optional 候选全未出现 -> 放行（与 click_point 顶层语义一致）。"""
+    ex = _mk()
+
+    def _fake_click_first_miss(act, app, allow_vision=True):
+        ex._last_fail = ("所有候选均未出现: "
+                         "[{'type': 'text', 'value': '里程签到'}]")
+        return False
+
+    ex._step_click_first = _fake_click_first_miss
+    act = {"type": "click_first", "candidates": [{"type": "text", "value": "里程签到"}],
+           "optional": True, "timeout": 6}
+    assert ex._run_actions([act], "T", "sign") is True
+    print("OK  顶层 click_first optional 候选未出现 -> 放行")
+
+
+def t_top_level_coord_optional_landing_fail_is_failure():
+    """有坐标 click_point + optional + 落地校验失败 -> 不放行（不掩盖坐标过时/点错）。
+
+    2026-11-04：全民K歌模板 scale 问题就是这类——有坐标但点到错位，落地校验失败。
+    若 optional 无脑放行，会把"点了却没到目标页"伪装成成功。必须严格报告。
+    """
+    ex = _mk()
+    ex._vision_click = lambda act, app, desc: False
+    act = {"type": "click_point", "x": 0.5, "y": 0.5, "optional": True,
+           "expect": {"text_any": ["签到"]}}
+    # _verify_landing 返回 False（落地失败）→ _step_click_point 返回 False
+    ex._verify_landing = lambda act, app, x=None, y=None, no_retry=False: False
+    ex._last_fail = "落地校验失败"
+    assert ex._run_actions([act], "T", "sign") is False
+    assert any("步骤失败" in l for l in ex.recorder.lines), ex.recorder.lines
+    print("OK  有坐标 click_point optional 落地校验失败 -> 不放行（严格报告）")
+
+
+# ---------- ⑧ behavior 层：删 growth / 降级 open ----------
 
 def t_growth_intent_removed():
     """growth 已从意图表删除：相关文案不再解析出 growth。"""
@@ -248,6 +311,10 @@ if __name__ == "__main__":
              t_timing_and_read_none_are_success,
              t_click_none_violates_contract,
              t_unregistered_type_is_failure,
+             t_top_level_optional_click_point_miss_passes,
+             t_top_level_non_optional_click_point_miss_is_failure,
+             t_top_level_optional_click_first_miss_passes,
+             t_top_level_coord_optional_landing_fail_is_failure,
              t_growth_intent_removed, t_open_intent_removed,
              t_baidu_lite_redirects_sign_to_open]
     failed = 0

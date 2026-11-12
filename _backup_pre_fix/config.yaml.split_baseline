@@ -1,970 +1,789 @@
 apps:
-- aliases:
-  - "\u62FC\u591A\u591A"
+- name: 拼多多
+  package: com.xunmeng.pinduoduo
+  aliases:
+  - 拼多多
   behaviors:
-    collect:
-    - desc: "\u56FE\u50CF-\u62FC\u591A\u591A-\u4EFB\u52A1\u754C\u9762-\u4F59\u989D"
+    watch:
+    - type: click_point
       images:
-      - "images/\u62FC\u591A\u591A/5c996370-94cc-4137-97f9-da361fd51e9b.png"
-      optional: true
+      - images/拼多多/e4417c6d-5e2a-4a24-a172-589357b264c5.png
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 图像-拼多多-任务界面-多多视频
+    collect:
+    - type: click_point
+      images:
+      - images/拼多多/5c996370-94cc-4137-97f9-da361fd51e9b.png
+      timeout: 6
+      optional: true
+      desc: 图像-拼多多-任务界面-余额
+    withdraw:
+    - type: click_point
+      images:
+      - images/拼多多/526d1934-9de7-4322-9f64-0834118bc519.png
+      timeout: 6
+      optional: true
+      desc: 图像-拼多多-提现-立即提现
     sign:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u591A\u591A\u89C6\u9891"
+            value: 多多视频
           candidates_from: nav_tab
-          optional: false
-          timeout: 8
-          type: click_first
           zone: tab_zone
-      - - desc: "\u5E95\u90E8\u5DE6\u4E8Ctab\u300C\u591A\u591A\u89C6\u9891\u300D\u5750\
-            \u6807\u515C\u5E95"
-          expect:
-            phash: "images/\u62FC\u591A\u591A/landing/ref_video.png"
-            phash_max_dist: 8
-            retry: 1
-          optional: false
           timeout: 8
-          type: click_point
-          vision: false
+          optional: false
+      - - type: click_point
           x: 0.3
           y: 0.914
-      optional: true
-      type: any_of
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 底部左二tab「多多视频」坐标兜底
+          expect:
+            phash: images/拼多多/landing/ref_video.png
+            phash_max_dist: 8
+            retry: 1
     - type: think
-    - desc: "\u591A\u591A\u89C6\u9891\u9875\u53F3\u4E0A\u7F18\u5706\u5F62\u91D1\u5E01\
-        \u5165\u53E3\uFF082026-11-03 \u91CD\u6821\uFF1A11.11 \u7248\u4E3A\u6D6E\u52A8\
-        \ HUD \u5FBD\u6807\uFF0C\u5B9E\u6D4B\u547D\u4E2D\u70B9 (1043,424)/(961,330)/(918,370)\uFF0C\
-        \u53D6\u4E2D\u5FC3 (974,374)\uFF1B\u65E7\u503C (924,390) \u6253\u4E0D\u4E2D\
-        \uFF09"
-      expect:
-        min_pass: 1
-        phash: "images/\u62FC\u591A\u591A/landing/ref_coin.png"
-        phash_max_dist: 8
-        retry: 1
-        text_any:
-        - "\u6211\u7684\u73B0\u91D1"
-      optional: false
-      timeout: 6
-      type: click_point
-      vision: false
+    - type: click_point
       x: 0.902
       y: 0.16
-    - duration: 0.4
-      from:
-      - 0.5
-      - 0.78
-      to:
-      - 0.5
-      - 0.35
-      type: swipe
-    - duration: 0.4
-      from:
-      - 0.5
-      - 0.78
-      to:
-      - 0.5
-      - 0.35
-      type: swipe
-    - desc: "\u91D1\u5E01\u4E2D\u5FC37\u5929\u8FDE\u7B7E\u6761\u300C\u4ECA\u65E5\u53EF\
-        \u9886\u300D\u5361\u7247\uFF082026-11-03 \u91CD\u6821\uFF1A2 \u6B21\u4E0A\u6ED1\
-        \u540E\u8FDE\u7B7E\u6761\u7B2C 1 \u5929\u683C\u4E2D\u5FC3 (190,1303)\uFF0C\
-        \u65E7\u503C (155,1182) \u843D\u5728\u8865\u8D34\u91D1\u5361\u7247\u4E0A\uFF1B\
-        \u4ECA\u65E5\u5DF2\u7B7E\u65F6\u8BE5\u683C\u4E3A\u2713\uFF09"
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 多多视频页右上缘圆形金币入口（2026-11-03 重校：11.11 版为浮动 HUD 徽标，实测命中点 (1043,424)/(961,330)/(918,370)，取中心
+        (974,374)；旧值 (924,390) 打不中）
       expect:
-        phash: "images/\u62FC\u591A\u591A/landing/ref_sign.png"
+        phash: images/拼多多/landing/ref_coin.png
         phash_max_dist: 8
         retry: 1
-      optional: false
-      timeout: 6
-      type: click_point
-      vision: false
+        text_any:
+        - 我的现金
+        min_pass: 1
+    - type: swipe
+      from:
+      - 0.5
+      - 0.78
+      to:
+      - 0.5
+      - 0.35
+      duration: 0.4
+    - type: swipe
+      from:
+      - 0.5
+      - 0.78
+      to:
+      - 0.5
+      - 0.35
+      duration: 0.4
+    - type: click_point
       x: 0.176
       y: 0.557
-    - desc: "\u6BCF\u65E5\u7B7E\u5230\u5F39\u7A97\u300C\u9886\u53D6\u4ECA\u65E5\u73B0\
-        \u91D1\u300D\u6309\u94AE\uFF082026-11-03 \u91CD\u6821\uFF1A\u771F\u673A\u4E2D\
-        \u5FC3 (540,1496)\uFF0C\u65E7\u503C (540,1469) \u504F\u4E0A 27px\uFF09"
-      expect:
-        phash: "images/\u62FC\u591A\u591A/landing/ref_done.png"
-        phash_max_dist: 8
-      optional: false
       timeout: 6
-      type: click_point
+      optional: false
       vision: false
+      desc: 金币中心7天连签条「今日可领」卡片（2026-11-03 重校：2 次上滑后连签条第 1 天格中心 (190,1303)，旧值 (155,1182)
+        落在补贴金卡片上；今日已签时该格为✓）
+      expect:
+        phash: images/拼多多/landing/ref_sign.png
+        phash_max_dist: 8
+        retry: 1
+    - type: click_point
       x: 0.5
       y: 0.639
-    watch:
-    - desc: "\u56FE\u50CF-\u62FC\u591A\u591A-\u4EFB\u52A1\u754C\u9762-\u591A\u591A\
-        \u89C6\u9891"
-      images:
-      - "images/\u62FC\u591A\u591A/e4417c6d-5e2a-4a24-a172-589357b264c5.png"
-      optional: true
       timeout: 6
-      type: click_point
-    withdraw:
-    - desc: "\u56FE\u50CF-\u62FC\u591A\u591A-\u63D0\u73B0-\u7ACB\u5373\u63D0\u73B0"
-      images:
-      - "images/\u62FC\u591A\u591A/526d1934-9de7-4322-9f64-0834118bc519.png"
-      optional: true
-      timeout: 6
-      type: click_point
-  name: "\u62FC\u591A\u591A"
-  package: com.xunmeng.pinduoduo
-- aliases:
-  - "\u4EAC\u4E1C"
-  behaviors:
-    collect:
-    - desc: "\u56FE\u50CF-\u4EAC\u4E1C-\u4EFB\u52A1\u754C\u9762-\u8D5A\u73B0\u91D1"
-      images:
-      - "images/\u4EAC\u4E1C/83342289-5e5c-4765-93f3-1b5446f742be.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u4EAC\u4E1C-\u4EFB\u52A1\u754C\u9762-\u4EAC\u4E1C\u56FE\
-        \u6807"
-      images:
-      - "images/\u4EAC\u4E1C/043972e5-c653-418b-ad5e-cdfd357ab366.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u4EAC\u4E1C-\u4EFB\u52A1\u5217\u8868-\u5173\u95ED"
-      images:
-      - "images/\u4EAC\u4E1C/07950812-d018-4f13-b6b2-e17571d77cf0.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    sign:
-    - desc: "\u5E95\u90E8\u300C\u901B\u300Dtab\uFF08\u9996\u9875\u4E0E\u6D88\u606F\
-        \u4E4B\u95F4\uFF1B\u771F\u673A\u4E2D\u5FC3 (330,2105)\uFF09"
-      expect:
-        retry: 1
-        settle: 3.0
-        text_any:
-        - "\u8D5A\u73B0\u91D1"
-        - "\u9886\u91D1\u5E01"
       optional: false
-      timeout: 8
-      type: click_point
       vision: false
+      desc: 每日签到弹窗「领取今日现金」按钮（2026-11-03 重校：真机中心 (540,1496)，旧值 (540,1469) 偏上 27px）
+      expect:
+        phash: images/拼多多/landing/ref_done.png
+        phash_max_dist: 8
+- name: 京东
+  package: com.jingdong.app.mall
+  aliases:
+  - 京东
+  launch_reset: true
+  behaviors:
+    sign:
+    - type: click_point
       x: 0.306
       y: 0.9
-    - type: think
-    - desc: "\u91D1\u5E01\u9762\u677F\u300C\u8FDE\u7EED\u7B7E\u52307\u5929\u300D\u5F53\
-        \u65E5[\u7B7E\u5230\u9886]\uFF08\u56FE\u50CF\u951A\u70B9+\u5750\u6807\u515C\
-        \u5E95\uFF09"
-      images:
-      - "images/\u4EAC\u4E1C/btn_qiandao.png"
-      optional: true
       timeout: 8
-      type: click_point
-      x: 0.24
-      y: 0.431
-    withdraw:
-    - desc: "\u56FE\u50CF-\u4EAC\u4E1C-\u63D0\u73B0-\u63D0\u73B0\u81F3\u4EAC\u4E1C\
-        \u94B1\u5305"
-      images:
-      - "images/\u4EAC\u4E1C/dc8480ee-0d96-4ae4-880a-894ae13d9ee4.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u4EAC\u4E1C-\u63D0\u73B0-\u53EF\u63D0\u73B0"
-      images:
-      - "images/\u4EAC\u4E1C/3c265ddf-12c5-4858-8f71-65c17d98886b.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u4EAC\u4E1C-\u63D0\u73B0-\u63D0\u73B0\u81F3\u94B1\u5305"
-      images:
-      - "images/\u4EAC\u4E1C/b0280879-92dd-4bd9-920c-ec465e0e39e8.png"
-      optional: true
-      timeout: 6
-      type: click_point
-  launch_reset: true
-  name: "\u4EAC\u4E1C"
-  package: com.jingdong.app.mall
-- aliases:
-  - "\u7F8E\u56E2"
-  - "\u7F8E\u56E2\u5916\u5356"
-  - "\u7F8E\u56FE"
-  behaviors:
-    collect:
-    - desc: "\u56FE\u50CF-\u7F8E\u56E2-\u4EFB\u52A1\u754C\u9762-\u6362\u73B0\u91D1"
-      images:
-      - "images/\u7F8E\u56E2/9c28a301-b81e-4b27-8795-e25d3d21e9be.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7F8E\u56E2-\u4EFB\u52A1\u5217\u8868-\u5173\u95ED"
-      images:
-      - "images/\u7F8E\u56E2/62a94570-7063-4599-9739-2d707b85eb66.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    sign:
-    - desc: "\u5E95\u90E8\u3010\u89C6\u9891\u3011tab\uFF08\u771F\u673A\u4E2D\u5FC3\
-        \ (324,2105)\uFF09"
-      expect:
-        retry: 1
-        settle: 3.0
-        text_any:
-        - "\u500D\u901F"
-        - "\u4E0A\u6ED1\u7EE7\u7EED\u770B\u89C6\u9891"
       optional: false
-      timeout: 8
-      type: click_point
       vision: false
+      desc: 底部「逛」tab（首页与消息之间；真机中心 (330,2105)）
+      expect:
+        text_any:
+        - 赚现金
+        - 领金币
+        settle: 3.0
+        retry: 1
+    - type: think
+    - type: click_point
+      x: 0.907
+      y: 0.247
+      timeout: 8
+      optional: true
+      vision: false
+      desc: 逛页右侧「赚现金」胶囊（真机中心 (980,577)；点击弹出金币面板）
+    - type: think
+    - type: click_point
+      x: 0.722
+      y: 0.447
+      timeout: 8
+      optional: true
+      vision: false
+      desc: 金币面板「连续签到7天」当日[签到领]（2026-11-04 实测第6天槽位中心 (780,1047)；已签到日该按钮不出现，optional
+        跳过）
+    withdraw:
+    - type: click_point
+      images:
+      - images/京东/dc8480ee-0d96-4ae4-880a-894ae13d9ee4.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-提现-提现至京东钱包
+    - type: click_point
+      images:
+      - images/京东/3c265ddf-12c5-4858-8f71-65c17d98886b.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-提现-可提现
+    - type: click_point
+      images:
+      - images/京东/b0280879-92dd-4bd9-920c-ec465e0e39e8.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-提现-提现至钱包
+    collect:
+    - type: click_point
+      images:
+      - images/京东/83342289-5e5c-4765-93f3-1b5446f742be.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-任务界面-赚现金
+    - type: click_point
+      images:
+      - images/京东/043972e5-c653-418b-ad5e-cdfd357ab366.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-任务界面-京东图标
+    - type: click_point
+      images:
+      - images/京东/07950812-d018-4f13-b6b2-e17571d77cf0.png
+      timeout: 6
+      optional: true
+      desc: 图像-京东-任务列表-关闭
+- name: 美团
+  package: com.sankuai.meituan
+  aliases:
+  - 美团
+  - 美团外卖
+  - 美图
+  launch_reset: true
+  behaviors:
+    sign:
+    - type: click_point
       x: 0.3
       y: 0.9
-    - type: think
-    - desc: "\u89C6\u9891\u9875\u53F3\u4E0A\u89D2\u5706\u5F62\u91D1\u5E01\u5FBD\u6807\
-        \uFF082026-11-03 \u91CD\u6821\uFF1A\u771F\u673A\u4E2D\u5FC3 (983,474) \u6253\
-        \u5F00\u8D5A\u94B1\u4E2D\u5FC3\uFF1B\u5FBD\u6807\u4E3A\u6D6E\u52A8\u5143\u7D20\
-        \uFF0C\u5185\u5BB9\u5728\u91D1\u5E01/\u73B0\u91D1\u95F4\u5207\u6362\u4F46\u4F4D\
-        \u7F6E\u56FA\u5B9A\uFF09"
-      expect:
-        phash: "images/\u7F8E\u56E2/landing/ref_center.png"
-        phash_max_dist: 12
-        retry: 1
-        settle: 3.5
-      optional: false
       timeout: 8
-      type: click_point
+      optional: false
       vision: false
-      x: 0.91
-      y: 0.203
+      desc: 底部【视频】tab（真机中心 (324,2105)）
+      expect:
+        text_any:
+        - 推荐
+        - 短剧
+        - 畅听
+        settle: 3.0
+        retry: 1
     - type: think
-    - choices:
-      - - candidates:
+    - type: click_point
+      x: 0.92
+      y: 0.205
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 视频页右侧「看视频 领现金」圆钮（2026-11-04 实测 (994,480)；内容金币/现金/进度环切换但位置固定）
+      expect:
+        text_any:
+        - 今日签到
+        - 去签到
+        settle: 3.5
+        retry: 1
+    - type: think
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u53BB\u7B7E\u5230"
+            value: 去签到
           - type: text
-            value: "\u4ECA\u65E5\u7B7E\u5230"
-          optional: false
+            value: 今日签到
           timeout: 8
-          type: click_first
-      - - desc: "\u300C\u6BCF\u65E5\u8F7B\u677E\u8D5A\u300D\u5361[\u53BB\u7B7E\u5230\
-            ]\u5750\u6807\u515C\u5E95\uFF082026-11-03 \u665A dump \u5B9E\u6D4B (203,746)\uFF1B\
-            \u4E0B\u5348\u53D6\u8BC1\u53D8\u4F53 (205,820)=(0.19,0.35)\uFF09"
           optional: false
-          timeout: 6
-          type: click_point
-          vision: false
+      - - type: click_point
           x: 0.188
-          y: 0.319
-      optional: true
-      type: any_of
+          y: 0.352
+          timeout: 6
+          optional: false
+          vision: false
+          desc: 「每日轻松赚」卡[去签到]坐标兜底（2026-11-04 晚 dump 实测 (203,824)=(0.188,0.352)；文本可及树命中时不走此兜底）
     - type: think
-    - desc: "\u7B7E\u5230\u5956\u52B1\u5F39\u7A97 X \u5173\u95ED\uFF08\u53D8\u4F53\
-        A X=(539,1709) 2026-11-03 \u665A\u5B9E\u6D4B\u547D\u4E2D\uFF1B\u53D8\u4F53\
-        B X=(540,1290) \u4E0D\u5728\u6B64\u4F4D\u4F46\u8BE5\u70B9\u843D\u5176\u5361\
-        \u5916\u906E\u7F69\u65E0\u5BB3\uFF1B\u7981\u70B9\u300C\u6DFB\u52A0\u684C\u9762\
-        \u7EC4\u4EF6\u300D\u4E3B\u6309\u94AE\u9677\u9631\uFF09"
-      optional: true
-      timeout: 6
-      type: click_point
-      vision: false
+    - type: click_point
       x: 0.499
       y: 0.73
+      timeout: 6
+      optional: true
+      vision: false
+      desc: 签到奖励弹窗 X 关闭（变体A X=(539,1709) 2026-11-03 晚实测命中；变体B X=(540,1290) 不在此位但该点落其卡外遮罩无害；禁点「添加桌面组件」主按钮陷阱）
+    withdraw:
+    - type: click_point
+      images:
+      - images/美团/7aeb4e5b-dbae-4a18-8dde-6ba9ea09f126.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-提现-活动钱包
+    - type: click_point
+      images:
+      - images/美团/eb3599b0-882d-4c1e-907d-6b498576c8a1.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-提现-提现到美团钱包
+    - type: click_point
+      images:
+      - images/美团/1ca55c04-27a2-4bda-bbc6-1f58970ffc9f.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-提现-提现
+    collect:
+    - type: click_point
+      images:
+      - images/美团/9c28a301-b81e-4b27-8795-e25d3d21e9be.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-任务界面-换现金
+    - type: click_point
+      images:
+      - images/美团/62a94570-7063-4599-9739-2d707b85eb66.png
+      timeout: 6
+      optional: true
+      desc: 图像-美团-任务列表-关闭
     watch:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u53BB\u6D4F\u89C8"
+        value: 去浏览
       - type: text
-        value: "\u770B\u77ED\u5267"
+        value: 看短剧
       - type: text
-        value: "\u4E00\u952E\u9886\u53D6"
-      desc: "\u8D5A\u94B1\u4E2D\u5FC3 watch \u7C7B\u5165\u53E3\uFF08\u53BB\u6D4F\u89C8\
-        =\u6D4F\u89C860\u79D2\u5F97\u91D1\u5E01\u4EFB\u52A1 / \u770B\u77ED\u5267\u5F97\
-        \u91D1\u5E01 / \u4E00\u952E\u9886\u53D6\uFF1B2026-11-03 \u665A\u91CD\u6821\
-        \uFF0C\u65E7\u6A21\u677F 32c261fe \u5DF2\u968F 11.11 \u6539\u7248\u5931\u6548\
-        \uFF09"
-      optional: true
+        value: 一键领取
       timeout: 8
-      type: click_first
-    withdraw:
-    - desc: "\u56FE\u50CF-\u7F8E\u56E2-\u63D0\u73B0-\u6D3B\u52A8\u94B1\u5305"
-      images:
-      - "images/\u7F8E\u56E2/7aeb4e5b-dbae-4a18-8dde-6ba9ea09f126.png"
       optional: true
-      timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7F8E\u56E2-\u63D0\u73B0-\u63D0\u73B0\u5230\u7F8E\u56E2\
-        \u94B1\u5305"
-      images:
-      - "images/\u7F8E\u56E2/eb3599b0-882d-4c1e-907d-6b498576c8a1.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7F8E\u56E2-\u63D0\u73B0-\u63D0\u73B0"
-      images:
-      - "images/\u7F8E\u56E2/1ca55c04-27a2-4bda-bbc6-1f58970ffc9f.png"
-      optional: true
-      timeout: 6
-      type: click_point
-  launch_reset: true
-  name: "\u7F8E\u56E2"
-  package: com.sankuai.meituan
-- aliases:
-  - "\u652F\u4ED8\u5B9D"
-  - Alipay
-  - "\u652F \u4ED8\u5B9D"
-  behaviors:
-    bonus:
-    - candidates:
-      - type: text
-        value: "\u7EA2\u5305"
-      - type: text
-        value: "\u9886\u7EA2\u5305"
-      - type: text
-        value: "\u5929\u5929\u9886\u7EA2\u5305"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u7ACB\u5373\u9886\u53D6"
-      - type: text
-        value: "\u5F00"
-      optional: true
-      timeout: 6
-      type: click_first
-    - seconds: 2
-      type: wait
-    collect:
-    - candidates:
-      - type: text
-        value: "\u8682\u8681\u4F1A\u5458"
-      - type: text
-        value: "\u6211\u7684"
-      - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: text
-        value: "\u79EF\u5206"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u4EFB\u52A1"
-      - type: text
-        value: "\u7B7E\u5230"
-      - type: text
-        value: "\u9886\u79EF\u5206"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
-      timeout: 6
-      type: click_first
-  intent_map:
-    bonus: bonus
-    collect: collect
-  name: "\u652F\u4ED8\u5B9D"
+      desc: 赚钱中心 watch 类入口（去浏览=浏览60秒得金币任务 / 看短剧得金币 / 一键领取；2026-11-03 晚重校，旧模板 32c261fe
+        已随 11.11 改版失效）
+- name: 支付宝
   package: com.eg.android.AlipayGphone
-- aliases:
-  - "\u4EAC\u4E1C\u7406\u8D22"
-  - "\u4EAC\u4E1C\u91D1\u878D"
-  - "\u4EAC\u4E1C\u91D1"
-  - "\u91D1\u878D"
-  behaviors:
-    collect:
-    - candidates:
-      - type: text
-        value: "\u9886\u73B0\u91D1"
-      - type: text
-        value: "\u5929\u5929\u9886\u73B0\u91D1"
-      - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: text
-        value: "\u98863.88\u5143"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u7ACB\u5373\u9886\u53D6"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 2
-      type: wait
-    sign:
-    - candidates:
-      - type: text
-        value: "\u7B7E\u5230"
-      - type: text
-        value: "\u53BB\u7B7E\u5230"
-      - type: text
-        value: "\u7B7E\u5230\u9886\u73B0\u91D1"
-      - type: text
-        value: "\u5929\u5929\u9886\u73B0\u91D1"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - name: "\u7B7E\u5230\u73B0\u91D1"
-      pattern: "\u81F3\u9AD8\\\\s*\xA5(?P<amount>[0-9]+(?:\\\\.[0-9]+)?)"
-      type: reward
-      unit: "\u5143"
-    - candidates:
-      - type: text
-        value: "\u7B7E\u5230\u9886\u73B0\u91D1"
-      - type: text
-        value: "\u53BB\u7B7E\u5230"
-      - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 2
-      type: wait
-    withdraw:
-    - optional: true
-      text: "\u6211\u7684"
-      timeout: 6
-      type: click_text
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "\u53EF\u63D0\u73B0(?P<amount>[0-9]+(?:\\\\.[0-9]+)?)\\\\s*(?P<unit>\u5143\
-        )"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
+  aliases:
+  - 支付宝
+  - Alipay
+  - 支 付宝
   intent_map:
     collect: collect
-    sign: sign
-    withdraw: withdraw
-  name: "\u4EAC\u4E1C\u7406\u8D22"
-  package: com.jd.jrapp
-- aliases:
-  - "\u661F\u56FE\u91D1\u878D"
-  - "\u82CF\u5B81\u91D1\u878D"
+    bonus: bonus
   behaviors:
-    bonus:
-    - candidates:
-      - type: text
-        value: "\u7EA2\u5305\u7B7E\u5230"
-      - type: text
-        value: "\u5929\u5929\u9886\u7EA2\u5305"
-      - type: text
-        value: "\u9886\u7EA2\u5305"
-      - type: text
-        value: "\u73B0\u91D1\u7EA2\u5305"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - optional: true
-      text: "\u7B7E\u5230\u98868\u79EF\u5206"
-      timeout: 15
-      type: click_text
-    - seconds: 2
-      type: wait
     collect:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u8FCE\u65B0\u798F\u5229"
+        value: 蚂蚁会员
       - type: text
-        value: "\u4EBA\u4EBA\u9886"
+        value: 我的
       - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
+        value: 任务中心
       - type: text
-        value: "\u9886\u597D\u793C"
-      - type: text
-        value: "\u4EFB\u52A1"
-      optional: true
+        value: 积分
       timeout: 8
-      type: click_first
+      optional: true
     - type: think
-    - optional: true
-      text: "\u7ACB\u5373\u9886\u53D6"
+    - type: click_first
+      candidates:
+      - type: text
+        value: 任务
+      - type: text
+        value: 签到
+      - type: text
+        value: 领积分
+      - type: text
+        value: 去完成
       timeout: 6
-      type: click_text
+      optional: true
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 红包
+      - type: text
+        value: 领红包
+      - type: text
+        value: 天天领红包
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      - type: text
+        value: 开
+      timeout: 6
+      optional: true
+    - type: wait
+      seconds: 2
+- name: 京东理财
+  package: com.jd.jrapp
+  aliases:
+  - 京东理财
+  - 京东金融
+  - 京东金
+  - 金融
+  intent_map:
+    sign: sign
+    collect: collect
+    withdraw: withdraw
+  behaviors:
     sign:
-    - choices:
-      - - candidates:
+    - type: reward
+      pattern: 至高\s*(?:得)?\s*(?:¥)?(?P<amount>[0-9]+(?:\.[0-9]+)?)
+      unit: 元
+      name: 签到现金
+    - type: click_first
+      candidates:
+      - type: text
+        value: 签到
+      - type: text
+        value: 去签到
+      - type: text
+        value: 签到领现金
+      - type: text
+        value: 天天领现金
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 签到领现金
+      - type: text
+        value: 去签到
+      - type: text
+        value: 立即签到
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 2
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领现金
+      - type: text
+        value: 天天领现金
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 领3.88元
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 2
+    withdraw:
+    - type: click_text
+      text: 我的
+      timeout: 6
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: 可提现(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 星图金融
+  package: com.suning.mobile.epa
+  aliases:
+  - 星图金融
+  - 苏宁金融
+  intent_map:
+    collect: collect
+    bonus: bonus
+    sign: sign
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u65E9\u8D77\u6253\u5361"
+            value: 早起打卡
+          timeout: 8
           optional: false
-          timeout: 8
-          type: click_first
-      - - optional: false
-          timeout: 8
-          type: click_point
-          vision: false
+      - - type: click_point
           x: 0.126
           y: 0.527
-      optional: true
-      type: any_of
-    - seconds: 3
-      type: wait
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u7ACB\u5373\u6253\u5361"
-          - type: text
-            value: "\u6211\u8981\u6253\u5361"
-          - type: text
-            value: "\u6253\u5361"
-          optional: false
           timeout: 8
-          type: click_first
-      - - optional: false
-          timeout: 5
-          type: click_point
+          optional: false
           vision: false
+    - type: wait
+      seconds: 3
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 立即打卡
+          - type: text
+            value: 我要打卡
+          - type: text
+            value: 打卡
+          timeout: 8
+          optional: false
+      - - type: click_point
           x: 0.5
           y: 0.641
-      optional: true
-      type: any_of
-    - type: think
-  intent_map:
-    bonus: bonus
-    collect: collect
-    sign: sign
-  name: "\u661F\u56FE\u91D1\u878D"
-  package: com.suning.mobile.epa
-- aliases:
-  - "\u5FAE\u535A\u79FB\u52A8\u7248"
-  - "\u5FAE\u535A"
-  - "\u65B0\u6D6A\u5FAE\u535A"
-  behaviors:
-    bonus:
-    - candidates:
-      - type: text
-        value: "\u70B9\u51FB\u9886\u53D6"
-      - type: text
-        value: "\u7EA2\u5305"
-      - type: text
-        value: "\u73B0\u91D1\u5956\u52B1"
-      - type: text
-        value: "\u7FFB\u724C"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u7ACB\u5373\u9886\u53D6"
-      optional: true
-      timeout: 6
-      type: click_first
-    collect:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u8D5A\u79EF\u5206"
-          - type: text
-            value: "\u505A\u4EFB\u52A1"
+          timeout: 5
           optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
           vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
+    - type: think
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 迎新福利
+      - type: text
+        value: 人人领
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 领好礼
+      - type: text
+        value: 任务
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 立即领取
+      timeout: 6
+      optional: true
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 红包签到
+      - type: text
+        value: 天天领红包
+      - type: text
+        value: 领红包
+      - type: text
+        value: 现金红包
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 签到领8积分
+      timeout: 15
+      optional: true
+    - type: wait
+      seconds: 2
+- name: 微博移动版
+  package: com.sina.weibog3
+  aliases:
+  - 微博移动版
+  - 微博
+  - 新浪微博
+  intent_map:
+    collect: collect
+    bonus: bonus
+    sign: sign
+  behaviors:
+    collect:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚积分
+          - type: text
+            value: 做任务
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
           x: 0.9
           y: 0.915
+          optional: true
+          vision: false
         - type: think
-        - candidates:
+        - type: click_first
+          candidates:
           - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
+            value: 任务中心
           - type: text
-            value: "\u798F\u5229"
+            value: 福利
           - type: text
-            value: "\u8D5A\u79EF\u5206"
+            value: 赚积分
           - type: text
-            value: "\u505A\u4EFB\u52A1"
-          optional: false
+            value: 做任务
           timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
+          optional: false
     - type: think
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u9886\u53D6"
+        value: 领取
       - type: text
-        value: "\u9886"
+        value: 领
       - type: text
-        value: "\u7B7E\u5230"
-      optional: true
+        value: 签到
       timeout: 6
-      type: click_first
+      optional: true
     sign:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u8DF3\u8FC7"
-      desc: "\u5F00\u5C4F\u5E7F\u544A-\u8DF3\u8FC7"
-      optional: true
+        value: 跳过
       timeout: 3
-      type: click_first
-    - desc: "\u5F00\u5C4F\u5E7F\u544A-\u53F3\u4E0B\u89D2\u515C\u5E95"
       optional: true
-      timeout: 2
-      type: click_point
-      vision: false
+      desc: 开屏广告-跳过
+    - type: click_point
       x: 0.93
       y: 0.915
-    - choices:
-      - - candidates:
+      timeout: 2
+      optional: true
+      vision: false
+      desc: 开屏广告-右下角兜底
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u6211"
+            value: 我
+          timeout: 4
           optional: false
-          timeout: 4
-          type: click_first
-      - - optional: false
-          timeout: 4
-          type: click_point
-          vision: false
+      - - type: click_point
           x: 0.9
           y: 0.915
-      optional: true
-      type: any_of
-    - candidates:
+          timeout: 4
+          optional: false
+          vision: false
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u6211\u7684\u94B1\u5305"
-      optional: false
+        value: 我的钱包
       timeout: 8
-      type: click_first
-    - candidates:
+      optional: false
+    - type: click_first
+      candidates:
       - type: desc
-        value: "\u65E9\u8D77\u6253\u5361"
+        value: 早起打卡
       - type: text
-        value: "\u65E9\u8D77\u6253\u5361"
+        value: 早起打卡
+      timeout: 8
       optional: false
-      timeout: 8
-      type: click_first
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u6253\u5361"
-      optional: true
+        value: 打卡
       timeout: 8
-      type: click_first
+      optional: true
     - type: think
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 点击领取
+      - type: text
+        value: 红包
+      - type: text
+        value: 现金奖励
+      - type: text
+        value: 翻牌
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      timeout: 6
+      optional: true
+- name: 抖音极速版
+  package: com.ss.android.ugc.aweme.lite
+  aliases:
+  - 抖音极速版
+  launch_reset: true
   intent_map:
-    bonus: bonus
-    collect: collect
     sign: sign
-  name: "\u5FAE\u535A\u79FB\u52A8\u7248"
-  package: com.sina.weibog3
-- aliases:
-  - "\u6296\u97F3\u6781\u901F\u7248"
+    watch: watch
+    withdraw: withdraw
   behaviors:
     sign:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: desc
-            value: "\u798F\u888B"
-          optional: false
+            value: 福袋
           timeout: 8
-          type: click_first
-      - - desc: "\u9996\u9875\u53F3\u4E0A\u89D2\u300C\u8D5A\u94B1\u300D\u6302\u4EF6\
-            \uFF08\u771F\u673A\u4E2D\u5FC3 (864,162)\uFF09"
+          optional: false
+      - - type: click_point
+          x: 0.8
+          y: 0.069
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页右上角「赚钱」挂件（真机中心 (864,162)）
           expect:
-            phash: "images/\u6296\u97F3\u6781\u901F\u7248/landing/ref_money.png"
-            phash_max_dist: 8
+            phash: images/抖音极速版/landing/ref_money.png
             phash_region:
             - 0.0
             - 0.0
             - 1.0
             - 0.2
-            retry: 1
+            phash_max_dist: 8
             settle: 3.5
-          optional: false
-          timeout: 8
-          type: click_point
-          vision: false
-          x: 0.8
-          y: 0.069
-      optional: true
-      type: any_of
+            retry: 1
     - type: think
-    - desc: "\u8D5A\u94B1\u9875\u300C\u5929\u5929\u9886\u91D1\u5E01\u300D\u884C\uFF08\
-        \u56FE\u50CF\u6A21\u677F\u5B9A\u4F4D\uFF0C\u6297\u6EDA\u52A8\u6F02\u79FB\uFF09"
+    - type: click_point
+      x: 0.436
+      y: 0.927
+      images:
+      - images/抖音极速版/daily_coin_row.png
+      timeout: 8
+      optional: false
+      desc: 赚钱页「天天领金币」行（图像模板定位，抗滚动漂移）
       expect:
-        phash: "images/\u6296\u97F3\u6781\u901F\u7248/landing/ref_wallet.png"
-        phash_max_dist: 8
+        phash: images/抖音极速版/landing/ref_wallet.png
         phash_region:
         - 0.0
         - 0.33
         - 1.0
         - 0.55
-        retry: 1
+        phash_max_dist: 8
         settle: 3.5
-      images:
-      - "images/\u6296\u97F3\u6781\u901F\u7248/daily_coin_row.png"
-      optional: false
-      timeout: 8
-      type: click_point
-      x: 0.436
-      y: 0.927
+        retry: 1
     watch:
-    - candidates:
-      - type: text
-        value: "\u5237\u89C6\u9891"
-      - type: text
-        value: "\u770B\u89C6\u9891\u8D5A\u91D1\u5E01"
-      - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: text
-        value: "\u91D1\u5E01\u670B\u53CB"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      - type: text
-        value: "\u770B\u89C6\u9891"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - candidates:
-      - type: text
-        value: "\u6211\u7684"
-      - type: text
-        value: "\u6211"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-  intent_map:
-    sign: sign
-    watch: watch
-    withdraw: withdraw
-  launch_reset: true
-  name: "\u6296\u97F3\u6781\u901F\u7248"
-  package: com.ss.android.ugc.aweme.lite
-- aliases:
-  - "\u6296\u97F3\u706B\u5C71\u7248"
-  - "\u706B\u5C71\u5C0F\u89C6\u9891"
-  behaviors:
-    reserve:
-    - desc: "\u51B7\u542F\u52A8\u5F00\u5C4F\u5F88\u957F\uFF0C\u5B9E\u6D4B 28s \u624D\
-        \u51FA\u73B0\u9996\u9875\u5143\u7D20\uFF1B--fast \u4E5F\u8981\u7559\u591F"
-      seconds: 32
-      type: wait
-    - choices:
-      - - desc: "\u9886\u706B\u82D7\uFF0C\u6309\u94AE"
-          timeout: 12
-          type: click_desc
-      - - optional: true
-          timeout: 5
-          type: click_point
-          vision: false
-          x: 0.9
-          y: 0.138
-      optional: true
-      type: any_of
-    - desc: "\u7B49\u300C\u6211\u7684\u706B\u82D7\u300D\u4EFB\u52A1\u9875\u843D\u5B9A"
-      seconds: 7
-      type: wait
-    - duration: 0.45
-      from:
-      - 0.5
-      - 0.25
-      to:
-      - 0.5
-      - 0.78
-      type: swipe
-    - duration: 0.45
-      from:
-      - 0.5
-      - 0.25
-      to:
-      - 0.5
-      - 0.78
-      type: swipe
-    - duration: 0.45
-      from:
-      - 0.5
-      - 0.25
-      to:
-      - 0.5
-      - 0.78
-      type: swipe
-    - duration: 0.45
-      from:
-      - 0.5
-      - 0.25
-      to:
-      - 0.5
-      - 0.78
-      type: swipe
-    - seconds: 2
-      type: wait
-    - desc: "\u9884\u7EA6"
-      max_pages: 5
-      type: scroll_to
-    - desc: "\u7B49\u300C\u5929\u5929\u9884\u7EA6\u9886\u706B\u82D7\u300D\u9875"
-      seconds: 8
-      type: wait
-    - choices:
-      - - text: "\u7ACB\u5373\u9884\u7EA6\u9886\u53D6"
-          timeout: 10
-          type: click_text
-      - - optional: true
-          timeout: 5
-          type: click_point
-          vision: false
-          x: 0.5
-          y: 0.529
-      optional: true
-      type: any_of
-    - desc: "\u7B49\u300C\u606D\u559C\u9884\u7EA6\u6210\u529F\u300D\u5F39\u7A97"
-      seconds: 6
-      type: wait
-    - desc: "\u5173\u6389\u9884\u7EA6\u6210\u529F\u5F39\u7A97\uFF1B\u5173\u4E0D\u6389\
-        \u4E5F\u4E0D\u5F71\u54CD\u9884\u7EA6\u5DF2\u6210"
-      optional: true
-      text: "\u4E0D\u7528\u63D0\u9192\u6211\u4E5F\u6765"
-      timeout: 10
-      type: click_text
-    watch:
-    - choices:
-      - - budget: 10
-          candidates:
-          - type: text
-            value: "\u70B9\u51FB\u8D5A\u94B1"
-          - type: text
-            value: "\u770B\u89C6\u9891\u8D5A\u91D1\u5E01"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u91D1\u5E01"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - budget: 12
-          candidates:
-          - type: text
-            value: "\u70B9\u51FB\u8D5A\u94B1"
-          - type: text
-            value: "\u770B\u89C6\u9891\u8D5A\u91D1\u5E01"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u91D1\u5E01"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      total_timeout: 45
-      type: any_of
-    - type: think
-    - budget: 12
+    - type: click_first
       candidates:
       - type: text
-        value: "\u53BB\u5B8C\u6210"
+        value: 刷视频
       - type: text
-        value: "\u770B\u89C6\u9891"
+        value: 看视频赚金币
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 金币朋友
+      timeout: 8
       optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 看视频
       timeout: 6
-      type: click_first
-    - duration: 0.8
+      optional: true
+    - type: swipe
       from:
       - 0.5
       - 0.7
-      natural: true
       to:
       - 0.5
       - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
     withdraw:
-    - desc: "\u9886\u706B\u82D7\uFF0C\u6309\u94AE"
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
       optional: true
-      timeout: 12
-      type: click_desc
-    - seconds: 7
-      type: wait
-    - optional: true
-      text: "\u53BB\u63D0\u73B0"
-      timeout: 10
-      type: click_text
-    - seconds: 5
-      type: wait
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 抖音火山版
+  package: com.ss.android.ugc.live
+  aliases:
+  - 抖音火山版
+  - 火山小视频
   intent_map:
     sign: reserve
     watch: watch
@@ -972,2807 +791,2828 @@ apps:
   launch:
     page_ready_max_wait: 45
     page_ready_min_nodes: 25
-    splash_poll: 2
     splash_wait: 15
-  name: "\u6296\u97F3\u706B\u5C71\u7248"
-  package: com.ss.android.ugc.live
-- aliases:
-  - "\u6296\u97F3"
+    splash_poll: 2
   behaviors:
-    bonus:
-    - candidates:
-      - type: text
-        value: "\u7EA2\u5305"
-      - type: text
-        value: "\u9886\u7EA2\u5305"
+    reserve:
+    - type: wait
+      seconds: 32
+      desc: 冷启动开屏很长，实测 28s 才出现首页元素；--fast 也要留够
+    - type: any_of
       optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u7ACB\u5373\u9886\u53D6"
+      choices:
+      - - type: click_desc
+          desc: 领火苗，按钮
+          timeout: 12
+      - - type: click_point
+          x: 0.9
+          y: 0.138
+          timeout: 5
+          optional: true
+          vision: false
+    - type: wait
+      seconds: 7
+      desc: 等「我的火苗」任务页落定
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: swipe
+      from:
+      - 0.5
+      - 0.25
+      to:
+      - 0.5
+      - 0.78
+      duration: 0.45
+    - type: wait
+      seconds: 2
+    - type: scroll_to
+      desc: 预约
+      max_pages: 5
+    - type: wait
+      seconds: 8
+      desc: 等「天天预约领火苗」页
+    - type: any_of
       optional: true
-      timeout: 6
-      type: click_first
+      choices:
+      - - type: click_text
+          text: 立即预约领取
+          timeout: 10
+      - - type: click_point
+          x: 0.5
+          y: 0.529
+          timeout: 5
+          optional: true
+          vision: false
+    - type: wait
+      seconds: 6
+      desc: 等「恭喜预约成功」弹窗
+    - type: click_text
+      text: 不用提醒我也来
+      timeout: 10
+      optional: true
+      desc: 关掉预约成功弹窗；关不掉也不影响预约已成
     watch:
-    - candidates:
-      - type: text
-        value: "\u4EFB\u52A1"
-      - type: text
-        value: "\u8D5A\u79EF\u5206"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
+    - type: any_of
       optional: true
-      timeout: 8
-      type: click_first
+      total_timeout: 45
+      choices:
+      - - type: click_first
+          budget: 10
+          candidates:
+          - type: text
+            value: 点击赚钱
+          - type: text
+            value: 看视频赚金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          budget: 12
+          candidates:
+          - type: text
+            value: 点击赚钱
+          - type: text
+            value: 看视频赚金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
     - type: think
-    - duration: 0.8
+    - type: click_first
+      budget: 12
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 看视频
+      timeout: 6
+      optional: true
+    - type: swipe
       from:
       - 0.5
       - 0.7
-      natural: true
       to:
       - 0.5
       - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-  intent_map:
-    bonus: bonus
-    watch: watch
-  name: "\u6296\u97F3"
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_desc
+      desc: 领火苗，按钮
+      timeout: 12
+      optional: true
+    - type: wait
+      seconds: 7
+    - type: click_text
+      text: 去提现
+      timeout: 10
+      optional: true
+    - type: wait
+      seconds: 5
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+- name: 抖音
   package: com.ss.android.ugc.aweme
-- aliases:
-  - "\u5FEB\u624B\u6781\u901F\u7248"
+  aliases:
+  - 抖音
+  intent_map:
+    watch: watch
+    bonus: bonus
+  behaviors:
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 任务
+      - type: text
+        value: 赚积分
+      - type: text
+        value: 去完成
+      timeout: 8
+      optional: true
+    - type: think
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    bonus:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 红包
+      - type: text
+        value: 领红包
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 立即领取
+      timeout: 6
+      optional: true
+- name: 快手极速版
+  package: com.kuaishou.nebula
+  launch_reset: true
+  popups:
+    close_points:
+    - x: 0.938
+      y: 0.15
+      desc: 任务中心「大奖免费拿」弹窗关闭X（真机 (1013,352)，2026-11-03 重校：旧值 (983,456) 落在卡片内打不中 X）
+  aliases:
+  - 快手极速版
   behaviors:
     sign:
-    - desc: "\u9996\u9875\u5DE6\u4E0A\u89D2\u2630\u6253\u5F00\u4FA7\u8FB9\u680F\uFF08\
-        2026-10-30 \u771F\u673A\u6821\u51C6\uFF1A\u65E7\u503C 0.07/0.06=(76,140) \u843D\
-        \u5728\u56FE\u6807\u4E0A\u6CBF\u70B9\u7A7A\uFF0C\u5B9E\u6D4B\u4E2D\u5FC3 (78,151)\uFF09"
-      optional: false
-      timeout: 6
-      type: click_point
-      vision: false
+    - type: click_point
       x: 0.072
       y: 0.0645
-    - type: think
-    - desc: "\u4FA7\u8FB9\u680F\u300C\u53BB\u8D5A\u94B1\u300D\u78C1\u8D34\u2192\u4EFB\
-        \u52A1\u4E2D\u5FC3\uFF08\u771F\u673A\u4E2D\u5FC3 (689,376)\uFF0C2026-11-03\
-        \ \u91CD\u6821\uFF1A\u4EFB\u52A1\u4E2D\u5FC3\u65E0\u72EC\u7ACB\u78C1\u8D34\
-        \uFF0C\u6B64\u4E3A\u53BB\u8D5A\u94B1\u5165\u53E3\uFF0C\u70B9\u540E\u843D\u4EFB\
-        \u52A1\u4E2D\u5FC3\uFF09"
+      timeout: 6
       optional: false
-      timeout: 8
-      type: click_point
       vision: false
+      desc: 首页左上角☰打开侧边栏（2026-10-30 真机校准：旧值 0.07/0.06=(76,140) 落在图标上沿点空，实测中心 (78,151)）
+    - type: think
+    - type: click_point
       x: 0.638
       y: 0.161
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 侧边栏「去赚钱」磁贴→任务中心（真机中心 (689,376)，2026-11-03 重校：任务中心无独立磁贴，此为去赚钱入口，点后落任务中心）
     - type: dismiss_popups
     - type: think
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: false
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
+            value: 立即签到
           - type: desc
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          optional: false
+            value: 立即签到
           timeout: 6
-          type: click_first
-      - - desc: "\u4EFB\u52A1\u4E2D\u5FC3[\u7ACB\u5373\u7B7E\u5230]\u5750\u6807\u515C\
-            \u5E95\uFF08\u771F\u673A\u4E2D\u5FC3 (945,1302)\uFF0C2026-11-03 \u91CD\
-            \u6821\uFF1A\u76F4\u63A5\u5B8C\u6210\u7B7E\u5230\u65E0\u4E2D\u95F4\u5F39\
-            \u7A97\uFF0C\u65E7\u503C (924,793) \u843D\u5728\u6A2A\u5E45\u4E0A\uFF09"
           optional: false
-          timeout: 6
-          type: click_point
-          vision: false
+      - - type: click_point
           x: 0.875
           y: 0.5565
-      optional: false
-      type: any_of
-    - name: "\u7B7E\u5230\u91D1\u5E01"
-      pattern: "\u4ECA\u65E5\u7B7E\u5230\u53EF\u9886\\s*(?P<amount>[0-9]+)\\s*(?P<unit>\u91D1\
-        \u5E01)"
-      type: reward
-      unit: "\u91D1\u5E01"
+          timeout: 6
+          optional: false
+          vision: false
+          desc: 任务中心[立即签到]坐标兜底（真机中心 (945,1302)，2026-11-03 重校：直接完成签到无中间弹窗，旧值 (924,793)
+            落在横幅上）
+    - type: reward
+      pattern: 今日签到可领\s*(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到金币
+- name: 快手
+  package: com.smile.gifmaker
   launch_reset: true
-  name: "\u5FEB\u624B\u6781\u901F\u7248"
-  package: com.kuaishou.nebula
   popups:
     close_points:
-    - desc: "\u4EFB\u52A1\u4E2D\u5FC3\u300C\u5927\u5956\u514D\u8D39\u62FF\u300D\u5F39\
-        \u7A97\u5173\u95EDX\uFF08\u771F\u673A (1013,352)\uFF0C2026-11-03 \u91CD\u6821\
-        \uFF1A\u65E7\u503C (983,456) \u843D\u5728\u5361\u7247\u5185\u6253\u4E0D\u4E2D\
-        \ X\uFF09"
-      x: 0.938
-      y: 0.15
-- aliases:
-  - "\u5FEB\u624B"
+    - x: 0.91
+      y: 0.195
+      desc: 任务中心「瓜分百亿金币」弹窗关闭X（真机 (983,456)）
+  aliases:
+  - 快手
   behaviors:
     bonus:
-    - desc: "\u4EFB\u52A1\u4E2D\u5FC3\u53F3\u4E0B[\u5B9D\u7BB1]\u7EA2\u76D2\uFF08\u771F\
-        \u673A\u4E2D\u5FC3 (940,2120)\uFF0C2026-11-03 \u91CD\u6821\uFF1A\u5F00\u7BB1\
-        \u5F39\u7A97\u5B9E\u6D4B 36\u91D1\u5E01\uFF09"
-      optional: true
-      timeout: 6
-      type: click_point
+    - type: click_point
       x: 0.87
       y: 0.906
-    - desc: "\u5F00\u5B9D\u7BB1\u5F39\u7A97[\u5173\u95EDX]\uFF08\u771F\u673A (983,455)\uFF0C\
-        c00e3080 \u6A21\u677F 2026-11-03 \u5B9E\u6D4B 0.996 \u547D\u4E2D\uFF09"
-      images:
-      - "images/\u5FEB\u624B/c00e3080-8b4c-46aa-8478-74abc3a5a73f.png"
-      optional: true
       timeout: 6
-      type: click_point
-    collect:
-    - desc: "\u56FE\u50CF-\u5FEB\u624B-\u4EFB\u52A1\u5217\u8868-\u5173\u95ED"
-      images:
-      - "images/\u5FEB\u624B/0100ec21-8be7-4552-b456-e20e7f831f39.png"
       optional: true
-      timeout: 6
-      type: click_point
-    gift:
-    - desc: "\u56FE\u50CF-\u5FEB\u624B-\u767D\u62FF\u793C\u7269-\u53BB\u9886\u53D6"
+      desc: 任务中心右下[宝箱]红盒（真机中心 (940,2120)，2026-11-03 重校：开箱弹窗实测 36金币）
+    - type: click_point
       images:
-      - "images/\u5FEB\u624B/dc7e72b7-ba53-4572-aafa-052262c440d3.png"
-      optional: true
+      - images/快手/c00e3080-8b4c-46aa-8478-74abc3a5a73f.png
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 开宝箱弹窗[关闭X]（真机 (983,455)，c00e3080 模板 2026-11-03 实测 0.996 命中）
     sign:
-    - desc: "\u9996\u9875\u5DE6\u4E0A\u89D2\u2630\u6253\u5F00\u4FA7\u8FB9\u680F\uFF08\
-        2026-10-30 \u771F\u673A\u6821\u51C6\uFF1A\u65E7\u503C 0.07/0.06=(76,140) \u843D\
-        \u5728\u56FE\u6807\u4E0A\u6CBF\u70B9\u7A7A\uFF0C\u5B9E\u6D4B\u4E2D\u5FC3 (78,151)\uFF09"
-      optional: false
-      timeout: 6
-      type: click_point
-      vision: false
+    - type: click_point
       x: 0.072
       y: 0.0645
+      timeout: 6
+      optional: false
+      vision: false
+      desc: 首页左上角☰打开侧边栏（2026-10-30 真机校准：旧值 0.07/0.06=(76,140) 落在图标上沿点空，实测中心 (78,151)）
     - type: think
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: false
+      choices:
+      - - type: click_first
+          candidates:
           - type: desc
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
+            value: 任务中心
           - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          optional: false
+            value: 任务中心
           timeout: 8
-          type: click_first
-      - - desc: "\u4FA7\u8FB9\u680F\u300C\u4EFB\u52A1\u4E2D\u5FC3\u300D\u78C1\u8D34\
-            \uFF08\u771F\u673A\u4E2D\u5FC3 (689,376)\uFF0C\u65E7\u503C 0.5/0.18 \u504F\
-            \u5DE6\u9519\u8FC7\uFF09"
-          expect:
-            phash: "images/\u5FEB\u624B/landing/ref_task.png"
-            phash_max_dist: 8
-            retry: 1
-            settle: 3.0
           optional: false
-          timeout: 8
-          type: click_point
-          vision: false
+      - - type: click_point
           x: 0.638
           y: 0.161
-      optional: false
-      type: any_of
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 侧边栏「任务中心」磁贴（真机中心 (689,376)，旧值 0.5/0.18 偏左错过）
+          expect:
+            phash: images/快手/landing/ref_task.png
+            phash_max_dist: 8
+            settle: 3.0
+            retry: 1
     - type: think
-    - desc: "\u4EFB\u52A1\u4E2D\u5FC3[\u7ACB\u5373\u7B7E\u5230]\uFF08\u771F\u673A\u4E2D\
-        \u5FC3 (924,793)\uFF09"
-      expect:
-        phash: "images/\u5FEB\u624B/landing/ref_dialog.png"
-        phash_max_dist: 10
-        retry: 0
-        settle: 3.0
-      optional: false
-      timeout: 6
-      type: click_point
-      vision: false
+    - type: click_point
       x: 0.856
       y: 0.339
-    - desc: "\u7B7E\u5230\u5F39\u7A97[\u7ACB\u5373\u7B7E\u5230]\uFF08\u771F\u673A\u4E2D\
-        \u5FC3 (540,1570)\uFF09"
-      optional: true
       timeout: 6
-      type: click_point
+      optional: false
       vision: false
+      desc: 任务中心[立即签到]（真机中心 (924,793)）
+      expect:
+        phash: images/快手/landing/ref_dialog.png
+        phash_max_dist: 10
+        settle: 3.0
+        retry: 0
+    - type: click_point
       x: 0.5
       y: 0.671
-    - name: "\u7B7E\u5230\u91D1\u5E01"
-      pattern: "\u4ECA\u65E5\u7B7E\u5230\u53EF\u9886\\s*(?P<amount>[0-9]+)\\s*(?P<unit>\u91D1\
-        \u5E01)"
-      type: reward
-      unit: "\u91D1\u5E01"
+      timeout: 6
+      optional: true
+      vision: false
+      desc: 签到弹窗[立即签到]（真机中心 (540,1570)）
+    - type: reward
+      pattern: 今日签到可领\s*(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到金币
     withdraw:
-    - desc: "\u56FE\u50CF-\u5FEB\u624B-\u63D0\u73B0-\u9886\u73B0\u91D1"
+    - type: click_point
       images:
-      - "images/\u5FEB\u624B/f1ab7643-c156-4612-ae98-8fb425475b29.png"
-      optional: true
+      - images/快手/f1ab7643-c156-4612-ae98-8fb425475b29.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u5FEB\u624B-\u63D0\u73B0-\u7ACB\u5373\u5151\u6362"
+      optional: true
+      desc: 图像-快手-提现-领现金
+    - type: click_point
       images:
-      - "images/\u5FEB\u624B/9e4c2242-f684-4574-afdc-e7df073e5363.png"
-      optional: true
+      - images/快手/9e4c2242-f684-4574-afdc-e7df073e5363.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u5FEB\u624B-\u63D0\u73B0-\u7ACB\u5373\u63D0\u73B0"
+      optional: true
+      desc: 图像-快手-提现-立即兑换
+    - type: click_point
       images:
-      - "images/\u5FEB\u624B/77b164cc-12ca-410f-a0e4-ae9f48460d91.png"
-      optional: true
+      - images/快手/77b164cc-12ca-410f-a0e4-ae9f48460d91.png
       timeout: 6
-      type: click_point
-  launch_reset: true
-  name: "\u5FEB\u624B"
-  package: com.smile.gifmaker
-  popups:
-    close_points:
-    - desc: "\u4EFB\u52A1\u4E2D\u5FC3\u300C\u74DC\u5206\u767E\u4EBF\u91D1\u5E01\u300D\
-        \u5F39\u7A97\u5173\u95EDX\uFF08\u771F\u673A (983,456)\uFF09"
-      x: 0.91
-      y: 0.195
-- aliases:
-  - "\u559C\u756A\u514D\u8D39\u77ED\u5267"
-  - "\u559C\u756A\u77ED\u5267"
-  behaviors:
-    sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u91D1\u5E01"
-          - type: text
-            value: "\u53BB\u7B7E\u5230"
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u8D5A\u73B0\u91D1"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u8D5A\u73B0\u91D1"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          - type: text
-            value: "\u6211\u7684\u798F\u5229"
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u8D5A\u94B1"
-          - type: text
-            value: "\u91D1\u5E01"
-          - type: text
-            value: "\u9886\u91D1\u5E01"
-          - type: text
-            value: "\u5929\u5929\u9886"
-          - type: text
-            value: "\u505A\u4EFB\u52A1"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u94B1\u5305"
-          - type: text
-            value: "\u73B0\u91D1"
-          - type: text
-            value: "\u5143\u5B9D\u4E2D\u5FC3"
-          - type: text
-            value: "\u91D1\u5E01\u4E2D\u5FC3"
-          - type: text
-            value: "\u798F\u5229\u5546\u57CE"
-          - type: text
-            value: "\u4EFB\u52A1\u5E7F\u573A"
-          - type: text
-            value: "\u8D5A\u91D1\u5E01"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
-          - type: text
-            value: "\u770B\u4E66\u8D5A\u94B1"
-          - type: text
-            value: "\u770B\u89C6\u9891\u8D5A\u94B1"
-          - type: text
-            value: "\u6211\u7684\u91D1\u5E01"
-          - type: text
-            value: "\u73B0\u91D1\u5956\u52B1"
-          optional: false
-          timeout: 8
-          type: click_first
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u91D1\u5E01"
-          - type: text
-            value: "\u53BB\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
       optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230"
-      - type: text
-        value: "\u9886\u53D6"
-      optional: true
+      desc: 图像-快手-提现-立即提现
+    collect:
+    - type: click_point
+      images:
+      - images/快手/0100ec21-8be7-4552-b456-e20e7f831f39.png
       timeout: 6
-      type: click_first
-    watch:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u53BB\u770B\u5267"
-          - type: text
-            value: "\u8D5A\u94B1"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
-          - type: text
-            value: "\u798F\u5229"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u53BB\u770B\u5267"
-          - type: text
-            value: "\u8D5A\u94B1"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
-          - type: text
-            value: "\u798F\u5229"
-          optional: false
-          timeout: 8
-          type: click_first
       optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u770B\u5267"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      - type: text
-        value: "\u770B\u77ED\u5267"
+      desc: 图像-快手-任务列表-关闭
+    gift:
+    - type: click_point
+      images:
+      - images/快手/dc7e72b7-ba53-4572-aafa-052262c440d3.png
+      timeout: 6
       optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - candidates:
-      - type: text
-        value: "\u6211\u7684"
-      - type: text
-        value: "\u6211"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-  intent_map:
-    sign: sign
-    watch: watch
-    withdraw: withdraw
-  name: "\u559C\u756A\u514D\u8D39\u77ED\u5267"
+      desc: 图像-快手-白拿礼物-去领取
+- name: 喜番免费短剧
   package: com.kwai.theater
-- aliases:
-  - "\u5929\u5929\u5FEB\u8BAF\u6781\u901F\u7248"
-  - "\u5929\u5929\u5FEB\u8BAF"
-  behaviors:
-    sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u8FDE\u7EED\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u6211\u7684\u798F\u5229"
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u8D5A\u94B1"
-          - type: text
-            value: "\u91D1\u5E01"
-          - type: text
-            value: "\u9886\u91D1\u5E01"
-          - type: text
-            value: "\u5929\u5929\u9886"
-          - type: text
-            value: "\u505A\u4EFB\u52A1"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u94B1\u5305"
-          - type: text
-            value: "\u73B0\u91D1"
-          - type: text
-            value: "\u5143\u5B9D\u4E2D\u5FC3"
-          - type: text
-            value: "\u91D1\u5E01\u4E2D\u5FC3"
-          - type: text
-            value: "\u798F\u5229\u5546\u57CE"
-          - type: text
-            value: "\u4EFB\u52A1\u5E7F\u573A"
-          - type: text
-            value: "\u8D5A\u91D1\u5E01"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
-          - type: text
-            value: "\u770B\u4E66\u8D5A\u94B1"
-          - type: text
-            value: "\u770B\u89C6\u9891\u8D5A\u94B1"
-          - type: text
-            value: "\u6211\u7684\u91D1\u5E01"
-          - type: text
-            value: "\u73B0\u91D1\u5956\u52B1"
-          optional: false
-          timeout: 8
-          type: click_first
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u8FDE\u7EED\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - name: "\u7B7E\u5230\u5956\u52B1"
-      pattern: "\u9886(?P<amount>[0-9]+)\\s*(?P<unit>\u91D1\u5E01)"
-      type: reward
-      unit: "\u91D1\u5E01"
-    - candidates:
-      - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230\u98862888\u91D1\u5E01"
-      - type: text
-        value: "\u9886\u53D6"
-      optional: true
-      timeout: 6
-      type: click_first
-    watch:
-    - candidates:
-      - type: text
-        value: "\u770B\u89C6\u9891"
-      - type: text
-        value: "\u770B\u8D44\u8BAF\u8D5A\u94B1"
-      - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      - type: text
-        value: "\u9886\u53D6"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
+  aliases:
+  - 喜番免费短剧
+  - 喜番短剧
   intent_map:
     sign: sign
     watch: watch
     withdraw: withdraw
-  name: "\u5929\u5929\u5FEB\u8BAF\u6781\u901F\u7248"
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看剧赚金币
+          - type: text
+            value: 去签到
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚现金
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 赚现金
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 我的福利
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 金币
+          - type: text
+            value: 领金币
+          - type: text
+            value: 天天领
+          - type: text
+            value: 做任务
+          - type: text
+            value: 任务
+          - type: text
+            value: 钱包
+          - type: text
+            value: 现金
+          - type: text
+            value: 元宝中心
+          - type: text
+            value: 金币中心
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 任务广场
+          - type: text
+            value: 赚金币
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 我的金币
+          - type: text
+            value: 现金奖励
+          timeout: 8
+          optional: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看剧赚金币
+          - type: text
+            value: 去签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去看剧
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 福利
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 去看剧
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 福利
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看剧
+      - type: text
+        value: 去完成
+      - type: text
+        value: 看短剧
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 天天快讯极速版
   package: skysky.cy.kuaixun
-- aliases:
-  - "\u68A7\u6850\u514D\u8D39\u5C0F\u8BF4"
-  - "\u68A7\u6850\u5C0F\u8BF4"
-  behaviors:
-    sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u770B\u4E66\u5F97\u91D1\u5E01"
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u770B\u4E66\u5F97\u91D1\u5E01"
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u7B7E\u5230\u9886"
-      - type: text
-        value: "\u9886\u53D6"
-      optional: true
-      timeout: 6
-      type: click_first
-    watch:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u798F\u5229\u5546\u57CE"
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u770B\u4E66\u8D5A\u94B1"
-          - type: text
-            value: "\u6211\u7684\u91D1\u5E01"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u798F\u5229\u5546\u57CE"
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u770B\u4E66\u8D5A\u94B1"
-          - type: text
-            value: "\u6211\u7684\u91D1\u5E01"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u7EE7\u7EED\u770B\u4E66"
-      - type: text
-        value: "\u9605\u8BFB\u8D5A\u94B1"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - candidates:
-      - type: text
-        value: "\u6211\u7684"
-      - type: text
-        value: "\u6211"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "\u53EF\u63D0\u73B0(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143\
-        )"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
+  aliases:
+  - 天天快讯极速版
+  - 天天快讯
   intent_map:
     sign: sign
     watch: watch
     withdraw: withdraw
-  name: "\u68A7\u6850\u514D\u8D39\u5C0F\u8BF4"
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 签到
+          - type: text
+            value: 连续签到
+          - type: text
+            value: 每日签到
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 我的福利
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 金币
+          - type: text
+            value: 领金币
+          - type: text
+            value: 天天领
+          - type: text
+            value: 做任务
+          - type: text
+            value: 任务
+          - type: text
+            value: 钱包
+          - type: text
+            value: 现金
+          - type: text
+            value: 元宝中心
+          - type: text
+            value: 金币中心
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 任务广场
+          - type: text
+            value: 赚金币
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 我的金币
+          - type: text
+            value: 现金奖励
+          timeout: 8
+          optional: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 签到
+          - type: text
+            value: 连续签到
+          - type: text
+            value: 每日签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: reward
+      pattern: 领(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到奖励
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到领2888金币
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看视频
+      - type: text
+        value: 看资讯赚钱
+      - type: text
+        value: 任务中心
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 梧桐免费小说
   package: com.ushaqi.zhuishushenqi.ninenine
-- aliases:
-  - "\u4E03\u732B\u514D\u8D39\u5C0F\u8BF4"
-  - "\u4E03\u732B"
+  aliases:
+  - 梧桐免费小说
+  - 梧桐小说
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看书得金币
+          - type: text
+            value: 立即签到
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看书得金币
+          - type: text
+            value: 立即签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 签到领
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 任务
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 我的金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利商城
+          - type: text
+            value: 福利中心
+          - type: text
+            value: 任务
+          - type: text
+            value: 看书赚钱
+          - type: text
+            value: 我的金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 继续看书
+      - type: text
+        value: 阅读赚钱
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: 可提现(?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 七猫免费小说
+  package: com.kmxs.reader
+  aliases:
+  - 七猫免费小说
+  - 七猫
   behaviors:
     collect:
-    - desc: "\u56FE\u50CF-\u4E03\u732B\u514D\u8D39\u5C0F\u8BF4-\u4EFB\u52A1\u5217\u8868\
-        -\u798F\u5229"
+    - type: click_point
       images:
-      - "images/\u4E03\u732B\u514D\u8D39\u5C0F\u8BF4/49ae9a39-b0cf-4c4c-a4a3-c004f52ffcdf.png"
-      optional: true
+      - images/七猫免费小说/49ae9a39-b0cf-4c4c-a4a3-c004f52ffcdf.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u4E03\u732B\u514D\u8D39\u5C0F\u8BF4-\u4EFB\u52A1\u5217\u8868\
-        -\u5173\u95ED"
+      optional: true
+      desc: 图像-七猫免费小说-任务列表-福利
+    - type: click_point
       images:
-      - "images/\u4E03\u732B\u514D\u8D39\u5C0F\u8BF4/bdc40552-054f-4072-8079-0a65ad173a3c.png"
-      optional: true
+      - images/七猫免费小说/bdc40552-054f-4072-8079-0a65ad173a3c.png
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 图像-七猫免费小说-任务列表-关闭
     sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u798F\u5229"
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
           candidates_from: sign
-          optional: false
           timeout: 8
-          type: click_first
-      - - desc: "anchor\u5750\u6807\u515C\u5E95\uFF08\u5F85\u771F\u673A\u6821\u51C6\
-            \uFF09"
           optional: false
-          timeout: 8
-          type: click_point
-          vision: false
+          candidates:
+          - type: text
+            value: 福利
+      - - type: click_point
           x: 0.5
           y: 0.927
-      optional: true
-      type: any_of
-    - choices:
-      - - candidates_from: sign
-          optional: false
           timeout: 8
-          type: click_first
-      - - desc: "sign\u5750\u6807\u515C\u5E95\uFF08\u5F85\u771F\u673A\u6821\u51C6\uFF09"
           optional: false
-          timeout: 8
-          type: click_point
           vision: false
+          desc: anchor坐标兜底（待真机校准）
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
           x: 0.398
           y: 0.372
-      optional: true
-      type: any_of
-  name: "\u4E03\u732B\u514D\u8D39\u5C0F\u8BF4"
-  package: com.kmxs.reader
-- aliases:
-  - "\u7C73\u8BFB\u6781\u901F\u7248"
-  - "\u7C73\u8BFB"
+          timeout: 8
+          optional: false
+          vision: false
+          desc: sign坐标兜底（待真机校准）
+- name: 米读极速版
+  package: com.lechuan.mdwz
+  aliases:
+  - 米读极速版
+  - 米读
   behaviors:
     collect:
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u6781\u901F\u7248-\u4EFB\u52A1\u5217\u8868\
-        -\u7ACB\u5373\u9886\u53D6"
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u6781\u901F\u7248/82c4a8db-9060-40da-b04c-0642c1e6d098.png"
-      optional: true
+      - images/米读极速版/82c4a8db-9060-40da-b04c-0642c1e6d098.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u6781\u901F\u7248-\u4EFB\u52A1\u5217\u8868\
-        -\u798F\u5229"
+      optional: true
+      desc: 图像-米读极速版-任务列表-立即领取
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u6781\u901F\u7248/bcf0bf62-9669-49d9-a577-1882d3924bb2.png"
-      optional: true
+      - images/米读极速版/bcf0bf62-9669-49d9-a577-1882d3924bb2.png
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 图像-米读极速版-任务列表-福利
     sign:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u798F\u5229"
+            value: 福利
           candidates_from: nav_tab
-          optional: false
-          timeout: 8
-          type: click_first
           zone: tab_zone
-      - - desc: "\u5E95\u90E8\u53F3\u4E8Ctab\u300C\u798F\u5229\u300D\u5750\u6807\u515C\
-            \u5E95\uFF08\u5F85\u771F\u673A\u6821\u51C6\uFF09"
-          optional: false
           timeout: 8
-          type: click_point
-          vision: false
+          optional: false
+      - - type: click_point
           x: 0.7
           y: 0.914
-      optional: true
-      type: any_of
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 底部右二tab「福利」坐标兜底（待真机校准）
     - type: think
-    - candidates_from: sign
-      optional: true
+    - type: click_first
+      candidates_from: sign
       timeout: 8
-      type: click_first
+      optional: true
     withdraw:
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u6781\u901F\u7248-\u63D0\u73B0-\u6211\u7684"
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u6781\u901F\u7248/ebe92c9c-1451-4993-8c68-51501e852660.png"
-      optional: true
+      - images/米读极速版/ebe92c9c-1451-4993-8c68-51501e852660.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u6781\u901F\u7248-\u63D0\u73B0-\u63D0\u73B0"
+      optional: true
+      desc: 图像-米读极速版-提现-我的
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u6781\u901F\u7248/868818fc-c1ca-4c26-a74f-9187725e476a.png"
-      optional: true
+      - images/米读极速版/868818fc-c1ca-4c26-a74f-9187725e476a.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u6781\u901F\u7248-\u63D0\u73B0-0.3\u5143"
+      optional: true
+      desc: 图像-米读极速版-提现-提现
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u6781\u901F\u7248/f624035a-224f-45a4-8863-f7f52a409f63.png"
-      optional: true
+      - images/米读极速版/f624035a-224f-45a4-8863-f7f52a409f63.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u6781\u901F\u7248-\u63D0\u73B0-\u7ACB\u5373\
-        \u63D0\u73B0"
+      optional: true
+      desc: 图像-米读极速版-提现-0.3元
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u6781\u901F\u7248/8544ad2f-a1fe-402f-9ff6-38fa5c68a334.png"
-      optional: true
+      - images/米读极速版/8544ad2f-a1fe-402f-9ff6-38fa5c68a334.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u6781\u901F\u7248-\u63D0\u73B0-\u786E\u8BA4\
-        \u63D0\u73B0"
+      optional: true
+      desc: 图像-米读极速版-提现-立即提现
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u6781\u901F\u7248/258d92d8-116f-4cc0-a358-e618591324d0.png"
-      optional: true
+      - images/米读极速版/258d92d8-116f-4cc0-a358-e618591324d0.png
       timeout: 6
-      type: click_point
-  name: "\u7C73\u8BFB\u6781\u901F\u7248"
-  package: com.lechuan.mdwz
-- aliases:
-  - "\u70B9\u6DD8"
-  behaviors:
-    collect:
-    - candidates:
-      - type: text
-        value: "\u5F85\u9886\u53D6"
-      - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: text
-        value: "\u5929\u5929\u9886"
-      - type: text
-        value: "\u798F\u5229"
-      - type: text
-        value: "\u9886\u5956"
       optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u9886\u7EA2\u5305"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
-      timeout: 6
-      type: click_first
-    watch:
-    - candidates:
-      - type: text
-        value: "\u8D5A\u66F4\u591A\u5143\u5B9D"
-      desc: "\u70B9\u6DD8-watch-\u771F\u673A\u4FEE\u6B63: \u8D5A\u66F4\u591A\u5143\
-        \u5B9D->\u5143\u5B9D\u4E2D\u5FC3(H5)"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - candidates:
-      - type: text
-        value: "\u53BB\u5151\u6362"
-      desc: "\u70B9\u6DD8-withdraw-\u771F\u673A\u4FEE\u6B63: \u53BB\u5151\u6362->\u5143\
-        \u5B9D\u5151\u6743\u76CA\u9875"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u5143\u5B9D\u603B\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143\u5B9D)"
-      type: reward
-      unit: "\u5143\u5B9D"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
+      desc: 图像-米读极速版-提现-确认提现
+- name: 点淘
+  package: com.taobao.live
+  aliases:
+  - 点淘
   intent_map:
     collect: collect
     watch: watch
     withdraw: withdraw
-  name: "\u70B9\u6DD8"
-  package: com.taobao.live
-- aliases:
-  - "\u4E00\u6DD8"
   behaviors:
-    sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: desc
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          - type: text
-            value: "\u5929\u5929\u9886"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: desc
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          - type: text
-            value: "\u5929\u5929\u9886"
-          optional: false
-          timeout: 8
-          type: click_first
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 待领取
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 天天领
+      - type: text
+        value: 福利
+      - type: text
+        value: 领奖
+      timeout: 8
       optional: true
-      type: any_of
     - type: think
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u9886\u53D6"
+        value: 领取
       - type: text
-        value: "\u9886\u91D1\u5E01"
-      optional: true
+        value: 领红包
+      - type: text
+        value: 去完成
       timeout: 6
-      type: click_first
+      optional: true
     watch:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u53BB\u798F\u72F8\u4E2D\u5FC3\u505A\u4EFB\u52A1"
-          - type: text
-            value: "\u770B\u89C6\u9891\u9886\u91D1\u5E01"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u7701\u91D1\u5E01"
-          - type: text
-            value: "\u4ECA\u65E5\u4EFB\u52A1"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u53BB\u798F\u72F8\u4E2D\u5FC3\u505A\u4EFB\u52A1"
-          - type: text
-            value: "\u770B\u89C6\u9891\u9886\u91D1\u5E01"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u7701\u91D1\u5E01"
-          - type: text
-            value: "\u4ECA\u65E5\u4EFB\u52A1"
-          optional: false
-          timeout: 8
-          type: click_first
+    - type: click_first
+      candidates:
+      - type: text
+        value: 赚更多元宝
+      timeout: 8
       optional: true
-      type: any_of
+      desc: '点淘-watch-真机修正: 赚更多元宝->元宝中心(H5)'
     - type: think
-    - candidates:
-      - type: text
-        value: "\u770B\u89C6\u9891"
-      - type: text
-        value: "\u9886"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
+    - type: swipe
       from:
       - 0.5
       - 0.7
-      natural: true
       to:
       - 0.5
       - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
     withdraw:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去兑换
+      timeout: 8
       optional: true
-      type: any_of
+      desc: '点淘-withdraw-真机修正: 去兑换->元宝兑权益页'
     - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
+    - type: click_text
+      text: 提现
       timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "\u53EF\u63D0\u73B0(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143\
-        )"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元宝)
+      unit: 元宝
+      name: 元宝总额
+    - type: click_text
+      text: 立即提现
       timeout: 6
-      type: click_text
+      optional: true
+- name: 一淘
+  package: com.taobao.etao
+  aliases:
+  - 一淘
+  launch_reset: true
   intent_map:
     sign: sign
     watch: watch
     withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到领钱
+          - type: text
+            value: 签到
+          - type: desc
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 天天领
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到领钱
+          - type: text
+            value: 签到
+          - type: desc
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 天天领
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 领金币
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去福狸中心做任务
+          - type: text
+            value: 看视频领金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 省金币
+          - type: text
+            value: 今日任务
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 去福狸中心做任务
+          - type: text
+            value: 看视频领金币
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 省金币
+          - type: text
+            value: 今日任务
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看视频
+      - type: text
+        value: 领
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: 可提现(?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 大众点评
+  package: com.dianping.v1
+  aliases:
+  - 大众点评
+  - 点评
   launch_reset: true
-  name: "\u4E00\u6DD8"
-  package: com.taobao.etao
-- aliases:
-  - "\u5927\u4F17\u70B9\u8BC4"
-  - "\u70B9\u8BC4"
   behaviors:
     collect:
-    - desc: "\u56FE\u50CF-\u5927\u4F17\u70B9\u8BC4-\u4EFB\u52A1\u5217\u8868-\u6211\
-        \u7684"
+    - type: click_point
       images:
-      - "images/\u5927\u4F17\u70B9\u8BC4/98c11535-9236-4c0a-8a2b-f9c4874fe5b8.png"
-      optional: true
+      - images/大众点评/98c11535-9236-4c0a-8a2b-f9c4874fe5b8.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u5927\u4F17\u70B9\u8BC4-\u4EFB\u52A1\u5217\u8868-\u505A\
-        \u4EFB\u52A1"
+      optional: true
+      desc: 图像-大众点评-任务列表-我的
+    - type: click_point
       images:
-      - "images/\u5927\u4F17\u70B9\u8BC4/6f5e67b0-39b9-4f6f-a828-a58a7da94259.png"
-      optional: true
+      - images/大众点评/6f5e67b0-39b9-4f6f-a828-a58a7da94259.png
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 图像-大众点评-任务列表-做任务
     sign:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u6211\u7684"
-      optional: false
+        value: 我的
       timeout: 8
-      type: click_first
+      optional: false
     - type: think
-    - choices:
-      - - desc: "\u300C\u9886\u70B9\u91D1\u5E01\u300D\u884C\u53F3\u4FA7\u56FE\u6807\
-            \uFF08\u771F\u673A\u4E2D\u5FC3 (961,1755)\uFF09"
+    - type: any_of
+      optional: false
+      choices:
+      - - type: click_point
+          x: 0.89
+          y: 0.75
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 「领点金币」行右侧图标（真机中心 (961,1755)）
           expect:
-            phash: "images/\u5927\u4F17\u70B9\u8BC4/landing/ref_coin.png"
-            phash_max_dist: 14
+            phash: images/大众点评/landing/ref_coin.png
             phash_region:
             - 0.0
             - 0.03
             - 1.0
             - 0.22
-            retry: 1
+            phash_max_dist: 14
             settle: 3.0
-          optional: false
-          timeout: 8
-          type: click_point
-          vision: false
-          x: 0.89
-          y: 0.75
-      - - candidates:
+            retry: 1
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u9886\u70B9\u91D1\u5E01"
+            value: 领点金币
           - type: text
-            value: "\u70B9\u91D1\u5E01"
-          optional: false
+            value: 点金币
           timeout: 8
-          type: click_first
-      optional: false
-      type: any_of
+          optional: false
     - type: think
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230"
-      optional: true
+        value: 立即签到
       timeout: 8
-      type: click_first
+      optional: true
+- name: UC浏览器极速版
+  package: com.ucmobile.lite
+  aliases:
+  - UC浏览器极速版
+  - UC极速版
   launch_reset: true
-  name: "\u5927\u4F17\u70B9\u8BC4"
-  package: com.dianping.v1
-- aliases:
-  - "UC\u6D4F\u89C8\u5668\u6781\u901F\u7248"
-  - "UC\u6781\u901F\u7248"
   behaviors:
     collect:
-    - desc: "\u56FE\u50CF-UC\u6D4F\u89C8\u5668\u6781\u901F\u7248-\u4EFB\u52A1\u5217\
-        \u8868-\u4EFB\u52A1"
+    - type: click_point
       images:
-      - "images/UC\u6D4F\u89C8\u5668\u6781\u901F\u7248/78f0e67e-7696-40da-8296-b2ea3be224b6.png"
-      optional: true
+      - images/UC浏览器极速版/78f0e67e-7696-40da-8296-b2ea3be224b6.png
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 图像-UC浏览器极速版-任务列表-任务
     sign:
-    - desc: "\u5E95\u90E8\u53F3\u4E0B\u300C\u4EFB\u52A1\u300Dtab\uFF08\u771F\u673A\
-        \u4E2D\u5FC3 (972,2138)\uFF09"
-      expect:
-        accept_structure_change: true
-        phash: "images/UC\u6D4F\u89C8\u5668\u6781\u901F\u7248/landing/ref_task.png"
-        phash_max_dist: 20
-        retry: 1
-        settle: 3.0
-        structure_change_min: 0.15
-      optional: false
-      timeout: 8
-      type: click_point
-      vision: false
+    - type: click_point
       x: 0.9
       y: 0.914
-    - type: think
-    - desc: "\u4EFB\u52A1\u9875\u6D6E\u52A8\u300C\u8FDE\u7B7E7\u5929\u300D\u6A2A\u5E45\
-        \uFF08\u56FE\u50CF\u6A21\u677F\u5B9A\u4F4D\uFF1B\u5DF2\u7B7E\u5230\u65F6\u4E0D\
-        \u5B58\u5728\uFF09"
-      expect:
-        phash: "images/UC\u6D4F\u89C8\u5668\u6781\u901F\u7248/landing/ref_dialog.png"
-        phash_max_dist: 12
-        retry: 1
-        settle: 3.0
-      images:
-      - "images/UC\u6D4F\u89C8\u5668\u6781\u901F\u7248/banner_qiandao.png"
-      optional: true
       timeout: 8
-      type: click_point
+      optional: false
+      vision: false
+      desc: 底部右下「任务」tab（真机中心 (972,2138)）
+      expect:
+        phash: images/UC浏览器极速版/landing/ref_task.png
+        phash_max_dist: 20
+        settle: 3.0
+        retry: 1
+        accept_structure_change: true
+        structure_change_min: 0.15
+    - type: think
+    - type: click_point
       x: 0.5
       y: 0.18
-    - desc: "\u7B7E\u5230\u5F39\u7A97[\u76F4\u63A5\u9886]\uFF08\u771F\u673A\u4E2D\u5FC3\
-        \ (302,1348)\uFF09"
+      images:
+      - images/UC浏览器极速版/banner_qiandao.png
+      timeout: 8
       optional: true
-      timeout: 6
-      type: click_point
-      vision: false
+      desc: 任务页浮动「连签7天」横幅（图像模板定位；已签到时不存在）
+      expect:
+        phash: images/UC浏览器极速版/landing/ref_dialog.png
+        phash_max_dist: 12
+        settle: 3.0
+        retry: 1
+    - type: click_point
       x: 0.28
       y: 0.576
-    - name: "\u7B7E\u5230\u5143\u5B9D"
-      pattern: "\u7B7E\u5230\\+(?P<amount>[0-9]+)\\s*(?P<unit>\u5143\u5B9D)"
-      type: reward
-      unit: "\u5143\u5B9D"
+      timeout: 6
+      optional: true
+      vision: false
+      desc: 签到弹窗[直接领]（真机中心 (302,1348)）
+    - type: reward
+      pattern: 签到\+(?P<amount>[0-9]+)\s*(?P<unit>元宝)
+      unit: 元宝
+      name: 签到元宝
     withdraw:
-    - desc: "\u56FE\u50CF-UC\u6D4F\u89C8\u5668\u6781\u901F\u7248-\u63D0\u73B0-\u53BB\
-        \u63D0\u73B0"
+    - type: click_point
       images:
-      - "images/UC\u6D4F\u89C8\u5668\u6781\u901F\u7248/d0c2a233-7066-4dec-8ed4-d9b1f84c5187.png"
-      optional: true
+      - images/UC浏览器极速版/d0c2a233-7066-4dec-8ed4-d9b1f84c5187.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-UC\u6D4F\u89C8\u5668\u6781\u901F\u7248-\u63D0\u73B0-\u652F\
-        \u4ED8\u5B9D0.3"
+      optional: true
+      desc: 图像-UC浏览器极速版-提现-去提现
+    - type: click_point
       images:
-      - "images/UC\u6D4F\u89C8\u5668\u6781\u901F\u7248/fac910c2-c85f-4d7e-8da8-1f0ab3c3868e.png"
-      optional: true
+      - images/UC浏览器极速版/fac910c2-c85f-4d7e-8da8-1f0ab3c3868e.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-UC\u6D4F\u89C8\u5668\u6781\u901F\u7248-\u63D0\u73B0-\u53BB\
-        \u5FAE\u4FE1\u5206\u4EAB"
+      optional: true
+      desc: 图像-UC浏览器极速版-提现-支付宝0.3
+    - type: click_point
       images:
-      - "images/UC\u6D4F\u89C8\u5668\u6781\u901F\u7248/81bcf6ee-8337-4e29-b414-33e15c959a71.png"
-      optional: true
+      - images/UC浏览器极速版/81bcf6ee-8337-4e29-b414-33e15c959a71.png
       timeout: 6
-      type: click_point
-  launch_reset: true
-  name: "UC\u6D4F\u89C8\u5668\u6781\u901F\u7248"
-  package: com.ucmobile.lite
-- aliases:
-  - "\u5168\u6C11K\u6B4C"
-  - "K\u6B4C"
-  behaviors:
-    bonus:
-    - candidates:
-      - type: desc
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      desc: "\u9876\u90E8\u5DE6\u4E0A\u300C\u4EFB\u52A1\u4E2D\u5FC3\u300D\u5165\u53E3\
-        \uFF082026-11-04 \u5B9E\u6D4B (108,171)\uFF0C\u552F\u4E00\u53EF\u8FBE bonus\
-        \ \u5165\u53E3\uFF09"
       optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    collect:
-    - candidates:
-      - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: desc
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: text
-        value: "\u798F\u5229"
-      - type: text
-        value: "\u6BCF\u65E5\u4EFB\u52A1"
-      - type: text
-        value: "\u505A\u4EFB\u52A1"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
-      timeout: 6
-      type: click_first
-    sign:
-    - desc: "\u5929\u5929\u7B7E\u5230\u5F39\u7A97[\u7ACB\u5373\u7B7E\u5230]\uFF08\
-        2026-11-04 \u5B9E\u6D4B (367,1673)\uFF0C\u51B7\u542F\u52A8\u81EA\u52A8\u5F39\
-        \u51FA\uFF1B\u6A21\u677F\u81EA\u5339\u914D 1.0\uFF09"
-      expect:
-        settle: 3.0
-        text_any:
-        - "\u4EFB\u52A1\u4E2D\u5FC3"
-      images:
-      - "images/\u5168\u6C11K\u6B4C/btn_liji_sign.png"
-      optional: true
-      timeout: 8
-      type: click_point
-      x: 0.34
-      y: 0.715
-    - type: think
-  intent_map:
-    bonus: bonus
-    collect: collect
-    sign: sign
-  name: "\u5168\u6C11K\u6B4C"
+      desc: 图像-UC浏览器极速版-提现-去微信分享
+- name: 全民K歌
   package: com.tencent.karaoke
-- aliases:
-  - "\u7C73\u8BFB\u5C0F\u8BF4"
+  aliases:
+  - 全民K歌
+  - K歌
+  intent_map:
+    sign: sign
+    collect: collect
+    bonus: bonus
+  behaviors:
+    sign:
+    - type: click_point
+      x: 0.395
+      y: 0.368
+      timeout: 8
+      optional: true
+      desc: 天天签到弹窗[立即签到]（2026-11-05 实测 clickable 中心 (427,860)；点击关弹窗=签到成功，已签态冷启动不再弹）
+      expect:
+        text_any:
+        - 任务中心
+        - 动态
+        - 歌房
+        - 领VIP
+        settle: 3.0
+    - type: think
+    collect:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 任务中心
+      - type: desc
+        value: 任务中心
+      - type: text
+        value: 福利
+      - type: text
+        value: 每日任务
+      - type: text
+        value: 做任务
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    bonus:
+    - type: click_first
+      candidates:
+      - type: desc
+        value: 任务中心
+      - type: text
+        value: 任务中心
+      timeout: 8
+      optional: true
+      desc: 顶部左上「任务中心」入口（2026-11-04 实测 (108,171)，唯一可达 bonus 入口）
+    - type: think
+- name: 米读小说
+  package: com.lechuan.midunovel
+  aliases:
+  - 米读小说
   behaviors:
     collect:
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u5C0F\u8BF4-\u4EFB\u52A1\u5217\u8868-\u798F\
-        \u5229\u4E2D\u5FC3"
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u5C0F\u8BF4/8b329078-4b67-41d8-8f6a-57b2e7d88a82.png"
-      optional: true
+      - images/米读小说/8b329078-4b67-41d8-8f6a-57b2e7d88a82.png
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u7C73\u8BFB\u5C0F\u8BF4-\u4EFB\u52A1\u5217\u8868-\u6211\
-        \u7684"
+      optional: true
+      desc: 图像-米读小说-任务列表-福利中心
+    - type: click_point
       images:
-      - "images/\u7C73\u8BFB\u5C0F\u8BF4/8923f381-6c07-4693-9bca-4f435c513168.png"
-      optional: true
+      - images/米读小说/8923f381-6c07-4693-9bca-4f435c513168.png
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 图像-米读小说-任务列表-我的
     sign:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u6211\u7684"
+            value: 我的
           candidates_from: nav_tab
-          optional: false
-          timeout: 8
-          type: click_first
           zone: tab_zone
-        - desc: "\u5E95\u90E8\u6700\u53F3tab\u300C\u6211\u7684\u300D\u5750\u6807\u515C\
-            \u5E95\uFF08\u771F\u673A\u6821\u51C6 2026-10-21\uFF09"
-          optional: false
           timeout: 8
-          type: click_point
-          vision: false
+          optional: false
+        - type: click_point
           x: 0.9
           y: 0.931
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 底部最右tab「我的」坐标兜底（真机校准 2026-10-21）
         - type: think
-        - choices:
-          - - candidates:
+        - type: any_of
+          optional: false
+          choices:
+          - - type: click_first
+              candidates:
               - type: text
-                value: "\u798F\u5229\u4E2D\u5FC3"
+                value: 福利中心
               candidates_from: task_center
-              optional: false
               timeout: 8
-              type: click_first
-          - - desc: "\u300C\u6211\u7684\u300D\u9875\u4E2D\u90E8\u300C\u798F\u5229\u4E2D\
-                \u5FC3\u300D\u5750\u6807\u515C\u5E95\uFF08\u771F\u673A\u6821\u51C6\
-                \ 2026-10-21\uFF09"
               optional: false
-              timeout: 8
-              type: click_point
-              vision: false
+          - - type: click_point
               x: 0.158
               y: 0.562
-          optional: false
-          type: any_of
-      optional: true
-      type: any_of
+              timeout: 8
+              optional: false
+              vision: false
+              desc: 「我的」页中部「福利中心」坐标兜底（真机校准 2026-10-21）
     - type: think
-    - choices:
-      - - candidates_from: sign
-          optional: false
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates_from: sign
           timeout: 8
-          type: click_first
-      - - desc: "\u798F\u5229\u4E2D\u5FC3\u9875\u4E0A\u90E8\u300C\u7ACB\u5373\u7B7E\
-            \u5230\u300D\u5750\u6807\u515C\u5E95\uFF08\u771F\u673A\u6821\u51C6 2026-10-21\uFF09"
           optional: false
-          timeout: 8
-          type: click_point
-          vision: false
+      - - type: click_point
           x: 0.734
           y: 0.239
-      optional: true
-      type: any_of
-  name: "\u7C73\u8BFB\u5C0F\u8BF4"
-  package: com.lechuan.midunovel
-- aliases:
-  - "\u6CB3\u9A6C\u5267\u573A"
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 福利中心页上部「立即签到」坐标兜底（真机校准 2026-10-21）
+- name: 河马剧场
+  package: com.dz.hmjc
+  aliases:
+  - 河马剧场
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
   behaviors:
     sign:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u7B7E\u5230"
+            value: 签到
           - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
+            value: 每日签到
           - type: text
-            value: "\u770B\u5267\u5F97\u91D1\u5E01"
+            value: 看剧得金币
           - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          optional: false
+            value: 立即签到
           timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
           x: 0.9
           y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          desc: "\u6CB3\u9A6C\u5267\u573A-\u6211\u7684-\u798F\u5229\u5165\u53E3(\u771F\
-            \u673A\u4FEE\u6B63:text \u798F\u5229)"
           optional: true
-          timeout: 6
-          type: click_first
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u770B\u5267\u5F97\u91D1\u5E01"
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          - type: text
-            value: "\u53BB\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u9886\u91D1\u5E01"
-      optional: true
-      timeout: 6
-      type: click_first
-    watch:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u8D5A\u94B1"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
           vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 福利中心
+          timeout: 6
+          optional: true
+          desc: 河马剧场-我的-福利入口(真机修正:text 福利)
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 看剧得金币
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 去签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 领金币
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 福利中心
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
           x: 0.9
           y: 0.915
+          optional: true
+          vision: false
         - type: think
-        - candidates:
+        - type: click_first
+          candidates:
           - type: text
-            value: "\u798F\u5229"
+            value: 福利
           - type: text
-            value: "\u8D5A\u94B1"
+            value: 赚钱
           - type: text
-            value: "\u4EFB\u52A1"
+            value: 任务
           - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
+            value: 看剧赚钱
           - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          optional: false
+            value: 福利中心
           timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
+          optional: false
     - type: think
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u770B\u5267"
+        value: 看剧
       - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
+        value: 去完成
       timeout: 6
-      type: click_first
-    - duration: 0.8
+      optional: true
+    - type: swipe
       from:
       - 0.5
       - 0.7
-      natural: true
       to:
       - 0.5
       - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
     withdraw:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u6211\u7684"
+        value: 我的
       - type: text
-        value: "\u6211"
-      optional: true
+        value: 我
       timeout: 8
-      type: click_first
-    - type: think
-    - desc: "\u6CB3\u9A6C\u5267\u573A-\u6211\u7684-\u63D0\u73B0\u5165\u53E3(rid,\u79BB\
-        \u7EBF\u8865\u951A\u70B9)"
       optional: true
+    - type: think
+    - type: click_id
       res_id: com.dz.hmjc:id/item_cash
       timeout: 6
-      type: click_id
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-  intent_map:
-    sign: sign
-    watch: watch
-    withdraw: withdraw
-  name: "\u6CB3\u9A6C\u5267\u573A"
-  package: com.dz.hmjc
-- aliases:
-  - "\u6D77\u9A6C\u7545\u542C"
-  behaviors:
-    bonus:
-    - desc: "\u6587\u672C\u6846-\u6D77\u9A6C\u7545\u542C-\u4EFB\u52A1\u5217\u8868\
-        -\u9886\u73B0\u91D1"
       optional: true
+      desc: 河马剧场-我的-提现入口(rid,离线补锚点)
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 海马畅听
+  package: com.hm.hmct2025
+  aliases:
+  - 海马畅听
+  launch_reset: true
+  behaviors:
+    sign:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到
+      - type: text
+        value: 签到领取
+      timeout: 8
+      optional: false
+      expect:
+        text_any:
+        - 100%中奖
+        - 无套路
+        retry: 1
+        settle: 2.5
+    - type: reward
+      pattern: 立即签到得(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到金币
+    open:
+    - type: click_point
+      images:
+      - images/海马畅听/a1b7fef3-462b-4e39-bfb9-2722764499ab.png
+      timeout: 6
+      optional: true
+      desc: 图像-海马畅听-打开APP-分类按钮
+    bonus:
+    - type: click_id
       res_id: com.hm.hmct2025:id/llBottom
       timeout: 6
-      type: click_id
-    open:
-    - desc: "\u56FE\u50CF-\u6D77\u9A6C\u7545\u542C-\u6253\u5F00APP-\u5206\u7C7B\u6309\
-        \u94AE"
-      images:
-      - "images/\u6D77\u9A6C\u7545\u542C/a1b7fef3-462b-4e39-bfb9-2722764499ab.png"
       optional: true
-      timeout: 6
-      type: click_point
+      desc: 文本框-海马畅听-任务列表-领现金
+- name: 河马畅听
+  package: com.hm.hmysct
+  aliases:
+  - 河马畅听
+  launch_reset: true
+  behaviors:
     sign:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230"
+        value: 立即签到
       - type: text
-        value: "\u7B7E\u5230\u9886\u53D6"
+        value: 签到领取
+      timeout: 8
+      optional: false
       expect:
+        text_any:
+        - 100%中奖
+        - 无套路
         retry: 1
         settle: 2.5
-        text_any:
-        - "100%\u4E2D\u5956"
-        - "\u65E0\u5957\u8DEF"
-      optional: false
-      timeout: 8
-      type: click_first
-    - name: "\u7B7E\u5230\u91D1\u5E01"
-      pattern: "\u7ACB\u5373\u7B7E\u5230\u5F97(?P<amount>[0-9]+)\\s*(?P<unit>\u91D1\
-        \u5E01)"
-      type: reward
-      unit: "\u91D1\u5E01"
-  launch_reset: true
-  name: "\u6D77\u9A6C\u7545\u542C"
-  package: com.hm.hmct2025
-- aliases:
-  - "\u6CB3\u9A6C\u7545\u542C"
-  behaviors:
-    bonus:
-    - desc: "\u6587\u672C\u6846-\u6D77\u9A6C\u7545\u542C-\u4EFB\u52A1\u5217\u8868\
-        -\u9886\u73B0\u91D1"
+    - type: reward
+      pattern: 立即签到得(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到金币
+    open:
+    - type: click_point
+      images:
+      - images/海马畅听/a1b7fef3-462b-4e39-bfb9-2722764499ab.png
+      timeout: 6
       optional: true
+      desc: 图像-海马畅听-打开APP-分类按钮
+    bonus:
+    - type: click_id
       res_id: com.hm.hmysct:id/llBottom
       timeout: 6
-      type: click_id
-    open:
-    - desc: "\u56FE\u50CF-\u6D77\u9A6C\u7545\u542C-\u6253\u5F00APP-\u5206\u7C7B\u6309\
-        \u94AE"
-      images:
-      - "images/\u6D77\u9A6C\u7545\u542C/a1b7fef3-462b-4e39-bfb9-2722764499ab.png"
       optional: true
-      timeout: 6
-      type: click_point
-    sign:
-    - candidates:
-      - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230"
-      - type: text
-        value: "\u7B7E\u5230\u9886\u53D6"
-      expect:
-        retry: 1
-        settle: 2.5
-        text_any:
-        - "100%\u4E2D\u5956"
-        - "\u65E0\u5957\u8DEF"
-      optional: false
-      timeout: 8
-      type: click_first
-    - name: "\u7B7E\u5230\u91D1\u5E01"
-      pattern: "\u7ACB\u5373\u7B7E\u5230\u5F97(?P<amount>[0-9]+)\\s*(?P<unit>\u91D1\
-        \u5E01)"
-      type: reward
-      unit: "\u91D1\u5E01"
-  launch_reset: true
-  name: "\u6CB3\u9A6C\u7545\u542C"
-  package: com.hm.hmysct
-- aliases:
-  - "\u4ECA\u65E5\u770B\u70B9\u6781\u901F\u7248"
-  - "\u4ECA\u65E5\u770B\u70B9"
-  behaviors:
-    sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u76F4\u63A5\u9886\u53D6"
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u76F4\u63A5\u9886\u53D6"
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u7ACB\u5373\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - name: "\u7B7E\u5230\u5956\u52B1"
-      pattern: "\u76F4\u63A5\u9886\u53D6(?P<amount>[0-9]+)\\s*(?P<unit>\u91D1\u5E01\
-        )"
-      type: reward
-      unit: "\u91D1\u5E01"
-    - candidates:
-      - type: text
-        value: "\u76F4\u63A5\u9886\u53D6322\u91D1\u5E01"
-      - type: text
-        value: "\u9886\u53D6"
-      optional: true
-      timeout: 6
-      type: click_first
-    watch:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u770B\u89C6\u9891"
-          - type: text
-            value: "\u770B\u89C6\u9891\u8D5A\u94B1"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u91D1\u5E01"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u770B\u89C6\u9891"
-          - type: text
-            value: "\u770B\u89C6\u9891\u8D5A\u94B1"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u91D1\u5E01"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u770B\u89C6\u9891\u9886\u91D1\u5E01"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      - type: text
-        value: "\u9886\u91D1\u5E01"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-  intent_map:
-    sign: sign
-    watch: watch
-    withdraw: withdraw
-  name: "\u4ECA\u65E5\u770B\u70B9\u6781\u901F\u7248"
+      desc: 文本框-海马畅听-任务列表-领现金
+- name: 今日看点极速版
   package: com.jinrikd.news
-- aliases:
-  - "\u706B\u9F99\u6F2B\u5267"
-  behaviors:
-    sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u53BB\u7B7E\u5230"
-          - type: text
-            value: "\u5929\u5929\u6709\u793C"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u7B7E\u5230"
-          - type: text
-            value: "\u6BCF\u65E5\u7B7E\u5230"
-          - type: text
-            value: "\u53BB\u7B7E\u5230"
-          - type: text
-            value: "\u5929\u5929\u6709\u793C"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230"
-      - type: text
-        value: "\u9886\u53D6"
-      optional: true
-      timeout: 6
-      type: click_first
-    watch:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u8D5A\u94B1"
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
-          - type: text
-            value: "\u4EFB\u52A1"
-          - type: text
-            value: "\u8D5A\u94B1"
-          - type: text
-            value: "\u798F\u5229\u4E2D\u5FC3"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u770B\u77ED\u5267"
-      - type: text
-        value: "\u770B\u5267"
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u6211\u7684"
-          - type: text
-            value: "\u6211"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
+  aliases:
+  - 今日看点极速版
+  - 今日看点
   intent_map:
     sign: sign
     watch: watch
     withdraw: withdraw
-  launch_reset: true
-  name: "\u706B\u9F99\u6F2B\u5267"
-  package: com.tencent.kairos
-- aliases:
-  - "\u4ECA\u65E5\u5934\u6761\u6781\u901F\u7248"
-  - "\u5934\u6761\u6781\u901F\u7248"
   behaviors:
-    bonus:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u53BB\u7FFB\u500D"
-          - type: text
-            value: "\u53BB\u8D5A\u94B1"
-          - type: text
-            value: "\u7ACB\u5373\u770B\u5267"
-          optional: false
-          timeout: 6
-          type: click_first
-      - - desc: "\u4EFB\u52A1\u9875\u5B9D\u7BB1\uFF08\u56FA\u5B9A\u4F4D\uFF0C\u5012\
-            \u8BA1\u65F6\u5F52\u96F6\u53EF\u9886\uFF0C\u771F\u673A\u4E2D\u5FC3 (880,1829)\uFF09"
-          optional: true
-          timeout: 4
-          type: click_point
-          vision: false
-          x: 0.815
-          y: 0.782
-      optional: true
-      type: any_of
-    - seconds: 2
-      type: wait
-    - desc: "\u5B9D\u7BB1\u5956\u52B1\u5F39\u7A97\u5173\u95EDX\uFF08\u81EA\u7ED8\u5F39\
-        \u7A97\uFF0C\u771F\u673A\u4E2D\u5FC3 (270,1406)\uFF09"
-      optional: true
-      timeout: 4
-      type: click_point
-      vision: false
-      x: 0.25
-      y: 0.601
     sign:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u4EFB\u52A1"
-          candidates_from: nav_tab
+            value: 直接领取
+          - type: text
+            value: 签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 每日签到
+          timeout: 8
           optional: false
-          timeout: 14
-          type: click_first
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 直接领取
+          - type: text
+            value: 签到
+          - type: text
+            value: 立即签到
+          - type: text
+            value: 每日签到
+          timeout: 8
+          optional: false
+    - type: think
+    - type: reward
+      pattern: 直接领取(?P<amount>[0-9]+)\s*(?P<unit>金币)
+      unit: 金币
+      name: 签到奖励
+    - type: click_first
+      candidates:
+      - type: text
+        value: 直接领取322金币
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 看视频
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 看视频
+          - type: text
+            value: 看视频赚钱
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 金币
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看视频领金币
+      - type: text
+        value: 去完成
+      - type: text
+        value: 领金币
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 火龙漫剧
+  package: com.tencent.kairos
+  aliases:
+  - 火龙漫剧
+  launch_reset: true
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 去签到
+          - type: text
+            value: 天天有礼
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 签到
+          - type: text
+            value: 每日签到
+          - type: text
+            value: 去签到
+          - type: text
+            value: 天天有礼
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 立即签到
+      - type: text
+        value: 领取
+      timeout: 6
+      optional: true
+    watch:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 福利中心
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 福利
+          - type: text
+            value: 看剧赚钱
+          - type: text
+            value: 任务
+          - type: text
+            value: 赚钱
+          - type: text
+            value: 福利中心
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看短剧
+      - type: text
+        value: 看剧
+      - type: text
+        value: 去完成
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 我的
+          - type: text
+            value: 我
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 今日头条极速版
+  package: com.ss.android.article.lite
+  aliases:
+  - 今日头条极速版
+  - 头条极速版
+  launch_reset: true
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+    bonus: bonus
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 任务
+          candidates_from: nav_tab
           zone: tab_zone
-      - - desc: "\u9996\u9875\u5E95\u90E8\u300C\u4EFB\u52A1\u300Dtab\uFF08\u771F\u673A\
-            \u4E2D\u5FC3 (540,2182)\uFF09"
+          timeout: 14
+          optional: false
+      - - type: click_point
+          x: 0.5
+          y: 0.932
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页底部「任务」tab（真机中心 (540,2182)）
           expect:
-            phash: "images/\u4ECA\u65E5\u5934\u6761\u6781\u901F\u7248/landing/ref_task.png"
-            phash_max_dist: 8
+            phash: images/今日头条极速版/landing/ref_task.png
             phash_region:
             - 0.0
             - 0.9
             - 1.0
             - 0.97
+            phash_max_dist: 8
             retry: 1
-          optional: false
-          timeout: 8
-          type: click_point
-          vision: false
-          x: 0.5
-          y: 0.932
-      optional: true
-      type: any_of
     - type: think
-    - desc: "\u4EFB\u52A1\u9875\u53F3\u4E0B\u89D2\u5B9D\u7BB1\uFF08\u5012\u8BA1\u65F6\
-        \u5F52\u96F6\u540E\u53EF\u9886\uFF0C\u771F\u673A\u4E2D\u5FC3 (880,1829)\uFF09"
-      optional: true
-      timeout: 6
-      type: click_point
-      vision: false
+    - type: click_point
       x: 0.815
       y: 0.782
-    - seconds: 2
-      type: wait
-    - desc: "\u5B9D\u7BB1\u5956\u52B1\u5F39\u7A97\u5173\u95EDX\uFF08\u81EA\u7ED8\u5F39\
-        \u7A97\uFF0C\u771F\u673A\u4E2D\u5FC3 (270,1406)\uFF09"
+      timeout: 6
       optional: true
-      timeout: 4
-      type: click_point
       vision: false
+      desc: 任务页右下角宝箱（倒计时归零后可领，真机中心 (880,1829)）
+    - type: wait
+      seconds: 2
+    - type: click_point
       x: 0.25
       y: 0.601
-    - name: "\u7B7E\u5230\u5956\u52B1"
-      pattern: "\u6700\u9AD8\u5F97(?P<amount>[0-9.]+)\\s*(?P<unit>\u5143|\u91D1\u5E01\
-        )"
-      type: reward
-      unit: "\u5143"
+      timeout: 4
+      optional: true
+      vision: false
+      desc: 宝箱奖励弹窗关闭X（自绘弹窗，真机中心 (270,1406)）
+    - type: reward
+      pattern: 最高得(?P<amount>[0-9.]+)\s*(?P<unit>元|金币)
+      unit: 元
+      name: 签到奖励
     watch:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u770B\u8D44\u8BAF\u8D5A\u91D1\u5E01"
+            value: 看资讯赚金币
           - type: text
-            value: "\u770B\u89C6\u9891"
+            value: 看视频
           - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
+            value: 任务中心
           - type: text
-            value: "\u91D1\u5E01"
-          optional: false
+            value: 金币
           timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
           x: 0.9
           y: 0.915
+          optional: true
+          vision: false
         - type: think
-        - candidates:
+        - type: click_first
+          candidates:
           - type: text
-            value: "\u770B\u8D44\u8BAF\u8D5A\u91D1\u5E01"
+            value: 看资讯赚金币
           - type: text
-            value: "\u770B\u89C6\u9891"
+            value: 看视频
           - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
+            value: 任务中心
           - type: text
-            value: "\u91D1\u5E01"
-          optional: false
+            value: 金币
           timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
+          optional: false
     - type: think
-    - candidates:
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      - type: text
-        value: "\u9886\u53D6"
-      optional: true
-      timeout: 6
-      type: click_first
-    - duration: 0.8
-      from:
-      - 0.5
-      - 0.7
-      natural: true
-      to:
-      - 0.5
-      - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
-    withdraw:
-    - candidates:
-      - type: text
-        value: "\u6211\u7684"
-      - type: text
-        value: "\u6211"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-  intent_map:
-    bonus: bonus
-    sign: sign
-    watch: watch
-    withdraw: withdraw
-  launch_reset: true
-  name: "\u4ECA\u65E5\u5934\u6761\u6781\u901F\u7248"
-  package: com.ss.android.article.lite
-- aliases:
-  - "\u609F\u7A7A\u6D4F\u89C8\u5668"
-  - "\u609F\u7A7A"
-  behaviors:
-    sign:
-    - back_retry: 4
-      desc: "\u5E95\u90E8\u5BFC\u822A\u300E\u8D5A\u94B1\u300Ftab\u3002\u5B9E\u6D4B\
-        \ TextView bounds (492,2113)-(588,2170)\uFF0C\u4E2D\u5FC3 (540,2141)=(0.5,0.915)\u3002\
-        \u5143\u7D20\u5B9A\u4F4D\u81EA\u5E26\u8D85\u65F6\u8F6E\u8BE2\uFF0C\u6BD4\u56FA\
-        \u5B9A\u5750\u6807\u6297\u5E03\u5C40\u6F02\u79FB\uFF1B\u70B9\u4E2D\u540E\u5B9E\
-        \u6D4B\u843D\u5730 phash 2\u3002back_retry=4\uFF1A\u5168\u5C4F\u64AD\u653E\
-        \u9875\u76D6\u4F4F tab \u65F6\u6309 BACK \u590D\u73B0\u5BFC\u822A\u518D\u70B9"
-      text: "\u8D5A\u94B1"
-      timeout: 5
-      type: click_text
-    - desc: "\u515C\u5E95\uFF1A\u4E07\u4E00 tab \u6587\u672C\u8282\u70B9\u56E0\u6C89\
-        \u6D78\u9875\u52A8\u753B/\u65F6\u5E8F\u6296\u52A8\u672A\u53CA\u65F6\u8FDB\u6811\
-        \uFF0C\u76F2\u70B9\u5DF2\u9A8C\u8BC1\u7684 tab \u4E2D\u5FC3\u5750\u6807\u3002\
-        \u5DF2\u786E\u8BA4 (540,2141) \u843D\u5728\u300E\u8D5A\u94B1\u300Ftab \u547D\
-        \u4E2D\u533A\u5185\uFF0C\u5B89\u5168"
-      optional: true
-      timeout: 5
-      type: click_point
-      vision: false
-      x: 0.5
-      y: 0.915
-    - desc: "\u7B49\u7B7E\u5230\u5F39\u7A97\u81EA\u52A8\u5F39\u51FA\u3002\u5B9E\u6D4B\
-        \u8FDB\u300E\u8D5A\u94B1\u300F\u540E 3.5s \u65F6\u8FD8\u6CA1\u6709\u3001\u7EA6\
-        \ 10s+ \u624D\u5F39\uFF1B_vision_click \u53EA\u622A\u4E00\u6B21\u56FE\u65E0\
-        \u91CD\u8BD5\u5FAA\u73AF\uFF0Ctimeout \u5BF9\u56FE\u50CF\u951A\u70B9\u65E0\
-        \u6548\uFF0C\u5FC5\u987B\u663E\u5F0F\u7B49\u5F85"
-      seconds: 8
-      type: wait
-    - desc: "\u7B7E\u5230\u5F39\u7A97\u300E\u7ACB\u5373\u9886\u53D6\u300F\u3002images\
-        \ \u547D\u4E2D\u65F6\u7528\u6A21\u677F\u7CBE\u786E\u5750\u6807\uFF08\u5B9E\
-        \u6D4B\u5F39\u7A97\u5185\u6309\u94AE\u4E2D\u5FC3 (317,1596)=(0.294,0.682)\uFF0C\
-        \u6A21\u677F\u81EA\u5339\u914D 1.0000 / \u8D5A\u94B1\u9875\u8BEF\u5339\u914D\
-        \ 0.2969\uFF0Cstd 82.4\uFF09\uFF1Bx/y \u53EA\u5728\u6A21\u677F\u672A\u547D\
-        \u4E2D\u65F6\u624D\u7528\uFF0C\u6545\u7279\u610F\u6307\u56DE\u300E\u8D5A\u94B1\
-        \u300Ftab(0.5,0.915) \u505A\u65E0\u64CD\u4F5C\u515C\u5E95\u2014\u2014\u5DF2\
-        \u7B7E\u65E5\u4E0D\u5F39\u7A97\u5C31\u53EA\u662F\u91CD\u590D\u70B9\u4E00\u6B21\
-        \u5F53\u524D tab\u3002\u6CE8\u610F\u4E0D\u80FD\u628A x/y \u5199\u6210\u5F39\
-        \u7A97\u6309\u94AE\u5750\u6807\uFF1A\u5B9E\u6D4B\u8D5A\u94B1\u9875 (317,1596)\
-        \ \u4F1A\u8DF3\u8FDB\u770B\u5267\u64AD\u653E\u9875(ExcitingVideoActivity)\
-        \ \u89E6\u53D1\u300E\u518D\u770B48\u79D2\u53EF\u9886993\u91D1\u5E01\u300F\u5E7F\
-        \u544A\u9677\u9631"
-      images:
-      - "images/\u609F\u7A7A\u6D4F\u89C8\u5668/btn_liji_lingqu.png"
-      optional: true
-      timeout: 6
-      type: click_point
-      x: 0.5
-      y: 0.915
-    - desc: "\u7B2C\u4E8C\u6B21\u5C1D\u8BD5\u524D\u7684\u7B49\u5F85\u7A97\u53E3\uFF1A\
-        \u5F39\u7A97\u5EF6\u8FDF\u8D85\u8FC7\u9996\u4E2A 8s \u65F6\u4ECD\u80FD\u8865\
-        \u4E0A"
-      seconds: 8
-      type: wait
-    - desc: "\u7B2C 2 \u6B21\u5C1D\u8BD5\u300E\u7ACB\u5373\u9886\u53D6\u300F\uFF0C\
-        x/y \u515C\u5E95\u540C\u6837\u662F\u300E\u8D5A\u94B1\u300Ftab \u65E0\u64CD\
-        \u4F5C"
-      images:
-      - "images/\u609F\u7A7A\u6D4F\u89C8\u5668/btn_liji_lingqu.png"
-      optional: true
-      timeout: 6
-      type: click_point
-      x: 0.5
-      y: 0.915
-    watch:
-    - back_retry: 2
+    - type: click_first
       candidates:
       - type: text
-        value: "\u770B\u5267"
+        value: 去完成
       - type: text
-        value: "\u4EFB\u52A1\u4E2D\u5FC3"
-      - type: text
-        value: "\u770B\u65B0\u95FB\u8D5A\u94B1"
-      - type: text
-        value: "\u9605\u8BFB\u8D5A\u94B1"
-      - type: text
-        value: "\u91D1\u5E01"
-      desc: "\u5E95\u90E8\u5BFC\u822A\u300E\u770B\u5267\u300Ftab\u3002back_retry=2\uFF1A\
-        \u64AD\u653E\u9875\u76D6\u4F4F\u5BFC\u822A\u65F6\u6309 BACK \u590D\u73B0\u518D\
-        \u626B"
-      optional: true
-      timeout: 8
-      type: click_first
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u53BB\u5B8C\u6210"
-      - type: text
-        value: "\u9605\u8BFB"
-      - type: text
-        value: "\u770B\u89C6\u9891"
-      optional: true
+        value: 领取
       timeout: 6
-      type: click_first
-    - duration: 0.8
+      optional: true
+    - type: swipe
       from:
       - 0.5
       - 0.7
-      natural: true
       to:
       - 0.5
       - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
     withdraw:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u6211\u7684"
+        value: 我的
       - type: text
-        value: "\u6211"
-      optional: true
+        value: 我
       timeout: 8
-      type: click_first
+      optional: true
     - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
+    - type: click_text
+      text: 提现
       timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
       timeout: 6
-      type: click_text
+      optional: true
+    bonus:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去翻倍
+          - type: text
+            value: 去赚钱
+          - type: text
+            value: 立即看剧
+          timeout: 6
+          optional: false
+      - - type: click_point
+          x: 0.815
+          y: 0.782
+          timeout: 4
+          optional: true
+          vision: false
+          desc: 任务页宝箱（固定位，倒计时归零可领，真机中心 (880,1829)）
+    - type: wait
+      seconds: 2
+    - type: click_point
+      x: 0.25
+      y: 0.601
+      timeout: 4
+      optional: true
+      vision: false
+      desc: 宝箱奖励弹窗关闭X（自绘弹窗，真机中心 (270,1406)）
+- name: 悟空浏览器
+  package: com.cat.readall
+  aliases:
+  - 悟空浏览器
+  - 悟空
+  launch_back: 2
   intent_map:
     sign: sign
     watch: watch
     withdraw: withdraw
-  launch_back: 2
-  name: "\u609F\u7A7A\u6D4F\u89C8\u5668"
-  package: com.cat.readall
-- aliases:
-  - "\u767E\u5EA6\u6781\u901F\u7248"
-  - "\u767E\u5EA6"
-  behaviors:
-    open:
-    - desc: "\u56FE\u50CF-\u767E\u5EA6\u6781\u901F\u7248-\u6253\u5F00APP-\u767E\u5EA6"
-      images:
-      - "images/\u767E\u5EA6\u6781\u901F\u7248/8b27e72d-bb6f-4b4e-bab7-4fa4875afbf8.png"
-      optional: true
-      timeout: 6
-      type: click_point
-  intent_map:
-    sign: open
-  name: "\u767E\u5EA6\u6781\u901F\u7248"
-  package: com.baidu.searchbox.lite
-- aliases:
-  - "\u86CB\u82B1\u514D\u8D39\u5C0F\u8BF4"
-  - "\u86CB\u82B1\u5C0F\u8BF4"
   behaviors:
     sign:
-    - back_key: false
-      corner_fallback: false
-      desc: "\u542F\u52A8\u540E\u6E05\u626B\u5F39\u7A97\uFF08\u63A8\u9001\u6743\u9650\
-        \u300C\u53D6\u6D88\u300D/ \u7248\u672C\u66F4\u65B0\u300C\u4EE5\u540E\u518D\
-        \u8BF4\u300D\uFF09"
-      max_rounds: 3
-      type: dismiss_popups
-    - desc: "\u4E66\u7C4D\u8BE6\u60C5\u9875\u8FD4\u56DE\u7BAD\u5934\uFF08\u7EED\u8BFB\
-        \u7ADE\u6001\u5F52\u4E00\u5316\uFF1B\u8BE6\u60C5\u9875 1.0/\u4E3B\u9875 0.54\uFF09"
-      images:
-      - "images/\u86CB\u82B1\u514D\u8D39\u5C0F\u8BF4/btn_back_arrow.png"
+    - type: click_text
+      text: 赚钱
+      timeout: 5
+      back_retry: 4
+      desc: 底部导航『赚钱』tab。实测 TextView bounds (492,2113)-(588,2170)，中心 (540,2141)=(0.5,0.915)。元素定位自带超时轮询，比固定坐标抗布局漂移；点中后实测落地
+        phash 2。back_retry=4：全屏播放页盖住 tab 时按 BACK 复现导航再点
+    - type: click_point
+      x: 0.5
+      y: 0.915
+      timeout: 5
       optional: true
+      vision: false
+      desc: 兜底：万一 tab 文本节点因沉浸页动画/时序抖动未及时进树，盲点已验证的 tab 中心坐标。已确认 (540,2141) 落在『赚钱』tab
+        命中区内，安全
+    - type: wait
+      seconds: 8
+      desc: 等签到弹窗自动弹出。实测进『赚钱』后 3.5s 时还没有、约 10s+ 才弹；_vision_click 只截一次图无重试循环，timeout
+        对图像锚点无效，必须显式等待
+    - type: click_point
+      x: 0.5
+      y: 0.915
+      images:
+      - images/悟空浏览器/btn_liji_lingqu.png
+      timeout: 6
+      optional: true
+      desc: 签到弹窗『立即领取』。images 命中时用模板精确坐标（实测弹窗内按钮中心 (317,1596)=(0.294,0.682)，模板自匹配
+        1.0000 / 赚钱页误匹配 0.2969，std 82.4）；x/y 只在模板未命中时才用，故特意指回『赚钱』tab(0.5,0.915) 做无操作兜底——已签日不弹窗就只是重复点一次当前
+        tab。注意不能把 x/y 写成弹窗按钮坐标：实测赚钱页 (317,1596) 会跳进看剧播放页(ExcitingVideoActivity) 触发『再看48秒可领993金币』广告陷阱
+    - type: wait
+      seconds: 8
+      desc: 第二次尝试前的等待窗口：弹窗延迟超过首个 8s 时仍能补上
+    - type: click_point
+      x: 0.5
+      y: 0.915
+      images:
+      - images/悟空浏览器/btn_liji_lingqu.png
+      timeout: 6
+      optional: true
+      desc: 第 2 次尝试『立即领取』，x/y 兜底同样是『赚钱』tab 无操作
+    watch:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 看剧
+      - type: text
+        value: 任务中心
+      - type: text
+        value: 看新闻赚钱
+      - type: text
+        value: 阅读赚钱
+      - type: text
+        value: 金币
+      timeout: 8
+      back_retry: 2
+      optional: true
+      desc: 底部导航『看剧』tab。back_retry=2：播放页盖住导航时按 BACK 复现再扫
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 去完成
+      - type: text
+        value: 阅读
+      - type: text
+        value: 看视频
+      timeout: 6
+      optional: true
+    - type: swipe
+      from:
+      - 0.5
+      - 0.7
+      to:
+      - 0.5
+      - 0.3
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
+    withdraw:
+    - type: click_first
+      candidates:
+      - type: text
+        value: 我的
+      - type: text
+        value: 我
+      timeout: 8
+      optional: true
+    - type: think
+    - type: click_text
+      text: 提现
+      timeout: 6
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
+      timeout: 6
+      optional: true
+- name: 百度极速版
+  package: com.baidu.searchbox.lite
+  aliases:
+  - 百度极速版
+  - 百度
+  intent_map:
+    sign: open
+  behaviors:
+    open:
+    - type: click_point
+      images:
+      - images/百度极速版/8b27e72d-bb6f-4b4e-bab7-4fa4875afbf8.png
+      timeout: 6
+      optional: true
+      desc: 图像-百度极速版-打开APP-百度
+- name: 蛋花免费小说
+  package: com.eggflower.read
+  launch_reset: true
+  aliases:
+  - 蛋花免费小说
+  - 蛋花小说
+  intent_map:
+    sign: sign
+    watch: watch
+    withdraw: withdraw
+  behaviors:
+    sign:
+    - type: dismiss_popups
+      max_rounds: 3
+      back_key: false
+      corner_fallback: false
+      desc: 启动后清扫弹窗（推送权限「取消」/ 版本更新「以后再说」）
+    - type: click_point
+      images:
+      - images/蛋花免费小说/btn_back_arrow.png
       template_threshold: 0.96
       timeout: 6
-      type: click_point
-    - seconds: 1.5
-      type: wait
-    - desc: "\u5E95\u90E8\u300C\u798F\u5229\u300Dtab\uFF08\u771F\u673A\u4E2D\u5FC3\
-        \ (540,2148)\uFF1Btab \u4E0A\u300C\u7B7E\u5230\u300D\u4E3A\u89D2\u6807\uFF09"
-      expect:
-        phash: "images/\u86CB\u82B1\u514D\u8D39\u5C0F\u8BF4/landing/ref_welfare.png"
-        phash_max_dist: 12
-        retry: 2
-        settle: 3.0
-      optional: false
-      timeout: 8
-      type: click_point
-      vision: false
+      optional: true
+      desc: 书籍详情页返回箭头（续读竞态归一化；详情页 1.0/主页 0.54）
+    - type: wait
+      seconds: 1.5
+    - type: click_point
       x: 0.5
       y: 0.918
-    - desc: "\u300C\u9884\u7EA6\u793C\u5305\u300D\u4FC3\u9500\u5F39\u7A97\u5173\u95ED\
-        X\uFF082026-11-04 \u5B9E\u6D4B (543,1710)\uFF1B\u5F39\u7A97\u9875 0.9999/\u5E72\
-        \u51C0\u9875 0.39\uFF09"
+      timeout: 8
+      optional: false
+      vision: false
+      desc: 底部「福利」tab（真机中心 (540,2148)；tab 上「签到」为角标）
+      expect:
+        phash: images/蛋花免费小说/landing/ref_welfare.png
+        phash_max_dist: 12
+        settle: 3.0
+        retry: 2
+    - type: click_point
       images:
-      - "images/\u86CB\u82B1\u514D\u8D39\u5C0F\u8BF4/btn_yuyue_x.png"
-      optional: true
+      - images/蛋花免费小说/btn_yuyue_x.png
       template_threshold: 0.96
       timeout: 6
-      type: click_point
+      optional: true
+      desc: 「预约礼包」促销弹窗关闭X（2026-11-04 实测 (543,1710)；弹窗页 0.9999/干净页 0.39）
     - type: think
-    - desc: "\u4E0A\u6ED1\u6EDA\u5165\u300C\u7B7E\u5230\u9886\u91D1\u5E01\u300D\u884C\
-        \uFF08\u539F\u751F\u76F4\u7EBF (540,1600)->(540,900)\uFF0C\u6EDA\u540E\u6309\
-        \u94AE (885,399)\uFF09"
+    - type: swipe
       from:
       - 0.5
       - 0.684
-      optional: true
-      straight: true
-      timeout: 6
       to:
       - 0.5
       - 0.385
-      type: swipe
-    - desc: "\u798F\u5229\u9875\u300C\u7B7E\u5230\u9886\u91D1\u5E01\u300D[\u53BB\u7B7E\
-        \u5230]\uFF082026-11-04 \u5B9E\u673A\uFF1A\u6EDA\u5165\u89C6\u53E3\u540E\u6A21\
-        \u677F\u547D\u4E2D (885,399) score 0.9899\uFF1B**\u7EAF\u56FE\u50CF\u951A\u70B9\
-        \u65E0\u5750\u6807\u515C\u5E95**\u2014\u2014\u65E7\u9759\u6001 (0.819,0.737)\
-        \ \u5728\u672A\u6EDA\u52A8\u6001\u6070\u6307\u5411\u300C\u91D1\u5E01\u7EA2\
-        \u5305\u96E8\u300D\u884C[\u9886\u7EA2\u5305]\uFF0C\u8BEF\u70B9\u4F1A\u62C9\
-        \u8D77\u7EA2\u5305\u96E8\u6D6E\u5C42\uFF0C\u5DF2\u79FB\u9664\uFF09"
+      straight: true
+      timeout: 6
+      optional: true
+      desc: 上滑滚入「签到领金币」行（原生直线 (540,1600)->(540,900)，滚后按钮 (885,399)）
+    - type: click_point
+      images:
+      - images/蛋花免费小说/btn_qiandao.png
+      template_threshold: 0.96
+      timeout: 8
+      optional: true
+      desc: 福利页「签到领金币」[去签到]（2026-11-04 实机：滚入视口后模板命中 (885,399) score 0.9899；**纯图像锚点无坐标兜底**——旧静态
+        (0.819,0.737) 在未滚动态恰指向「金币红包雨」行[领红包]，误点会拉起红包雨浮层，已移除）
       expect:
-        phash: "images/\u86CB\u82B1\u514D\u8D39\u5C0F\u8BF4/landing/ref_dialog.png"
-        phash_max_dist: 14
+        phash: images/蛋花免费小说/landing/ref_dialog.png
         phash_region:
         - 0.0
         - 0.3
         - 1.0
         - 0.55
-        retry: 1
+        phash_max_dist: 14
         settle: 3.0
-      images:
-      - "images/\u86CB\u82B1\u514D\u8D39\u5C0F\u8BF4/btn_qiandao.png"
-      optional: true
-      template_threshold: 0.96
-      timeout: 8
-      type: click_point
-    - desc: "\u7B7E\u5230\u5F39\u7A97[\u7ACB\u5373\u7B7E\u5230 +488 \u91D1\u5E01]\uFF08\
-        \u771F\u673A\u4E2D\u5FC3 (540,1428)\uFF09"
-      optional: true
-      timeout: 8
-      type: click_point
-      vision: false
+        retry: 1
+    - type: click_point
       x: 0.5
       y: 0.61
-    - seconds: 1.5
-      type: wait
-    - desc: "\u7B7E\u5230\u540E\u7FFB\u5361\u5F39\u7A97\u5173\u95EDX\uFF08\u771F\u673A\
-        \u4E2D\u5FC3 (540,1560)\uFF09"
+      timeout: 8
       optional: true
-      timeout: 4
-      type: click_point
       vision: false
+      desc: 签到弹窗[立即签到 +488 金币]（真机中心 (540,1428)）
+    - type: wait
+      seconds: 1.5
+    - type: click_point
       x: 0.5
       y: 0.667
+      timeout: 4
+      optional: true
+      vision: false
+      desc: 签到后翻卡弹窗关闭X（真机中心 (540,1560)）
     watch:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u798F\u5229"
+            value: 福利
           - type: text
-            value: "\u4EFB\u52A1"
+            value: 任务
           - type: text
-            value: "\u770B\u4E66\u8D5A\u94B1"
+            value: 看书赚钱
           - type: text
-            value: "\u91D1\u5E01\u4E2D\u5FC3"
-          optional: false
+            value: 金币中心
           timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
           x: 0.9
           y: 0.915
+          optional: true
+          vision: false
         - type: think
-        - candidates:
+        - type: click_first
+          candidates:
           - type: text
-            value: "\u798F\u5229"
+            value: 福利
           - type: text
-            value: "\u4EFB\u52A1"
+            value: 任务
           - type: text
-            value: "\u770B\u4E66\u8D5A\u94B1"
+            value: 看书赚钱
           - type: text
-            value: "\u91D1\u5E01\u4E2D\u5FC3"
-          optional: false
+            value: 金币中心
           timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
+          optional: false
     - type: think
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u53BB\u770B\u4E66"
+        value: 去看书
       - type: text
-        value: "\u53BB\u5B8C\u6210"
+        value: 去完成
       - type: text
-        value: "\u9605\u8BFB"
-      optional: true
+        value: 阅读
       timeout: 6
-      type: click_first
-    - duration: 0.8
+      optional: true
+    - type: swipe
       from:
       - 0.5
       - 0.7
-      natural: true
       to:
       - 0.5
       - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
     withdraw:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u6211\u7684"
+            value: 我的
           - type: text
-            value: "\u6211"
-          optional: false
+            value: 我
           timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
           x: 0.9
           y: 0.915
+          optional: true
+          vision: false
         - type: think
-        - candidates:
+        - type: click_first
+          candidates:
           - type: text
-            value: "\u6211\u7684"
+            value: 我的
           - type: text
-            value: "\u6211"
-          optional: false
+            value: 我
           timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
+          optional: false
     - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
+    - type: click_text
+      text: 提现
       timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
+      optional: true
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
       timeout: 6
-      type: click_text
+      optional: true
+- name: 红果免费短剧
+  package: com.phoenix.read
+  aliases:
+  - 红果免费短剧
+  - 红果短剧
+  - 红果
+  launch_reset: true
   intent_map:
     sign: sign
     watch: watch
     withdraw: withdraw
-  launch_reset: true
-  name: "\u86CB\u82B1\u514D\u8D39\u5C0F\u8BF4"
-  package: com.eggflower.read
-- aliases:
-  - "\u7EA2\u679C\u514D\u8D39\u77ED\u5267"
-  - "\u7EA2\u679C\u77ED\u5267"
-  - "\u7EA2\u679C"
+    collect: collect
   behaviors:
-    collect:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u53BB\u9886\u53D6"
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u5F00\u5B9D\u7BB1"
-          optional: false
-          timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
-          x: 0.9
-          y: 0.915
-        - type: think
-        - candidates:
-          - type: text
-            value: "\u53BB\u9886\u53D6"
-          - type: text
-            value: "\u798F\u5229"
-          - type: text
-            value: "\u4EFB\u52A1\u4E2D\u5FC3"
-          - type: text
-            value: "\u5F00\u5B9D\u7BB1"
-          optional: false
-          timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u9886\u53D6"
-      - type: text
-        value: "\u5F00"
-      optional: true
-      timeout: 6
-      type: click_first
     sign:
-    - desc: "\u5E95\u90E8\u300C\u798F\u5229\u300Dtab\uFF08\u771F\u673A\u4E2D\u5FC3\
-        \ (788,2075)\uFF09"
-      expect:
-        phash: "images/\u7EA2\u679C\u514D\u8D39\u77ED\u5267/landing/ref_welfare.png"
-        phash_max_dist: 15
-        retry: 1
-        settle: 3.0
-      optional: false
+    - type: click_point
+      x: 0.858
+      y: 0.914
       timeout: 8
-      type: click_point
+      optional: false
       vision: false
-      x: 0.73
-      y: 0.887
+      desc: 底部「我的」tab（2026-11-05 实测 (927,2139)；旧「福利」tab(788,2075)已移除）
     - type: think
-    - desc: "\u798F\u5229\u9875\u300C\u7B7E\u5230\u9886\u91D1\u5E01\u300D[\u53BB\u7B7E\
-        \u5230]\u624B\u52A8\u5165\u53E3\uFF082026-11-04 \u5B9E\u6D4B (921,1316)\uFF1B\
-        \u515C\u5E95\u5F00\u7B7E\u5230\u5F39\u7A97\uFF09"
-      optional: true
-      timeout: 6
-      type: click_point
+    - type: click_point
+      x: 0.117
+      y: 0.296
+      timeout: 8
+      optional: false
       vision: false
+      desc: 「我的」页「福利」卡（2026-11-05 实测 (126,693)，卡上显示当日金币如 2528）
+      expect:
+        phash: images/红果免费短剧/landing/ref_welfare.png
+        phash_max_dist: 15
+        settle: 3.0
+        retry: 1
+    - type: think
+    - type: click_point
       x: 0.853
       y: 0.562
-    - type: think
-    - desc: "\u7B7E\u5230\u5F39\u7A97[\u7ACB\u5373\u7B7E\u5230 +N\u91D1\u5E01]\uFF08\
-        2026-11-04 \u672A\u7B7E\u6001\u771F\u8EAB (548,1429)\uFF1B\u79BB\u7EBF\u6821\
-        \u9A8C\uFF1A\u5F39\u7A97\u9875 0.9933 / \u65E0\u5F39\u7A97\u798F\u5229\u9875\
-        \ 0.424\uFF0C\u9608 0.9 \u533A\u5206\u5EA6\u8DB3\uFF09"
-      images:
-      - "images/\u7EA2\u679C\u514D\u8D39\u77ED\u5267/btn_liji_sign.png"
+      timeout: 6
       optional: true
+      vision: false
+      desc: 福利页「签到领金币」[去签到]手动入口（2026-11-04 实测 (921,1316)；兜底开签到弹窗）
+    - type: think
+    - type: click_point
+      images:
+      - images/红果免费短剧/btn_liji_sign.png
       template_threshold: 0.9
       timeout: 10
-      type: click_point
+      optional: true
+      desc: 签到弹窗[立即签到 +N金币]（2026-11-05 纯文字模板替换；泛化验证：+2528今/+1888昨 均 0.99+ 命中，无弹窗页
+        <0.9 未命中，阈 0.9 裕度足；模板只含「立即签到」四字，不受每日金币数漂移影响）
     watch:
-    - choices:
-      - - candidates:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u8D5A\u94B1"
+            value: 赚钱
           - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
+            value: 看剧赚钱
           - type: text
-            value: "\u770B\u89C6\u9891\u5F97\u91D1\u5E01"
-          optional: false
+            value: 看视频得金币
           timeout: 8
-          type: click_first
-      - - optional: true
-          type: click_point
-          vision: false
-          vlm_prompt: "\u5B9A\u4F4D\u5C4F\u5E55\u5E95\u90E8\u5BFC\u822A\u680F\u6700\
-            \u53F3\u4FA7\u7684\u300E\u6211\u7684\u300F\u6807\u7B7E\u4E2D\u5FC3"
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
           x: 0.9
           y: 0.915
+          optional: true
+          vision: false
         - type: think
-        - candidates:
+        - type: click_first
+          candidates:
           - type: text
-            value: "\u8D5A\u94B1"
+            value: 赚钱
           - type: text
-            value: "\u770B\u5267\u8D5A\u94B1"
+            value: 看剧赚钱
           - type: text
-            value: "\u770B\u89C6\u9891\u5F97\u91D1\u5E01"
-          optional: false
+            value: 看视频得金币
           timeout: 8
-          type: click_first
-      optional: true
-      type: any_of
+          optional: false
     - type: think
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u770B\u5267"
+        value: 看剧
       - type: text
-        value: "\u53BB\u5B8C\u6210"
+        value: 去完成
       - type: text
-        value: "\u770B\u77ED\u5267"
-      optional: true
+        value: 看短剧
       timeout: 6
-      type: click_first
-    - duration: 0.8
+      optional: true
+    - type: swipe
       from:
       - 0.5
       - 0.7
-      natural: true
       to:
       - 0.5
       - 0.3
-      type: swipe
-    - seconds: 3
-      type: wait
+      duration: 0.8
+      natural: true
+    - type: wait
+      seconds: 3
     withdraw:
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u8D5A\u94B1"
+        value: 赚钱
       - type: text
-        value: "\u6211\u7684"
+        value: 我的
       - type: text
-        value: "\u6211"
-      optional: true
+        value: 我
       timeout: 8
-      type: click_first
+      optional: true
     - type: think
-    - optional: true
-      text: "\u63D0\u73B0"
+    - type: click_text
+      text: 提现
       timeout: 6
-      type: click_text
-    - name: "\u53EF\u63D0\u73B0\u4F59\u989D"
-      pattern: "(?P<amount>[0-9]+(?:\\.[0-9]+)?)\\s*(?P<unit>\u5143)"
-      type: reward
-      unit: "\u5143"
-    - optional: true
-      text: "\u7ACB\u5373\u63D0\u73B0"
-      timeout: 6
-      type: click_text
-  intent_map:
-    collect: collect
-    sign: sign
-    watch: watch
-    withdraw: withdraw
-  launch_reset: true
-  name: "\u7EA2\u679C\u514D\u8D39\u77ED\u5267"
-  package: com.phoenix.read
-- aliases:
-  - "\u98DE\u732A\u65C5\u884C"
-  - "\u98DE\u732A"
-  behaviors:
-    bonus:
-    - desc: "\u7248\u672C\u66F4\u65B0\u63D2\u5C4F\u5173\u95EDX\uFF08\u540C sign \u9996\
-        \u6B65\uFF1B\u5F39\u7A97\u9875 1.0/\u5E72\u51C0\u9875 0.33\uFF09"
-      images:
-      - "images/\u98DE\u732A\u65C5\u884C/btn_update_x.png"
       optional: true
-      template_threshold: 0.96
+    - type: reward
+      pattern: (?P<amount>[0-9]+(?:\.[0-9]+)?)\s*(?P<unit>元)
+      unit: 元
+      name: 可提现余额
+    - type: click_text
+      text: 立即提现
       timeout: 6
-      type: click_point
-    - desc: "\u56FE\u50CF-\u98DE\u732A\u65C5\u884C-\u80FD\u91CF\u7EA2\u5305-\u56FE\
-        \u6807"
-      images:
-      - "images/\u98DE\u732A\u65C5\u884C/a75c5ede-3f01-4c71-a18d-af85f453e2da.png"
       optional: true
-      timeout: 6
-      type: click_point
     collect:
-    - desc: "\u56FE\u50CF-\u98DE\u732A\u65C5\u884C-\u4EFB\u52A1\u5217\u8868-\u5173\
-        \u95ED"
-      images:
-      - "images/\u98DE\u732A\u65C5\u884C/99c00b80-3cae-470e-acf7-0071a2e6956b.png"
+    - type: any_of
       optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 去领取
+          - type: text
+            value: 福利
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 开宝箱
+          timeout: 8
+          optional: false
+      - - type: click_point
+          vlm_prompt: 定位屏幕底部导航栏最右侧的『我的』标签中心
+          x: 0.9
+          y: 0.915
+          optional: true
+          vision: false
+        - type: think
+        - type: click_first
+          candidates:
+          - type: text
+            value: 去领取
+          - type: text
+            value: 福利
+          - type: text
+            value: 任务中心
+          - type: text
+            value: 开宝箱
+          timeout: 8
+          optional: false
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 领取
+      - type: text
+        value: 开
       timeout: 6
-      type: click_point
-    sign:
-    - desc: "\u7248\u672C\u66F4\u65B0\u63D2\u5C4F\u5173\u95EDX\uFF082026-11-04 \u5B9E\
-        \u6D4B (540,1732)\uFF1B\u5F39\u7A97\u9875 1.0/\u5E72\u51C0\u9875 0.33\uFF09"
-      images:
-      - "images/\u98DE\u732A\u65C5\u884C/btn_update_x.png"
       optional: true
+- name: 飞猪旅行
+  package: com.taobao.trip
+  launch_back: 1
+  aliases:
+  - 飞猪旅行
+  - 飞猪
+  behaviors:
+    collect:
+    - type: click_point
+      images:
+      - images/飞猪旅行/99c00b80-3cae-470e-acf7-0071a2e6956b.png
+      timeout: 6
+      optional: true
+      desc: 图像-飞猪旅行-任务列表-关闭
+    bonus:
+    - type: click_point
+      images:
+      - images/飞猪旅行/btn_update_x.png
       template_threshold: 0.96
       timeout: 6
-      type: click_point
-    - choices:
-      - - candidates:
+      optional: true
+      desc: 版本更新插屏关闭X（同 sign 首步；弹窗页 1.0/干净页 0.33）
+    - type: click_point
+      images:
+      - images/飞猪旅行/a75c5ede-3f01-4c71-a18d-af85f453e2da.png
+      timeout: 6
+      optional: true
+      desc: 图像-飞猪旅行-能量红包-图标
+    sign:
+    - type: click_point
+      images:
+      - images/飞猪旅行/btn_update_x.png
+      template_threshold: 0.96
+      timeout: 6
+      optional: true
+      desc: 版本更新插屏关闭X（2026-11-04 实测 (540,1732)；弹窗页 1.0/干净页 0.33）
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
           - type: text
-            value: "\u91CC\u7A0B\u7B7E\u5230"
+            value: 里程签到
           - type: desc
-            value: "\u91CC\u7A0B\u7B7E\u5230"
+            value: 里程签到
           candidates_from: sign
-          optional: false
           timeout: 8
-          type: click_first
-      - - desc: "\u9996\u9875\u4E2D\u90E8\u300C\u91CC\u7A0B\u7B7E\u5230\u300D\u5750\
-            \u6807\u515C\u5E95\uFF08\u771F\u673A\u4E2D\u5FC3 (964,1109)\uFF09"
           optional: false
-          timeout: 8
-          type: click_point
-          vision: false
+      - - type: click_point
           x: 0.892
           y: 0.474
-      optional: true
-      type: any_of
-    - type: think
-    - candidates:
-      - type: text
-        value: "\u7B7E\u5230\u98861\u91CC\u7A0B"
-      - type: text
-        value: "\u4ECA\u65E5\u7B7E\u5230"
-      - type: desc
-        value: "\u7B7E\u5230\u98861\u91CC\u7A0B"
-      candidates_from: sign
-      optional: true
-      timeout: 6
-      type: click_first
-  launch_back: 1
-  name: "\u98DE\u732A\u65C5\u884C"
-  package: com.taobao.trip
-- aliases:
-  - "\u767E\u5EA6\u5730\u56FE"
-  - "\u767E\u5EA6\u5730\u56FE\u7B7E\u5230"
-  behaviors:
-    collect:
-    - desc: "\u56FE\u50CF-\u767E\u5EA6\u5730\u56FE-\u4EFB\u52A1\u5217\u8868-\u5173\
-        \u95ED"
-      images:
-      - "images/\u767E\u5EA6\u5730\u56FE/95c4a280-5192-4de3-8ad1-a2316f95fa53.png"
-      optional: true
-      timeout: 6
-      type: click_point
-    sign:
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u6682\u4E0D"
-          - type: text
-            value: "\u5173\u95ED"
-          - type: text
-            value: "\u4EE5\u540E\u518D\u8BF4"
-          - type: text
-            value: "\u6211\u77E5\u9053\u4E86"
-          timeout: 3
-          type: click_first
-      optional: true
-      type: any_of
-    - choices:
-      - - candidates:
-          - type: text
-            value: "\u73B0\u91D1\u7B7E\u5230"
-          candidates_from: sign
-          optional: false
           timeout: 8
-          type: click_first
-      - - desc: "\u9996\u9875\u4E2D\u90E8\u300C\u73B0\u91D1\u7B7E\u5230\u300D\u5750\
-            \u6807\u515C\u5E95\uFF08\u5F85\u771F\u673A\u6821\u51C6\uFF09"
           optional: false
-          timeout: 8
-          type: click_point
           vision: false
+          desc: 首页中部「里程签到」坐标兜底（真机中心 (964,1109)）
+    - type: think
+    - type: click_first
+      candidates:
+      - type: text
+        value: 签到领1里程
+      - type: text
+        value: 今日签到
+      - type: desc
+        value: 签到领1里程
+      candidates_from: sign
+      timeout: 6
+      optional: true
+- name: 百度地图
+  package: com.baidu.BaiduMap
+  aliases:
+  - 百度地图
+  - 百度地图签到
+  behaviors:
+    sign:
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 暂不
+          - type: text
+            value: 关闭
+          - type: text
+            value: 以后再说
+          - type: text
+            value: 我知道了
+          timeout: 3
+    - type: any_of
+      optional: true
+      choices:
+      - - type: click_first
+          candidates:
+          - type: text
+            value: 现金签到
+          candidates_from: sign
+          timeout: 8
+          optional: false
+      - - type: click_point
           x: 0.5
           y: 0.45
-      optional: true
-      type: any_of
+          timeout: 8
+          optional: false
+          vision: false
+          desc: 首页中部「现金签到」坐标兜底（待真机校准）
     - type: think
-    - candidates:
+    - type: click_first
+      candidates:
       - type: text
-        value: "\u76F4\u63A5\u9886\u53D6"
+        value: 直接领取
       - type: text
-        value: "\u7ACB\u5373\u7B7E\u5230"
+        value: 立即签到
       - type: text
-        value: "\u9886\u53D6"
+        value: 领取
       candidates_from: sign
-      optional: true
       timeout: 6
-      type: click_first
-  name: "\u767E\u5EA6\u5730\u56FE"
-  package: com.baidu.BaiduMap
+      optional: true
+    collect:
+    - type: click_point
+      images:
+      - images/百度地图/95c4a280-5192-4de3-8ad1-a2316f95fa53.png
+      timeout: 6
+      optional: true
+      desc: 图像-百度地图-任务列表-关闭

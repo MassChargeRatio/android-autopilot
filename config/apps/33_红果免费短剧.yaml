@@ -4,7 +4,7 @@ aliases:
 - 红果免费短剧
 - 红果短剧
 - 红果
-launch_reset: true   # 福利 tab 入口需从首页冷启动
+launch_reset: true   # 签到入口在「我的」页，需从首页冷启动再进「我的→福利」
 intent_map:
   sign: sign
   watch: watch
@@ -19,15 +19,27 @@ behaviors:
   # 变「明日7:00再领 105」→ 签到确认成功（终态凭据）。
   # 天天领金币页是 WebView（u2 看不到 领取/今日已领 文案），[领取]按钮靠视觉模板
   # btn_lingqu_tighter.png 命中 → 日志「视觉兜底点击成功」= 判定规则认可的点击凭据。
+  # 2026-11-05 二次重校准（11.11 改版：底部「福利」tab 已移除，签到入口迁入「我的」页）：
+  # 实测链路 我的tab(927,2139) → 我的页「福利」卡(126,693) → 福利页。
+  # 福利页基准 ref_welfare 已换为 2026-11-05 已签态福利页（temp/hg_welfare3_0843.png）；
+  # 未签态自动弹窗覆盖时 phash 会失败，属预期（弹窗需先处理），明日未签态复核后可换基准。
   - type: click_point
-    x: 0.73
-    y: 0.887
+    x: 0.858
+    y: 0.914
     timeout: 8
     optional: false
     vision: false
-    desc: 底部「福利」tab（真机中心 (788,2075)）
+    desc: 底部「我的」tab（2026-11-05 实测 (927,2139)；旧「福利」tab(788,2075)已移除）
+  - type: think
+  - type: click_point
+    x: 0.117
+    y: 0.296
+    timeout: 8
+    optional: false
+    vision: false
+    desc: 「我的」页「福利」卡（2026-11-05 实测 (126,693)，卡上显示当日金币如 2528）
     expect:
-      # 福利页 vs 首页 整页 29 → 阈值 15（2026-11-02 重拍 ref_welfare 后裕度足）
+      # 福利页 vs 首页 整页 29 → 阈值 15（2026-11-05 重拍 ref_welfare 后裕度足）
       phash: images/红果免费短剧/landing/ref_welfare.png
       phash_max_dist: 15
       settle: 3.0
@@ -60,7 +72,7 @@ behaviors:
     template_threshold: 0.9
     timeout: 10
     optional: true
-    desc: 签到弹窗[立即签到 +N金币]（2026-11-04 未签态真身 (548,1429)；离线校验：弹窗页 0.9933 / 无弹窗福利页 0.424，阈 0.9 区分度足）
+    desc: 签到弹窗[立即签到 +N金币]（2026-11-05 纯文字模板替换；泛化验证：+2528今/+1888昨 均 0.99+ 命中，无弹窗页 <0.9 未命中，阈 0.9 裕度足；模板只含「立即签到」四字，不受每日金币数漂移影响）
   watch:
   - type: any_of
     optional: true
